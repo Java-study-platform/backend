@@ -1,0 +1,40 @@
+spring:
+  main:
+    web-application-type: reactive
+    allow-bean-definition-overriding: true
+  application:
+    name: USER-SERVICE
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: gbhfns
+    driverClassName: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  liquibase:
+    enabled: false
+  cloud:
+    zookeeper:
+      config:
+        enabled: false
+      enabled: false
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: user-app
+            client-secret: innRMKxnUpziy9Oj9biBTD7s6IZc4k9d
+            authorization-grant-type: authorization_code
+            scope:
+              - openid
+
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/study-platform
+          jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+
+server:
+  port: 8081
