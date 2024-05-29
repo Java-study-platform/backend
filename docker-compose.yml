@@ -79,7 +79,7 @@ services:
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
-      - KC_HOSTNAME_ADMIN=admin
+      - KC_HOSTNAME_ADMIN=localhost
       - KC_HOSTNAME=keycloak
       - KC_METRICS_ENABLED=true
       - KC_HEALTH_ENABLED=true
