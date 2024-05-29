@@ -83,7 +83,7 @@ services:
       - KC_HOSTNAME=keycloak
       - KC_METRICS_ENABLED=true
       - KC_HEALTH_ENABLED=true
-      - KC_DB=keycloak
+      - KC_DB=postgres
       - KC_DB_PASSWORD=postgres
       - KC_DB_SCHEMA=public
       - KC_DB_USERNAME=postgres
