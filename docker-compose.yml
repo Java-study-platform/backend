@@ -1,13 +1,13 @@
 version: '3.8'
 
 services:
-  postgres:
+  postgres_keycloak:
     image: postgres:latest
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: platform
+      POSTGRES_DB: keycloak
     ports:
       - "5432:5432"
 
@@ -62,3 +62,26 @@ services:
       KAFKA_JMX_HOSTNAME: localhost
     depends_on:
       - zookeeper
+  auth:
+    image: quay.io/keycloak/keycloak:24.0.4
+    ports:
+      - "8080:8080"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=aiaiaia
+      - KC_HOSTNAME_ADMIN=localhost
+      - KC_PROXY=edge
+      - KC_HOSTNAME=here-will-be-server-ip
+      - KC_METRICS_ENABLED=true
+      - KC_HEALTH_ENABLED=true
+      - KC_DB=postgres
+      - KC_DB_PASSWORD=postgres
+      - KC_DB_SCHEMA=public
+      - KC_DB_USERNAME=postgres
+      - KC_DB_URL=jdbc:postgresql://postgres_keycloak:5432/keycloak
+      - KC_LOG_LEVEL=ALL
+    depends_on:
+      - postgres_keycloak
+    command: [ "start-dev" ]
+    volumes:
+      - ./auth/import:/opt/keycloak/data/import
