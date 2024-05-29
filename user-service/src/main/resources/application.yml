@@ -5,7 +5,7 @@ spring:
   application:
     name: USER-SERVICE
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
+    url: jdbc:postgresql://localhost:5432/keycloak
     username: postgres
     password: gbhfns
     driverClassName: org.postgresql.Driver

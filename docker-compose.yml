@@ -92,6 +92,8 @@ services:
       KC_DB_URL: jdbc:postgresql://postgres_keycloak:5432/keycloak
       KC_PROXY_HEADERS: forwarded
       KC_HOSTNAME_STRICT: 'false'
+    volumes:
+      - ./realm-export.json:/opt/keycloak/data/import/realm.json:ro
     depends_on:
       - postgres_keycloak
     command: [ "start-dev" ]
