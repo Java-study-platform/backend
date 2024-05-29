@@ -77,17 +77,21 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=admin
-      - KC_HOSTNAME_ADMIN=localhost
-      - KC_HOSTNAME=keycloak
-      - KC_METRICS_ENABLED=true
-      - KC_HEALTH_ENABLED=true
-      - KC_DB=postgres
-      - KC_DB_PASSWORD=postgres
-      - KC_DB_SCHEMA=public
-      - KC_DB_USERNAME=postgres
-      - KC_DB_URL=jdbc:postgresql://postgres_keycloak:5432/keycloak
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_ENABLED: 'true'
+      KC_HOSTNAME_DEBUG: 'true'
+      KC_HOSTNAME: localhost:8080
+      KC_HOSTNAME_STRICT_BACKCHANNEL: 'true'
+      KC_METRICS_ENABLED: 'true'
+      KC_HEALTH_ENABLED: 'true'
+      KC_DB: postgres
+      KC_DB_PASSWORD: postgres
+      KC_DB_SCHEMA: public
+      KC_DB_USERNAME: postgres
+      KC_DB_URL: jdbc:postgresql://postgres_keycloak:5432/keycloak
+      KC_PROXY_HEADERS: forwarded
+      KC_HOSTNAME_STRICT: 'false'
     depends_on:
       - postgres_keycloak
     command: [ "start-dev" ]
