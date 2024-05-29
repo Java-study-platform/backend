@@ -11,6 +11,16 @@ services:
     ports:
       - "5432:5432"
 
+  postgres_core:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: core
+    ports:
+      - "5433:5433"
+
   gateway:
     build:
       context: ./gateway
@@ -23,11 +33,11 @@ services:
       context: ./core
       dockerfile: Dockerfile
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/platform
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_core:5433/platform
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
     depends_on:
-      - postgres
+      - postgres_core
     ports:
       - "8081:8081"
 
