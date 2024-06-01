@@ -8,6 +8,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.study.user.DTO.UserDto;
 import com.study.user.Exceptions.InternalServerException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,14 +24,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
 public class JwtRequestFilter extends OncePerRequestFilter {
 
-    private final String jwkUrl;
     private final String issuer;
 
     private final JwkProvider jwkProvider;
@@ -39,9 +41,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}") String jwk,
             @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri}") String issuer
     ) throws MalformedURLException {
-        this.jwkUrl = jwk;
         this.issuer = issuer;
-        jwkProvider = new JwkProviderBuilder(jwkUrl).build();
+        jwkProvider = new JwkProviderBuilder(new URL(jwk)).build();
     }
 
     @Override
@@ -72,16 +73,28 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         .build();
                 verifier.verify(decodedJWT);
 
-                SecurityContextHolder.getContext().setAuthentication(
-                        new UsernamePasswordAuthenticationToken(decodedJWT.getSubject(), decodedJWT.getClaim("email"),
-                                List.of(new SimpleGrantedAuthority(decodedJWT.getClaim("spring_sec_roles").toString())))
-                );
+                UserDto userDto = new UserDto();
+                userDto.setKeyCloakUserId(decodedJWT.getSubject());
+                userDto.setEmail(decodedJWT.getClaim("email").asString());
+                userDto.setRoles(decodedJWT.getClaim("spring_sec_roles").asList(String.class)
+                        .stream()
+                        .filter(role -> role.startsWith("ROLE_"))
+                        .collect(Collectors.toList()));
+                userDto.setUsername(decodedJWT.getClaim("name").asString());
+                userDto.setFirstName(decodedJWT.getClaim("given_name").asString());
+                userDto.setLastName(decodedJWT.getClaim("family_name").asString());
+
+                List<SimpleGrantedAuthority> authorities = userDto.getRoles().stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
+
+                SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userDto, null, authorities));
             }
         } catch (JWTVerificationException e) {
             log.info(e.getMessage());
         }
         catch (Exception e) {
-            throw new InternalServerException(e.getMessage());
+            throw new InternalServerException();
         }
 
         if (request.getMethod().equals("OPTIONS")) {

@@ -7,6 +7,6 @@ import org.springframework.http.ResponseEntity;
 
 public interface UserService {
     ResponseEntity<Response> registerUser(UserRegistrationModel userRegistrationModel);
-    ResponseEntity<UserRepresentation> getUserById(String userId);
+    ResponseEntity<UserRepresentation> getUserProfile(String username);
     ResponseEntity<Response> logoutUser(String userId);
 }

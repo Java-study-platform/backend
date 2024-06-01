@@ -38,6 +38,20 @@ public class GlobalExceptionHandler {
                 e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Response> handleUserAlreadyExistsException(UserAlreadyExistsException e) {
+        log.error(e.getMessage(), e);
+        return new ResponseEntity<>(new Response(LocalDateTime.now(), HttpStatus.BAD_REQUEST.value(), e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Response> handleUserNotFoundException(UserNotFoundException e) {
+        log.error(e.getMessage(), e);
+        return new ResponseEntity<>(new Response(LocalDateTime.now(), HttpStatus.NOT_FOUND.value(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ApiResponse(responseCode = "500", description = "Что-то пошло не так")
