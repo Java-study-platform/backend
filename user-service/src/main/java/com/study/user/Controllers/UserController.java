@@ -8,8 +8,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1")
 public class UserController {
 
-    @GetMapping("/test")
+    @GetMapping("/mentor")
     public String test() {
         return "test";
+    }
+
+    @GetMapping("/admin-panel")
+    public String test1() {
+        return "mentor.html";
     }
 }

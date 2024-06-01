@@ -1,7 +1,4 @@
 spring:
-  main:
-    web-application-type: reactive
-    allow-bean-definition-overriding: true
   application:
     name: USER-SERVICE
   datasource:
@@ -25,15 +22,20 @@ spring:
       client:
         registration:
           keycloak:
-            client-id: user-app
-            client-secret: innRMKxnUpziy9Oj9biBTD7s6IZc4k9d
+            client-id: springsecurity
+            client-secret: 4aSFJvpqjsoc5oDkFSqivT1u6rImh2Yj
             authorization-grant-type: authorization_code
             scope:
               - openid
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8080/realms/Study-platform
+            user-name-attribute: preferred_username
+
 
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8080/realms/study-platform
+          issuer-uri: http://localhost:8080/realms/Study-platform
           jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
 
 server:
