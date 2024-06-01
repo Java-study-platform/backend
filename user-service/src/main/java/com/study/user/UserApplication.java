@@ -2,9 +2,11 @@ package com.study.user;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.stereotype.Component;
 
 
-@SpringBootApplication(scanBasePackages = "org.springframework.security.oauth2.jwt")
+@SpringBootApplication(scanBasePackages = {"org.springframework.security.oauth2.jwt", "com.study.user"})
 public class UserApplication {
     public static void main(String[] args) {
         SpringApplication.run(UserApplication.class, args);
