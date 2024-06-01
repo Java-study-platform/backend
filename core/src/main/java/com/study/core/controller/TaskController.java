@@ -61,7 +61,7 @@ public class TaskController {
         Task editedTask = taskService.editTask(editTaskModel, id);
 
         return ResponseEntity.ok(DefaultResponseBuilder.success(
-                String.format("Тема '%s' успешно изменена", editedTask.getName()),
+                String.format("Задача '%s' успешно изменена", editedTask.getName()),
                 taskMapper.toDTO(editedTask)
         ));
     }
@@ -84,7 +84,7 @@ public class TaskController {
     public ResponseEntity<DefaultResponse<Page<TaskDTO>>> getTasks(TaskFilter taskFilter,
                                                                    @ParameterObject @PageableDefault(sort="name", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(DefaultResponseBuilder.success(
-                "Список тем",
+                "Список задач",
                 taskService.getTasks(taskFilter, pageable).map(taskMapper::toDTO)
         ));
     }
