@@ -10,7 +10,9 @@ import java.util.UUID;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, UUID> {
-    boolean existsByName(String name);
+    boolean existsByNameAndIdNot(String name, UUID id);
 
     Page<Category> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String queryNameText, String queryDescriptionText, Pageable pageable);
+
+    boolean existsByName(String name);
 }

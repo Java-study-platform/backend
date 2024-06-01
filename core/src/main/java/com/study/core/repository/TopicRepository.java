@@ -10,7 +10,9 @@ import java.util.UUID;
 
 @Repository
 public interface TopicRepository extends JpaRepository<Topic, UUID> {
-    boolean existsByName(String name);
+    boolean existsByNameAndIdNot(String name, UUID id);
 
     Page<Topic> findByNameContainingIgnoreCase(String queryText, Pageable pageable);
+
+    boolean existsByName(String name);
 }

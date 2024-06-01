@@ -39,6 +39,10 @@ public class TaskServiceImpl implements TaskService {
         Topic topic = topicRepository.findById(topicId)
                 .orElseThrow(() -> new TopicNotFoundException(topicId));
 
+        if (taskRepository.existsByName(createTaskModel.getName())) {
+            throw new TaskAlreadyExistsException(createTaskModel.getName());
+        }
+
         Task task = new Task();
         task.setName(createTaskModel.getName());
         task.setDescription(createTaskModel.getDescription());
@@ -56,7 +60,7 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException(id));
 
-        if (!task.getId().equals(id) && taskRepository.existsByName(editTaskModel.getName())) {
+        if (taskRepository.existsByNameAndIdNot(editTaskModel.getName(), id)) {
             throw new TaskAlreadyExistsException(editTaskModel.getName());
         }
 

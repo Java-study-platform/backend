@@ -50,7 +50,7 @@ public class TopicServiceImpl implements TopicService {
         Topic topic = topicRepository.findById(id)
                 .orElseThrow(() -> new TopicNotFoundException(id));
 
-        if (!topic.getId().equals(id) && topicRepository.existsByName(editTopicModel.getName())) {
+        if (topicRepository.existsByNameAndIdNot(editTopicModel.getName(), id)) {
             throw new TopicAlreadyExistsException(editTopicModel.getName());
         }
 

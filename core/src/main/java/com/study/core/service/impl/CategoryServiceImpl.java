@@ -43,7 +43,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new CategoryNotFoundException(id));
 
-        if (!category.getId().equals(id) && categoryRepository.existsByName(editCategoryModel.getName())) {
+        if (categoryRepository.existsByNameAndIdNot(editCategoryModel.getName(), id)) {
             throw new CategoryAlreadyExistsException(editCategoryModel.getName());
         }
 
