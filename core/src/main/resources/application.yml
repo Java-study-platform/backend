@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: CORE
+  datasource:
+    url: jdbc:postgresql://localhost:5432/javastudy_users_db
+    username: postgres
+    password: password123
+    driverClassName: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  liquibase:
+    enabled: false
+  cloud:
+    zookeeper:
+      config:
+        enabled: false
+      enabled: false
+#  security:
+#    oauth2:
+#      client:
+#        registration:
+#          keycloak:
+#            client-id: springsecurity
+#            client-secret: 4aSFJvpqjsoc5oDkFSqivT1u6rImh2Yj
+#            authorization-grant-type: authorization_code
+#            scope:
+#              - openid
+#        provider:
+#          keycloak:
+#            issuer-uri: http://localhost:8080/realms/Study-platform
+#            user-name-attribute: preferred_username
+#
+#
+#      resourceserver:
+#        jwt:
+#          issuer-uri: http://localhost:8080/realms/Study-platform
+#          jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+server:
+  port: 8081
