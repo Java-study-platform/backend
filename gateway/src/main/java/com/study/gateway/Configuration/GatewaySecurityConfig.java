@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.client.oidc.web.server.logout.OidcClientInitiatedServerLogoutSuccessHandler;
@@ -12,6 +13,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
 
 @Configuration
+@EnableMethodSecurity
 @EnableWebFluxSecurity
 public class GatewaySecurityConfig {
     @Autowired
@@ -19,8 +21,10 @@ public class GatewaySecurityConfig {
 
     @Bean
     public SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
+        http.csrf(ServerHttpSecurity.CsrfSpec::disable);
+
         http.authorizeExchange(exchange -> exchange
-                .anyExchange().authenticated())
+                .anyExchange().permitAll())
                 .oauth2Login(Customizer.withDefaults())
                 .logout(logoutSpec -> logoutSpec.logoutSuccessHandler(oidcLogoutHandler()));
 

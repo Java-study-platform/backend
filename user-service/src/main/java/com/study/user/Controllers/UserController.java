@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,19 +47,14 @@ public class UserController {
         return ResponseEntity.ok(userService.loginUser(userLoginModel));
     }
 
-
-
     @PostMapping(LOGOUT)
     @Operation(
             summary = "Выход из аккаунта",
             description = "Позволяет пользователю выйти из аккаунта"
     )
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<Response> logoutUser(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-
-        return userService.logoutUser(username);
+    public ResponseEntity<Response> logoutUser(Authentication authentication){
+        return userService.logoutUser(authentication.getName());
     }
 
     @GetMapping(GET_USER)
@@ -69,10 +63,7 @@ public class UserController {
             description = "Позволяет получить информацию о пользователе"
     )
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<UserRepresentation> getProfile(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-
-        return userService.getUserProfile(username);
+    public ResponseEntity<UserRepresentation> getProfile(Authentication authentication){
+        return userService.getUserProfile(authentication.getName());
     }
 }

@@ -3,12 +3,13 @@ spring:
     oauth2:
       client:
         provider:
-          issuer-uri: http://localhost:8080/realms/Study-platform
+          keycloak:
+            issuer-uri: http://localhost:8080/realms/Study-platform
         registration:
           gateway:
             provider: keycloak
-            client-id: gateway
-            client-secret: B0mzyAY9AZ6MrLB6PRJNQr3ef02IIaXw
+            client-id: springsecurity
+            client-secret: 4aSFJvpqjsoc5oDkFSqivT1u6rImh2Yj
             authorization-grant-type: authorization_code
             scope:
               - openid
@@ -19,6 +20,10 @@ spring:
     web-application-type: reactive
   cloud:
     gateway:
+      discovery:
+        locator:
+          lower-case-service-id: true
+          enabled: true
       routes:
         - id: notification-service
           uri: http://notification-app:8083
@@ -40,7 +45,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/
+      defaultZone: http://localhost:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
   instance:
