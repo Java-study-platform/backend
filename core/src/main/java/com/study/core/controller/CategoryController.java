@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,9 +40,9 @@ public class CategoryController {
 
     @PostMapping
     @Operation(summary = "Создать категорию")
-    public ResponseEntity<DefaultResponse<CategoryDTO>> createCategory(@AuthenticationPrincipal Principal user,
+    public ResponseEntity<DefaultResponse<CategoryDTO>> createCategory(@AuthenticationPrincipal Jwt user,
                                                                       @Validated @RequestBody CreateCategoryModel createCategoryModel) {
-        // TODO: Добавить настоящего юзера после интеграции с KeyCloak
+
         Category createdCategory = categoryService.createCategory(user, createCategoryModel);
 
         return ResponseEntity.ok(DefaultResponseBuilder.success(
@@ -53,7 +54,7 @@ public class CategoryController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Отредактировать категорию")
-    public ResponseEntity<DefaultResponse<CategoryDTO>> editCategory(@AuthenticationPrincipal Principal user,
+    public ResponseEntity<DefaultResponse<CategoryDTO>> editCategory(@AuthenticationPrincipal Jwt user,
                                           @Validated @RequestBody EditCategoryModel editCategoryModel,
                                           @PathVariable UUID id) {
         Category editedCategory = categoryService.editCategory(editCategoryModel, id);
@@ -67,7 +68,7 @@ public class CategoryController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Удалить категорию по id")
-    public ResponseEntity<DefaultResponse<?>> deleteCategory(@AuthenticationPrincipal Principal user,
+    public ResponseEntity<DefaultResponse<?>> deleteCategory(@AuthenticationPrincipal Jwt user,
                                             @PathVariable UUID id) {
         categoryService.deleteCategory(id);
 

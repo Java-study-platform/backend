@@ -10,6 +10,7 @@ import com.study.core.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +24,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public Category createCategory(Principal user, CreateCategoryModel createCategoryModel) {
+    public Category createCategory(Jwt user, CreateCategoryModel createCategoryModel) {
 
         if (categoryRepository.existsByName(createCategoryModel.getName())) {
             throw new CategoryAlreadyExistsException(createCategoryModel.getName());
@@ -32,7 +33,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = new Category();
         category.setName(createCategoryModel.getName());
         category.setDescription(createCategoryModel.getDescription());
-        category.setAuthorLogin("author-login"); // TODO: После подключения кейклока заменить на настоящий логин
+        category.setAuthorLogin(user.getClaim("preferred_username")); // TODO: После подключения кейклока заменить на настоящий логин
 
         return categoryRepository.save(category);
     }

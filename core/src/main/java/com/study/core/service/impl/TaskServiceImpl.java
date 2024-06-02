@@ -20,6 +20,7 @@ import com.study.core.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +36,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public Task createTask(Principal user, UUID topicId, CreateTaskModel createTaskModel) {
+    public Task createTask(Jwt user, UUID topicId, CreateTaskModel createTaskModel) {
         Topic topic = topicRepository.findById(topicId)
                 .orElseThrow(() -> new TopicNotFoundException(topicId));
 
@@ -47,7 +48,7 @@ public class TaskServiceImpl implements TaskService {
         task.setName(createTaskModel.getName());
         task.setDescription(createTaskModel.getDescription());
         task.setExperienceAmount(createTaskModel.getExperienceAmount());
-        task.setAuthorLogin("user-login"); // TODO:
+        task.setAuthorLogin(user.getClaim("preferred_username"));
         task.setTopic(topic);
 
         return taskRepository.save(task);

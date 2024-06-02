@@ -13,6 +13,7 @@ import com.study.core.service.TopicService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +29,7 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     @Transactional
-    public Topic createTopic(Principal user, UUID categoryId, CreateTopicModel createTopicModel) {
+    public Topic createTopic(Jwt user, UUID categoryId, CreateTopicModel createTopicModel) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new CategoryNotFoundException(categoryId));
 
@@ -39,7 +40,7 @@ public class TopicServiceImpl implements TopicService {
         Topic topic = new Topic();
         topic.setName(createTopicModel.getName());
         topic.setCategory(category);
-        topic.setAuthorLogin("author-login"); // TODO:
+        topic.setAuthorLogin(user.getClaim("preferred_username"));
 
         return topicRepository.save(topic);
     }

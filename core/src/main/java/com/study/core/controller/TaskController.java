@@ -24,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,7 +43,7 @@ public class TaskController {
 
     @PostMapping("/{topicId}")
     @Operation(summary = "Создать задачу в конкретной теме")
-    public ResponseEntity<DefaultResponse<TaskDTO>> createTask(@AuthenticationPrincipal Principal user,
+    public ResponseEntity<DefaultResponse<TaskDTO>> createTask(@AuthenticationPrincipal Jwt user,
                                                                 @Validated @RequestBody CreateTaskModel createTaskModel,
                                                                 @PathVariable UUID topicId) {
         Task createdTask = taskService.createTask(user, topicId, createTaskModel);
@@ -55,7 +56,7 @@ public class TaskController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Редактировать задачу")
-    public ResponseEntity<DefaultResponse<TaskDTO>> editTask(@AuthenticationPrincipal Principal user,
+    public ResponseEntity<DefaultResponse<TaskDTO>> editTask(@AuthenticationPrincipal Jwt user,
                                                                @Validated @RequestBody EditTaskModel editTaskModel,
                                                                @PathVariable UUID id) {
         Task editedTask = taskService.editTask(editTaskModel, id);
@@ -68,7 +69,7 @@ public class TaskController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Удалить задачу")
-    public ResponseEntity<DefaultResponse<?>> deleteTask(@AuthenticationPrincipal Principal user,
+    public ResponseEntity<DefaultResponse<?>> deleteTask(@AuthenticationPrincipal Jwt user,
                                                           @PathVariable UUID id) {
         taskService.deleteTask(id);
 

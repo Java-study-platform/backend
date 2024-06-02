@@ -7,12 +7,13 @@ import com.study.core.dto.Task.TaskFilter;
 import com.study.core.models.Task;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.security.Principal;
 import java.util.UUID;
 
 public interface TaskService {
-    Task createTask(Principal user, UUID topicId, CreateTaskModel createTaskModel);
+    Task createTask(Jwt user, UUID topicId, CreateTaskModel createTaskModel);
 
     Task editTask(EditTaskModel editTaskModel, UUID id);
 
