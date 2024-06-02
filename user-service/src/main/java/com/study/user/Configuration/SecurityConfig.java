@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/api/admin-panel").hasRole(ADMIN)
                         .requestMatchers(REGISTER_USER).anonymous()
+                        .requestMatchers(LOGIN_USER).anonymous()
                         .anyRequest().authenticated());
 
         http

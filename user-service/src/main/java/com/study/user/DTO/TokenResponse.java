@@ -13,7 +13,7 @@ public class TokenResponse {
     private Long refreshExpiresIn;
     private String refreshToken;
     private String tokenType;
-    private String notBeforePolicy;
+    private int notBeforePolicy;
     private String sessionState;
     private String scope;
 }

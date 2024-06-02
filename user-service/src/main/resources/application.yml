@@ -2,9 +2,9 @@ spring:
   application:
     name: USER-SERVICE
   datasource:
-    url: jdbc:postgresql://localhost:5432/keycloak
+    url: jdbc:postgresql://localhost:5432/javastudy
     username: postgres
-    password: gbhfns
+    password: password123
     driverClassName: org.postgresql.Driver
   jpa:
     hibernate:
@@ -24,7 +24,7 @@ spring:
         registration:
           keycloak:
             client-id: springsecurity
-            client-secret: 4aSFJvpqjsoc5oDkFSqivT1u6rImh2Yj
+            client-secret: ddPeeewRmG40NjpCYmnSL4QFLkjdSUtC
             authorization-grant-type: authorization_code
             scope:
               - openid
@@ -54,6 +54,6 @@ springdoc:
 keycloak:
   server-url: http://localhost:8080
   admin-client-id: admin-cli
-  admin-client-secret: i2aaXGg3WTbOduZrmqoqa6iULM9quJ5P
+  admin-client-secret: lyn5QLS7ylfVO0h96aNipRFUyx0LsFPJ
   realm: Study-platform
   configuration: http://localhost:8080/realms/Study-platform/.well-known/openid-configuration

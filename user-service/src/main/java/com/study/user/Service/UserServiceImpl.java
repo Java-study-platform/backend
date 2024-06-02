@@ -3,8 +3,11 @@ package com.study.user.Service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.user.DTO.Response;
+import com.study.user.DTO.TokenResponse;
+import com.study.user.DTO.UserLoginModel;
 import com.study.user.DTO.UserRegistrationModel;
 import com.study.user.Entity.User;
+import com.study.user.Exceptions.BadCredentialsException;
 import com.study.user.Exceptions.InternalServerException;
 import com.study.user.Exceptions.UserAlreadyExistsException;
 import com.study.user.Exceptions.UserNotFoundException;
@@ -13,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.authorization.client.AuthzClient;
+import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +44,8 @@ public class UserServiceImpl implements UserService {
     private final Keycloak keycloak;
 
     private final UserRepository userRepository;
+
+    private final AuthzClient authzClient;
 
     @Transactional
     public ResponseEntity<Response> registerUser(UserRegistrationModel userRegistrationModel) {
@@ -94,6 +101,29 @@ public class UserServiceImpl implements UserService {
                 throw new RuntimeException();
             }
         }
+    }
+
+    @Override
+    public TokenResponse loginUser(UserLoginModel userLoginModel) {
+        try {
+            AccessTokenResponse response = authzClient.obtainAccessToken(userLoginModel.getLogin(), userLoginModel.getPassword());
+
+            return new TokenResponse(
+                    response.getToken(),
+                    response.getExpiresIn(),
+                    response.getRefreshExpiresIn(),
+                    response.getRefreshToken(),
+                    response.getTokenType(),
+                    response.getNotBeforePolicy(),
+                    response.getSessionState(),
+                    response.getScope()
+            );
+
+        } catch (Exception exception) {
+            throw new BadCredentialsException();
+        }
+
+
     }
 
     private static User getUser(UserRepresentation registeredUser) {

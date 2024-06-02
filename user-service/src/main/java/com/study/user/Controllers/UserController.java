@@ -1,6 +1,8 @@
 package com.study.user.Controllers;
 
 import com.study.user.DTO.Response;
+import com.study.user.DTO.TokenResponse;
+import com.study.user.DTO.UserLoginModel;
 import com.study.user.DTO.UserRegistrationModel;
 import com.study.user.Service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,6 +36,19 @@ public class UserController {
             @RequestBody @Valid UserRegistrationModel userRegistrationModel){
         return userService.registerUser(userRegistrationModel);
     }
+
+    @PostMapping(LOGIN_USER)
+    @Operation(
+            summary = "Авторизация пользователя",
+            description = "Позволяет пользователю авторизоваться"
+    )
+    public ResponseEntity<TokenResponse> loginUser(
+            @RequestBody @Valid UserLoginModel userLoginModel
+            ) {
+        return ResponseEntity.ok(userService.loginUser(userLoginModel));
+    }
+
+
 
     @PostMapping(LOGOUT)
     @Operation(
