@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Builder
 @Data
@@ -19,4 +21,5 @@ public class DefaultResponse<T> {
     private String message;
     private Date timestamp;
     private T data;
+    private Map<String, List<String>> errors;
 }
