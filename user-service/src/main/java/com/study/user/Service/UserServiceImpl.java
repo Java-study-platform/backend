@@ -2,23 +2,19 @@ package com.study.user.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.study.user.DTO.Response;
-import com.study.user.DTO.TokenResponse;
-import com.study.user.DTO.UserLoginModel;
-import com.study.user.DTO.UserRegistrationModel;
+import com.study.user.DTO.*;
 import com.study.user.Entity.User;
-import com.study.user.Exceptions.BadCredentialsException;
-import com.study.user.Exceptions.InternalServerException;
-import com.study.user.Exceptions.UserAlreadyExistsException;
-import com.study.user.Exceptions.UserNotFoundException;
+import com.study.user.Exceptions.*;
 import com.study.user.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.authorization.client.AuthzClient;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,9 +27,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.study.user.Consts.Consts.USER;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -98,6 +97,8 @@ public class UserServiceImpl implements UserService {
                 throw new UserAlreadyExistsException(errorMessage);
             }
             else{
+                log.info(String.valueOf(resp.getStatus()));
+                log.info(resp.readEntity(String.class));
                 throw new RuntimeException();
             }
         }
@@ -159,6 +160,32 @@ public class UserServiceImpl implements UserService {
 
         return new ResponseEntity<>(new Response(LocalDateTime.now(), HttpStatus.OK.value(),
                 "Пользователь успешно вышел из аккаунта"), HttpStatus.OK);
+    }
+
+    @Override
+    @Transactional
+    public void assignRoles(UUID id, AssignUserRoleModel assignUserRoleModel) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Пользователь с данным id не найден"));
+
+        List<RoleRepresentation> keycloakRoles = new ArrayList<>();
+        assignUserRoleModel.getRoles().forEach(role -> {
+            try {
+                keycloakRoles.add(keycloak.realm(realm).roles().get("ROLE_"+role.toUpperCase()).toRepresentation());
+            }
+            catch (Exception e) {
+                throw new RoleNotFoundException(role);
+            }
+        });
+
+        getUsersResourse().get(user.getKeyCloakId()).roles().realmLevel().remove(
+                user.getRoles().stream().map(role -> keycloak.realm(realm).roles().get("ROLE_"+role).toRepresentation()).collect(Collectors.toList())
+        );
+        getUsersResourse().get(user.getKeyCloakId()).roles().realmLevel().add(keycloakRoles);
+
+        user.setRoles(assignUserRoleModel.getRoles().stream().map(String::toUpperCase).collect(Collectors.toList()));
+
+        userRepository.save(user);
     }
 
     public ResponseEntity<UserRepresentation> getUserProfile(String username){

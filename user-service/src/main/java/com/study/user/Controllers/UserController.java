@@ -1,9 +1,6 @@
 package com.study.user.Controllers;
 
-import com.study.user.DTO.Response;
-import com.study.user.DTO.TokenResponse;
-import com.study.user.DTO.UserLoginModel;
-import com.study.user.DTO.UserRegistrationModel;
+import com.study.user.DTO.*;
 import com.study.user.Service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -14,10 +11,9 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 import static com.study.user.Consts.Consts.*;
 
@@ -74,5 +70,17 @@ public class UserController {
         String username = authentication.getName();
 
         return userService.getUserProfile(username);
+    }
+
+
+    @Operation(
+            summary = "Назначение ролей пользователю",
+            description = "Позволяет назначить роли пользователю (полностью переназначает их)"
+    )
+    @PutMapping(ASSIGN_ROLES)
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<?> assignRoles(@PathVariable UUID id, @Valid @RequestBody AssignUserRoleModel assignUserRoleModel){
+        userService.assignRoles(id, assignUserRoleModel);
+        return ResponseEntity.ok().build();
     }
 }

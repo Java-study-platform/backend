@@ -499,7 +499,8 @@
       ],
       "clientRoles": {
         "realm-management": [
-          "manage-users"
+          "manage-users",
+          "view-realm"
         ]
       },
       "notBefore": 0,
@@ -618,7 +619,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "lpm8EeAJdDovYVtH34aUcluStO8CePYJ",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -641,7 +642,7 @@
         "backchannel.logout.revoke.offline.tokens": "false"
       },
       "authenticationFlowBindingOverrides": {},
-      "fullScopeAllowed": false,
+      "fullScopeAllowed": true,
       "nodeReRegistrationTimeout": 0,
       "protocolMappers": [
         {
@@ -857,7 +858,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "kNrIeJCEM6VWtpz35TAGhRsFQjyMnLf6",
       "redirectUris": [
         "http://localhost:8081/*"
       ],
