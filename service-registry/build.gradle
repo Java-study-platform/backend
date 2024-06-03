@@ -4,9 +4,13 @@ plugins {
     id 'org.springframework.boot'
 }
 
+ext {
+    set('eurekaVersion', "4.1.2")
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
+    implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-server:${eurekaVersion}"
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 }

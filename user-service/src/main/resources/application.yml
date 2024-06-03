@@ -2,9 +2,9 @@ spring:
   application:
     name: USER-SERVICE
   datasource:
-    url: jdbc:postgresql://localhost:5432/javastudy
+    url: jdbc:postgresql://localhost:5432/keycloak
     username: postgres
-    password: password123
+    password: gbhfns
     driverClassName: org.postgresql.Driver
   jpa:
     hibernate:
@@ -50,6 +50,15 @@ springdoc:
     operationsSorter: method
     tagsSorter: alpha
     display-request-duration: true
+
+eureka:
+  server:
+    defaultZone: http://localhost:8761/eureka/
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
 
 keycloak:
   server-url: http://localhost:8080

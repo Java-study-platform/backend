@@ -18,9 +18,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.UUID;
+
 
 import static com.study.user.Consts.Consts.*;
 
@@ -60,14 +65,13 @@ public class UserController {
         ));
     }
 
-
-
     @PostMapping(LOGOUT)
     @Operation(
             summary = "Выход из аккаунта",
             description = "Позволяет пользователю выйти из аккаунта"
     )
     @SecurityRequirement(name = "bearerAuth")
+
     public ResponseEntity<DefaultResponse<?>> logoutUser(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
@@ -78,7 +82,7 @@ public class UserController {
                 "Пользователь успешно вышел из аккаунта",
                 null
         ));
-    }
+
 
 
     @GetMapping(GET_USER)
@@ -112,5 +116,4 @@ public class UserController {
                 "Роли пользователю успешно назначены",
                 null
         ));
-    }
 }

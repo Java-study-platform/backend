@@ -102,6 +102,7 @@ public class SecurityConfig {
         return web -> web.ignoring().requestMatchers(HttpMethod.OPTIONS, "/**")
                 .requestMatchers("/v3/api-docs/**","/configuration/**",
                         "/swagger-ui/**", "/swagger-resources/**",
-                        "/swagger-ui.html", "/api-docs/**");
+                        "/swagger-ui.html", "/api-docs/**")
+                .requestMatchers(LOGIN_USER, REGISTER_USER);
     }
 }
