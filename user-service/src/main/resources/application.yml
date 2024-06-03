@@ -2,9 +2,9 @@ spring:
   application:
     name: USER-SERVICE
   datasource:
-    url: jdbc:postgresql://localhost:5432/keycloak
+    url: jdbc:postgresql://postgres_user:5433/user
     username: postgres
-    password: gbhfns
+    password: postgressergtosp
     driverClassName: org.postgresql.Driver
   jpa:
     hibernate:
