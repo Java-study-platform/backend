@@ -24,7 +24,7 @@ spring:
         registration:
           keycloak:
             client-id: springsecurity
-            client-secret: 4aSFJvpqjsoc5oDkFSqivT1u6rImh2Yj
+            client-secret: kNrIeJCEM6VWtpz35TAGhRsFQjyMnLf6
             authorization-grant-type: authorization_code
             scope:
               - openid
@@ -63,6 +63,6 @@ eureka:
 keycloak:
   server-url: http://localhost:8080
   admin-client-id: admin-cli
-  admin-client-secret: i2aaXGg3WTbOduZrmqoqa6iULM9quJ5P
+  admin-client-secret: lpm8EeAJdDovYVtH34aUcluStO8CePYJ
   realm: Study-platform
   configuration: http://localhost:8080/realms/Study-platform/.well-known/openid-configuration

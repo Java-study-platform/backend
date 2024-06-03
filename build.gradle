@@ -57,6 +57,7 @@ subprojects {
 //        implementation 'org.jboss.resteasy:resteasy-jackson2-provider:6.2.9.Final'
         implementation 'com.auth0:java-jwt:4.4.0'
         implementation 'com.auth0:jwks-rsa:0.22.1'
+        implementation 'org.hibernate.validator:hibernate-validator:8.0.0.Final'
         //implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
         //implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
         //implementation 'org.springframework.cloud:spring-cloud-starter-zookeeper-config'
