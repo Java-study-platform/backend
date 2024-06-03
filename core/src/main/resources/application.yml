@@ -2,16 +2,17 @@ spring:
   application:
     name: CORE
   datasource:
-    url: jdbc:postgresql://localhost:5432/javastudy_users_db
+    url: jdbc:postgresql://localhost:5432/javastudy_core_db
     username: postgres
     password: password123
     driverClassName: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: true
   liquibase:
-    enabled: false
+    enabled: true
+    change-log: classpath:db/app-changelog.yaml
   cloud:
     zookeeper:
       config:
