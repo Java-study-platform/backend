@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
-    ResponseEntity<Response> registerUser(UserRegistrationModel userRegistrationModel);
+    void registerUser(UserRegistrationModel userRegistrationModel);
     TokenResponse loginUser(UserLoginModel userLoginModel);
-    ResponseEntity<UserRepresentation> getUserProfile(String username);
-    ResponseEntity<Response> logoutUser(String userId);
+    UserRepresentation getUserProfile(String username);
+    void logoutUser(String userId);
     void assignRoles(UUID id, AssignUserRoleModel assignUserRoleModel);
 }

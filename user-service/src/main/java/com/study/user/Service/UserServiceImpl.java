@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
     private final AuthzClient authzClient;
 
     @Transactional
-    public ResponseEntity<Response> registerUser(UserRegistrationModel userRegistrationModel) {
+    public void registerUser(UserRegistrationModel userRegistrationModel) {
         UserRepresentation user = new UserRepresentation();
         user.setEnabled(true);
         user.setEmailVerified(true);
@@ -76,9 +76,6 @@ public class UserServiceImpl implements UserService {
                 User entityUser = getUser(registeredUser);
 
                 userRepository.save(entityUser);
-
-                return new ResponseEntity<>(new Response(LocalDateTime.now(), HttpStatus.OK.value(),
-                        "Пользователь успешно зарегистрирован"), HttpStatus.OK);
             }
             else if (Objects.equals(409, resp.getStatus())){
                 String errorMessage = "Пользователь с указанными данными уже существует";
@@ -152,14 +149,11 @@ public class UserServiceImpl implements UserService {
         return resource.users();
     }
 
-    public ResponseEntity<Response> logoutUser(String username){
+    public void logoutUser(String username){
         User user = userRepository.findByUsername(username)
                         .orElseThrow(() -> new UserNotFoundException("Пользователь с данным никнеймом не найден"));
 
         getUsersResourse().get(user.getKeyCloakId()).logout();
-
-        return new ResponseEntity<>(new Response(LocalDateTime.now(), HttpStatus.OK.value(),
-                "Пользователь успешно вышел из аккаунта"), HttpStatus.OK);
     }
 
     @Override
@@ -188,10 +182,10 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
-    public ResponseEntity<UserRepresentation> getUserProfile(String username){
+    public UserRepresentation getUserProfile(String username){
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Пользователь с данным никнеймом не найден"));
 
-        return ResponseEntity.ok(getUsersResourse().get(user.getKeyCloakId()).toRepresentation());
+        return getUsersResourse().get(user.getKeyCloakId()).toRepresentation();
     }
 }

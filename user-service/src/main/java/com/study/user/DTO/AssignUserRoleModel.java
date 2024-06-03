@@ -13,5 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 public class AssignUserRoleModel {
     @NotNull(message = "Коллекция ролей не может быть пустой")
+    @Size(max = 3, message = "В системе доступно максимум 3 роли")
     private List<String> roles;
 }
