@@ -4,19 +4,25 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.4'
 }
 
-jar {
+bootJar {
+    enabled = false
+    archiveFileName = 'user-service.jar'
     manifest {
         attributes 'Main-Class': 'UserApplication'
     }
 }
 
+jar {
+    enabled = true
+    manifest {
+        attributes 'Main-Class': 'UserApplication'
+    }
+}
+
+
 ext {
     set('eurekaVersion', "4.1.2")
     set('oAuth2Version', "6.3.0")
-}
-
-bootJar {
-    launchScript()
 }
 
 repositories {
