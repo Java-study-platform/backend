@@ -99,7 +99,7 @@ services:
 
   solutions-app:
     build:
-      context: ./solution-service
+      context: ./
       dockerfile: Dockerfile
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_solutions:5436/solutions
@@ -149,10 +149,10 @@ services:
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: keycloakadmin123
-      KEYCLOAK_FRONTEND_URL: http://89.111.173.48:8080
+      KEYCLOAK_FRONTEND_URL: http://95.163.230.65:8080
       KC_HTTP_ENABLED: 'true'
       KC_HOSTNAME_DEBUG: 'true'
-      KC_HOSTNAME: 89.111.173.48:8080
+      KC_HOSTNAME: 95.163.230.65:8080
       KC_HOSTNAME_STRICT_BACKCHANNEL: 'true'
       KC_METRICS_ENABLED: 'true'
       KC_HEALTH_ENABLED: 'true'
