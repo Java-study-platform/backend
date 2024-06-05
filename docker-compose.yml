@@ -55,7 +55,8 @@ services:
     build:
       context: ./gateway
       dockerfile: Dockerfile
-    network_mode: host
+      network: host
+    network_mode: "host"
     ports:
       - "9090:9090"
 
@@ -63,7 +64,8 @@ services:
     build:
       context: ./core
       dockerfile: Dockerfile
-    network_mode: host
+      network: host
+    network_mode: "host"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_core:5434/core
       SPRING_DATASOURCE_USERNAME: postgres
@@ -77,7 +79,8 @@ services:
     build:
       context: ./user-service
       dockerfile: Dockerfile
-    network_mode: host
+      network: host
+    network_mode: "host"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_user:5433/user
       SPRING_DATASOURCE_USERNAME: postgres
@@ -91,7 +94,8 @@ services:
     build:
       context: ./notification-service
       dockerfile: Dockerfile
-    network_mode: host
+      network: host
+    network_mode: "host"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_notifications:5435/notifications
       SPRING_DATASOURCE_USERNAME: postgres
@@ -105,6 +109,8 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
+      network: host
+    network_mode: "host"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_solutions:5436/solutions
       SPRING_DATASOURCE_USERNAME: postgres
