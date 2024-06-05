@@ -5,18 +5,15 @@ plugins {
 }
 
 bootJar {
-    enabled = false
+    enabled = true
     archiveFileName = 'user-service.jar'
     manifest {
-        attributes 'Main-Class': 'UserApplication'
+        attributes 'Main-Class': 'com.study.user.UserApplication'
     }
 }
 
 jar {
-    enabled = true
-    manifest {
-        attributes 'Main-Class': 'UserApplication'
-    }
+    enabled = false
 }
 
 
@@ -30,6 +27,7 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
