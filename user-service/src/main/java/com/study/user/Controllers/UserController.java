@@ -42,7 +42,7 @@ public class UserController {
             description = "Позволяет пользователю зарегистрироваться"
     )
     public ResponseEntity<DefaultResponse<?>> registerUser(
-            @RequestBody @Valid UserRegistrationModel userRegistrationModel){
+            @RequestBody @Valid UserRegistrationModel userRegistrationModel) {
         userService.registerUser(userRegistrationModel);
 
         return ResponseEntity.ok(DefaultResponseBuilder.success(
@@ -58,7 +58,7 @@ public class UserController {
     )
     public ResponseEntity<DefaultResponse<TokenResponse>> loginUser(
             @RequestBody @Valid UserLoginModel userLoginModel
-            ) {
+    ) {
         return ResponseEntity.ok(DefaultResponseBuilder.success(
                 "Авторизация прошла успешно",
                 userService.loginUser(userLoginModel)
@@ -72,7 +72,7 @@ public class UserController {
     )
     @SecurityRequirement(name = "bearerAuth")
 
-    public ResponseEntity<DefaultResponse<?>> logoutUser(){
+    public ResponseEntity<DefaultResponse<?>> logoutUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
@@ -82,7 +82,7 @@ public class UserController {
                 "Пользователь успешно вышел из аккаунта",
                 null
         ));
-
+    }
 
 
     @GetMapping(GET_USER)
@@ -91,7 +91,7 @@ public class UserController {
             description = "Позволяет получить информацию о пользователе"
     )
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<DefaultResponse<UserRepresentation>> getProfile(){
+    public ResponseEntity<DefaultResponse<UserRepresentation>> getProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
@@ -109,11 +109,12 @@ public class UserController {
     @PutMapping(ASSIGN_ROLES)
     @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<DefaultResponse<?>> assignRoles(@PathVariable UUID id, @Valid @RequestBody AssignUserRoleModel assignUserRoleModel){
+    public ResponseEntity<DefaultResponse<?>> assignRoles(@PathVariable UUID id, @Valid @RequestBody AssignUserRoleModel assignUserRoleModel) {
         userService.assignRoles(id, assignUserRoleModel);
 
         return ResponseEntity.ok(DefaultResponseBuilder.success(
                 "Роли пользователю успешно назначены",
                 null
         ));
+    }
 }

@@ -1,4 +1,4 @@
-FROM gradle:jdk17-alpine AS build
+FROM gradle:8.5.0-jdk17-alpine AS build
 WORKDIR /home/gradle/project
 COPY --chown=gradle:gradle . .
 RUN gradle build --no-daemon --exclude-task test
