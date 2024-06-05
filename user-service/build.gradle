@@ -1,4 +1,4 @@
-plugins {
+GNU nano 7.2                                                                                                                          build.gradle *                                                                                                                                  plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.5'
     id 'io.spring.dependency-management' version '1.1.4'
@@ -12,7 +12,11 @@ jar {
 }
 
 bootJar {
-    mainClassName = 'com.study.user.UserApplication'
+    launchScript()
+}
+
+repositories {
+    mavenCentral()
 }
 
 dependencies {
