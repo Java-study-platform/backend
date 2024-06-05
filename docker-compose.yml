@@ -171,6 +171,7 @@ services:
     build:
       context: ./service-registry
       dockerfile: Dockerfile
+      network: host
     ports:
       - "8761:8761"
     networks:
