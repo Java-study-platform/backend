@@ -52,11 +52,11 @@ springdoc:
     display-request-duration: true
 
 eureka:
-  server:
-    defaultZone: http://95.163.230.65:8761/eureka/
   client:
     register-with-eureka: true
     fetch-registry: true
+    service-url:
+      defaultZone: http://95.163.230.65:8761/eureka/
   instance:
     prefer-ip-address: true
 
