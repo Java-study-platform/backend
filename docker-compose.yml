@@ -20,6 +20,8 @@ services:
       POSTGRES_DB: user
     ports:
       - "5433:5433"
+    networks:
+      - backend
 
   postgres_core:
     image: postgres:latest
@@ -82,13 +84,15 @@ services:
       network: host
     network_mode: "host"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://95.163.230.65:5433/user
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_user:5433/user
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgressergtosp
     depends_on:
       - postgres_user
     ports:
       - "8081:8081"
+    networks:
+      - backend
 
   notifications-app:
     build:
@@ -180,3 +184,7 @@ services:
     depends_on:
       - postgres_keycloak
     command: [ "start-dev" ]
+
+networks:
+  backend:
+    driver: bridge
