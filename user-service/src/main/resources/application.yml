@@ -2,7 +2,7 @@ spring:
   application:
     name: USER-SERVICE
   datasource:
-    url: jdbc:postgresql://postgres_user:5433/user
+    url: jdbc:postgresql://95.163.230.65:5433/user
     username: postgres
     password: postgressergtosp
     driverClassName: org.postgresql.Driver

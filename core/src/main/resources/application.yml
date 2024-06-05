@@ -2,7 +2,7 @@ spring:
   application:
     name: CORE-SERVICE
   datasource:
-    url: jdbc:postgresql://postgres_core:5434/core
+    url: jdbc:postgresql://95.163.230.65:5434/core
     username: postgres
     password: postgressergtosp
     driverClassName: org.postgresql.Driver
