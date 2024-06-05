@@ -30,13 +30,13 @@ spring:
               - openid
         provider:
           keycloak:
-            issuer-uri: http://localhost:8080/realms/Study-platform
+            issuer-uri: http://95.163.230.65:8080/realms/Study-platform
             user-name-attribute: preferred_username
 
 
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8080/realms/Study-platform
+          issuer-uri: http://95.163.230.65:8080/realms/Study-platform
           jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
 
 server:
@@ -53,7 +53,7 @@ springdoc:
 
 eureka:
   server:
-    defaultZone: http://localhost:8761/eureka/
+    defaultZone: http://95.163.230.65:8761/eureka/
   client:
     register-with-eureka: true
     fetch-registry: true
@@ -61,8 +61,8 @@ eureka:
     prefer-ip-address: true
 
 keycloak:
-  server-url: http://localhost:8080
+  server-url: http://95.163.230.65:8080
   admin-client-id: admin-cli
   admin-client-secret: lpm8EeAJdDovYVtH34aUcluStO8CePYJ
   realm: Study-platform
-  configuration: http://localhost:8080/realms/Study-platform/.well-known/openid-configuration
+  configuration: http://95.163.230.65:8080/realms/Study-platform/.well-known/openid-configuration

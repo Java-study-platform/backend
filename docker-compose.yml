@@ -67,7 +67,7 @@ services:
       network: host
     network_mode: "host"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_core:5434/core
+      SPRING_DATASOURCE_URL: jdbc:postgresql://95.163.230.65:5434/core
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgressergtosp
     depends_on:
@@ -82,7 +82,7 @@ services:
       network: host
     network_mode: "host"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_user:5433/user
+      SPRING_DATASOURCE_URL: jdbc:postgresql://95.163.230.65:5433/user
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgressergtosp
     depends_on:
@@ -97,7 +97,7 @@ services:
       network: host
     network_mode: "host"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_notifications:5435/notifications
+      SPRING_DATASOURCE_URL: jdbc:postgresql://95.163.230.65:5435/notifications
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgressergtosp
     depends_on:
@@ -112,7 +112,7 @@ services:
       network: host
     network_mode: "host"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_solutions:5436/solutions
+      SPRING_DATASOURCE_URL: jdbc:postgresql://95.163.230.65:5436/solutions
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgressergtosp
     depends_on:
