@@ -8,7 +8,6 @@ jar {
     manifest {
         attributes 'Main-Class': 'UserApplication'
     }
-    archiveBaseName = 'user-app.jar'
 }
 
 ext {

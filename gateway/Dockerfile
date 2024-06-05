@@ -5,6 +5,6 @@ RUN gradle build --no-daemon --exclude-task test --info
 
 FROM openjdk:17-jdk-alpine
 WORKDIR /app
-COPY --from=build /home/gradle/project/build/libs/*.jar /app/gateway.jar
+COPY --from=build /home/gradle/project/build/libs/gateway.jar /app/app.jar
 EXPOSE 9090
 CMD ["java", "-jar", "app.jar"]
