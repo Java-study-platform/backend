@@ -11,6 +11,11 @@ jar {
     archiveBaseName = 'user-app.jar'
 }
 
+ext {
+    set('eurekaVersion', "4.1.2")
+    set('oAuth2Version', "6.3.0")
+}
+
 bootJar {
     launchScript()
 }
@@ -28,6 +33,8 @@ dependencies {
     //implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     //implementation 'org.springframework.cloud:spring-cloud-starter-zookeeper-config'
     implementation 'org.springframework.security:spring-security-oauth2-resource-server'
+    implementation "org.springframework.security:spring-security-oauth2-client:${oAuth2Version}"
+    implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:${eurekaVersion}"
     implementation 'org.keycloak:keycloak-authz-client:24.0.4'
     implementation 'org.springframework.security:spring-security-oauth2-jose'
     implementation 'org.keycloak:keycloak-admin-client:24.0.4'
