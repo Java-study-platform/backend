@@ -69,7 +69,7 @@ services:
       network: host
     network_mode: "host"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://95.163.230.65:5434/core
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_core/core
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgressergtosp
     depends_on:
@@ -84,7 +84,7 @@ services:
       network: host
     network_mode: "host"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_user:5433/user
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_user/user
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgressergtosp
     depends_on:
@@ -101,7 +101,7 @@ services:
       network: host
     network_mode: "host"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://95.163.230.65:5435/notifications
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_notifications/notifications
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgressergtosp
     depends_on:
@@ -116,7 +116,7 @@ services:
       network: host
     network_mode: "host"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://95.163.230.65:5436/solutions
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_solutions/solutions
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgressergtosp
     depends_on:
@@ -155,6 +155,14 @@ services:
       KAFKA_JMX_HOSTNAME: localhost
     depends_on:
       - zookeeper
+
+  service-registry:
+    build:
+      context: ./service-registry
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+
   auth:
     image: quay.io/keycloak/keycloak:24.0.4
     restart: always
