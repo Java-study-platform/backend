@@ -5,6 +5,6 @@ RUN gradle build --no-daemon --exclude-task test --info
 
 FROM openjdk:17-jdk-alpine
 WORKDIR /app
-COPY --from=build /home/gradle/project/build/libs/notification-service.jar /app/app.jar
+COPY --from=build /home/gradle/project/build/libs/*.jar /app/app.jar
 EXPOSE 8083
 CMD ["java", "-jar", "app.jar"]
