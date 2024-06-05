@@ -2,20 +2,16 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.5'
     id 'io.spring.dependency-management' version '1.1.4'
+    id 'application'
 }
 
 bootJar {
-    enabled = true
-    archiveFileName = 'user-service.jar'
-    manifest {
-        attributes 'Main-Class': 'com.study.user.UserApplication'
-    }
+    mainClassName = 'com.study.user.UserApplication'
 }
 
-jar {
+jar{
     enabled = false
 }
-
 
 ext {
     set('eurekaVersion', "4.1.2")
