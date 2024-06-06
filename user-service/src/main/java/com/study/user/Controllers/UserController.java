@@ -36,55 +36,6 @@ import static com.study.user.Consts.Consts.*;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping(REGISTER_USER)
-    @Operation(
-            summary = "Регистрация пользователя",
-            description = "Позволяет пользователю зарегистрироваться"
-    )
-    public ResponseEntity<DefaultResponse<?>> registerUser(
-            @RequestBody @Valid UserRegistrationModel userRegistrationModel) {
-        userService.registerUser(userRegistrationModel);
-
-        return ResponseEntity.ok(DefaultResponseBuilder.success(
-                "Пользователь успешной зарегестрирован",
-                null
-        ));
-    }
-
-    @PostMapping(LOGIN_USER)
-    @Operation(
-            summary = "Авторизация пользователя",
-            description = "Позволяет пользователю авторизоваться"
-    )
-    public ResponseEntity<DefaultResponse<TokenResponse>> loginUser(
-            @RequestBody @Valid UserLoginModel userLoginModel
-    ) {
-        return ResponseEntity.ok(DefaultResponseBuilder.success(
-                "Авторизация прошла успешно",
-                userService.loginUser(userLoginModel)
-        ));
-    }
-
-    @PostMapping(LOGOUT)
-    @Operation(
-            summary = "Выход из аккаунта",
-            description = "Позволяет пользователю выйти из аккаунта"
-    )
-    @SecurityRequirement(name = "bearerAuth")
-
-    public ResponseEntity<DefaultResponse<?>> logoutUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-
-        userService.logoutUser(username);
-
-        return ResponseEntity.ok(DefaultResponseBuilder.success(
-                "Пользователь успешно вышел из аккаунта",
-                null
-        ));
-    }
-
-
     @GetMapping(GET_USER)
     @Operation(
             summary = "Получение профиля пользователя",
@@ -98,23 +49,6 @@ public class UserController {
         return ResponseEntity.ok(DefaultResponseBuilder.success(
                 "Профиль пользователя получен",
                 userService.getUserProfile(username)
-        ));
-    }
-
-
-    @Operation(
-            summary = "Назначение ролей пользователю",
-            description = "Позволяет назначить роли пользователю (полностью переназначает их)"
-    )
-    @PutMapping(ASSIGN_ROLES)
-    @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<DefaultResponse<?>> assignRoles(@PathVariable UUID id, @Valid @RequestBody AssignUserRoleModel assignUserRoleModel) {
-        userService.assignRoles(id, assignUserRoleModel);
-
-        return ResponseEntity.ok(DefaultResponseBuilder.success(
-                "Роли пользователю успешно назначены",
-                null
         ));
     }
 }

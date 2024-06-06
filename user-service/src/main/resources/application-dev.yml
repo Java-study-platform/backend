@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/keycloak
     username: postgres
-    password: postgressergtosp
+    password: gbhfns
     driverClassName: org.postgresql.Driver
   jpa:
     hibernate:
