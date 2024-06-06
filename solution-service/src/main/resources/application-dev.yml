@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: USER-SERVICE
+  datasource:
+    url: jdbc:postgresql://localhost:5432/keycloak
+    username: postgres
+    password: gbhfns
+    driverClassName: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  liquibase:
+    enabled: false
+    change-log: classpath:/db/changelog/app-changelog.xml
+
+server:
+  port: 8084
