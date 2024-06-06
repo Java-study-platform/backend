@@ -1,26 +1,45 @@
 plugins {
     id 'java'
+    id 'org.springframework.boot' version '3.2.5'
+    id 'io.spring.dependency-management' version '1.1.4'
     id 'application'
-    id 'org.springframework.boot'
 }
+
+bootJar {
+    mainClassName = 'com.study.user.CoreApplication'
+}
+
+jar{
+    enabled = false
+}
+
+ext {
+    set('eurekaVersion', "4.1.2")
+    set('oAuth2Version', "6.3.0")
+}
+
+repositories {
+    mavenCentral()
+}
+
 
 configurations {
     querydsl.extendsFrom annotationProcessor, implementation, compileOnly, runtimeOnly
 }
 
 dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.liquibase:liquibase-core'
-    //implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-    //implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
-    implementation 'org.springframework.cloud:spring-cloud-starter-zookeeper-config'
-    implementation 'org.springframework.kafka:spring-kafka'
+    implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:${eurekaVersion}"
+    //implementation 'org.springframework.cloud:spring-cloud-starter-zookeeper-config'
+    //implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.hibernate.validator:hibernate-validator:8.0.0.Final'
-    implementation 'org.springframework.security:spring-security-oauth2-client'
-    implementation 'org.springframework.security:spring-security-oauth2-jose'
+    implementation "org.springframework.security:spring-security-oauth2-client:${oAuth2Version}"
+    implementation "org.springframework.security:spring-security-oauth2-jose:${oAuth2Version}"
     implementation 'org.mapstruct:mapstruct:1.5.5.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
@@ -32,7 +51,7 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.kafka:spring-kafka-test'
+   // testImplementation 'org.springframework.kafka:spring-kafka-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
