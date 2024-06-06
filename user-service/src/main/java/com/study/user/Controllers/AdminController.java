@@ -33,8 +33,9 @@ public class AdminController {
     @PutMapping(ASSIGN_ROLES)
     @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<DefaultResponse<?>> assignRoles(@PathVariable UUID id, @Valid @RequestBody AssignUserRoleModel assignUserRoleModel) {
-        adminService.assignRoles(id, assignUserRoleModel);
+    public ResponseEntity<DefaultResponse<?>> assignRoles(@PathVariable UUID userId,
+                                                          @Valid @RequestBody AssignUserRoleModel assignUserRoleModel) {
+        adminService.assignRoles(userId, assignUserRoleModel);
 
         return ResponseEntity.ok(DefaultResponseBuilder.success(
                 "Роли пользователю успешно назначены",
