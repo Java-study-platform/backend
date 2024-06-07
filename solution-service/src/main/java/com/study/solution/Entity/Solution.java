@@ -27,5 +27,8 @@ public class Solution {
     private UUID taskId;
 
     @NotNull
+    private int testIndex;
+
+    @NotNull
     private Status status;
 }

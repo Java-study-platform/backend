@@ -1,12 +1,14 @@
 package com.study.solution.Service.Impl;
 
 import com.study.solution.Service.SolutionService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
 
 @Service
+@Slf4j
 public class SolutionServiceImpl implements SolutionService {
 
     public ResponseEntity<?> testSolution(String code, String username) throws IOException {
@@ -52,12 +54,11 @@ public class SolutionServiceImpl implements SolutionService {
         try {
             int compileResult = compileProcess.waitFor();
             if (compileResult != 0 ){
-                System.out.println("Process output: ");
                 BufferedReader errorReader = new BufferedReader(new InputStreamReader(compileProcess.getErrorStream()));
                 String line;
 
                 while ((line = errorReader.readLine()) != null) {
-                    System.out.println(line);
+                    log.error(line);
                 }
                 errorReader.close();
             }
