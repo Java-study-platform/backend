@@ -1,17 +1,13 @@
 package com.study.user.DTO.validation.impl;
 
+import com.google.common.base.Joiner;
 import com.study.user.DTO.validation.Password;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.SneakyThrows;
 import org.passay.*;
-import com.google.common.base.Joiner;
 
-import java.io.FileInputStream;
 import java.util.Arrays;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.ResourceBundle;
 
 public class PasswordValidator implements ConstraintValidator<Password, String> {
     @Override

@@ -9,7 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import java.security.Principal;
 import java.util.UUID;
 
 public interface TaskService {

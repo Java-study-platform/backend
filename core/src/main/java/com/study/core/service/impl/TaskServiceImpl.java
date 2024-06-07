@@ -1,14 +1,11 @@
 package com.study.core.service.impl;
 
-import com.nimbusds.oauth2.sdk.Message;
 import com.querydsl.core.types.Predicate;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.study.core.dto.Task.CreateTaskModel;
 import com.study.core.dto.Task.EditTaskModel;
 import com.study.core.dto.Task.TaskFilter;
 import com.study.core.exceptions.Task.TaskAlreadyExistsException;
 import com.study.core.exceptions.Task.TaskNotFoundException;
-import com.study.core.exceptions.Topic.TopicAlreadyExistsException;
 import com.study.core.exceptions.Topic.TopicNotFoundException;
 import com.study.core.models.QTask;
 import com.study.core.models.Task;
@@ -24,7 +21,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Principal;
 import java.util.UUID;
 
 @Service

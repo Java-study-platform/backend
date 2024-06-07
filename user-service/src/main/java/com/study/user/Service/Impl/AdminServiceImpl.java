@@ -6,7 +6,6 @@ import com.study.user.Exceptions.RoleNotFoundException;
 import com.study.user.Exceptions.UserNotFoundException;
 import com.study.user.Repository.UserRepository;
 import com.study.user.Service.AdminService;
-import com.study.user.Service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;

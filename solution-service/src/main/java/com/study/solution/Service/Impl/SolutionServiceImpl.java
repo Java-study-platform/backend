@@ -1,18 +1,32 @@
 package com.study.solution.Service.Impl;
 
+import com.study.common.DTO.TestCaseDto;
 import com.study.solution.Service.SolutionService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.io.*;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SolutionServiceImpl implements SolutionService {
+    private final WebClient webClient;
 
-    public ResponseEntity<?> testSolution(String code, String username) throws IOException {
-        // Здесь получим список тестов и просто по каждому тесту пробежим и сверим expectedOutput
+    @Value("${services.api-key}")
+    private String apiKey;
+
+    public ResponseEntity<?> testSolution(UUID taskId, String code, String username) throws IOException {
+        List<TestCaseDto> tests = getTestCases(taskId).block();
+
         code = "import java.io.BufferedReader;\n" +
                 "import java.io.IOException;\n" +
                 "import java.io.InputStreamReader;\n" +
@@ -27,17 +41,18 @@ public class SolutionServiceImpl implements SolutionService {
                 "        System.out.println(a+b);\n" +
                 "    }\n" +
                 "}";
-        String input = "1\n2\n";
-        // Ожидаемый вывод
-        String expectedOutput = "3\n";
 
-        String result = runCode(code, input);
-        if (result.equals(expectedOutput)){
-            System.out.println("победа");
+        if (tests != null && !tests.isEmpty()) {
+            for (TestCaseDto test : tests) {
+                String result = runCode(code, test.getExpectedInput());
+                if (result.equals(test.getExpectedInput())) {
+                    System.out.println("победа");
+                } else {
+                    System.out.println("поражение");
+                }
+            }
         }
-        else{
-            System.out.println("поражение");
-        }
+
         return ResponseEntity.ok().build();
     }
 
@@ -88,5 +103,16 @@ public class SolutionServiceImpl implements SolutionService {
         tempFile.delete();
 
         return result.toString();
+    }
+
+    private Mono<List<TestCaseDto>> getTestCases(UUID taskId){
+        return webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/learning/tests")
+                        .queryParam("taskId", taskId)
+                        .build())
+                .header("X-API-KEY", apiKey)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<TestCaseDto>>() {});
     }
 }

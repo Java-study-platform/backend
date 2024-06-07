@@ -18,7 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
-import static com.study.user.Consts.Consts.ASSIGN_ROLES;
+import static com.study.common.Constants.Consts.ASSIGN_ROLES;
+
 
 @RestController
 @RequiredArgsConstructor

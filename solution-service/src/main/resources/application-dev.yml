@@ -16,3 +16,7 @@ spring:
 
 server:
   port: 8084
+
+services:
+  url: http://localhost:9090
+  api-key: asfasgbasgqwfrqwgfvavashahnodqpwohqjm

@@ -1,4 +1,4 @@
-package com.study.user.Consts;
+package com.study.common.Constants;
 
 public final class Consts {
     public static final String ADMIN = "ADMIN";
@@ -9,4 +9,9 @@ public final class Consts {
     public static final String ASSIGN_ROLES = "/api/user/{userId}";
     public static final String LOGIN_USER = "/api/user/login";
     public static final String LOGOUT = "/api/user/logout";
+    public static final String CATEGORIES = "/api/learning/categories";
+    public static final String EDIT_CATEGORY = "/api/learning/categories/{id}";
+    public static final String TASKS = "/api/learning/tasks";
+    public static final String TOPICS = "/api/learning/topics";
+    public static final String GET_TESTS = "/api/learning/tests";
 }

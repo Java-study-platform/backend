@@ -2,9 +2,9 @@ spring:
   application:
     name: CORE-SERVICE
   datasource:
-    url: jdbc:postgresql://localhost:5432/javastudy_core_db
+    url: jdbc:postgresql://localhost:5432/keycloak
     username: postgres
-    password: password123
+    password: gbhfns
     driverClassName: org.postgresql.Driver
   jpa:
     hibernate:

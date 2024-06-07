@@ -1,10 +1,9 @@
-package com.study.solution.Entity;
+package com.study.core.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-
 
 import java.util.UUID;
 
@@ -18,11 +17,18 @@ public class TestCase {
     private UUID id;
 
     @NotNull
+    @Column(nullable = false)
     private Long index;
 
     @NotNull
+    @Column(nullable = false)
     private String expectedInput;
 
     @NotNull
+    @Column(nullable = false)
     private String expectedOutput;
+
+    @ManyToOne
+    @JoinColumn(name = "task_id", nullable = false)
+    private Task task;
 }

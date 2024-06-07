@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Controller
 @RequiredArgsConstructor
@@ -24,6 +25,6 @@ public class SolutionController {
     )
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<?> test() throws IOException {
-        return solutionService.testSolution("", "");
+        return solutionService.testSolution(UUID.randomUUID(),"", "");
     }
 }

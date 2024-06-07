@@ -28,34 +28,29 @@ configurations {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation project(":common")
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.liquibase:liquibase-core'
-    implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:${eurekaVersion}"
     //implementation 'org.springframework.cloud:spring-cloud-starter-zookeeper-config'
     //implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.hibernate.validator:hibernate-validator:8.0.0.Final'
     implementation "org.springframework.security:spring-security-oauth2-client:${oAuth2Version}"
     implementation "org.springframework.security:spring-security-oauth2-jose:${oAuth2Version}"
-    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+    implementation 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    implementation 'com.google.guava:guava-base:r03'
+    compileOnly "org.projectlombok:lombok"
+    annotationProcessor "org.projectlombok:lombok"
+    // mapstruct должен стоять после lombok, иначе будет прилетать ошибка
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0'
-    compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'org.postgresql:postgresql'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
    // testImplementation 'org.springframework.kafka:spring-kafka-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-
-bootJar {
-    mainClassName = 'com.study.core.CoreApplication'
 }

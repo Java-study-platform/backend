@@ -13,7 +13,6 @@ import com.study.user.Exceptions.UserNotFoundException;
 import com.study.user.Repository.UserRepository;
 import com.study.user.Service.AdminService;
 import com.study.user.Service.AuthService;
-import com.study.user.Service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.resource.UsersResource;
@@ -28,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.study.user.Consts.Consts.USER;
+import static com.study.common.Constants.Consts.USER;
 
 @Service
 @RequiredArgsConstructor

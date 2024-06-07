@@ -6,12 +6,8 @@ import com.study.core.dto.Task.CreateTaskModel;
 import com.study.core.dto.Task.EditTaskModel;
 import com.study.core.dto.Task.TaskDTO;
 import com.study.core.dto.Task.TaskFilter;
-import com.study.core.dto.Topic.CreateTopicModel;
-import com.study.core.dto.Topic.EditTopicModel;
-import com.study.core.dto.Topic.TopicDTO;
 import com.study.core.mapper.TaskMapper;
 import com.study.core.models.Task;
-import com.study.core.models.Topic;
 import com.study.core.service.TaskService;
 import com.study.core.util.DefaultResponseBuilder;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,20 +24,19 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.UUID;
 
+import static com.study.common.Constants.Consts.TASKS;
 
 
 @RestController
-@RequestMapping("/api/tasks")
 @RequiredArgsConstructor
 @Tag(name = "Task")
 public class TaskController {
     private final TaskService taskService;
     private final TaskMapper taskMapper;
 
-    @PostMapping("/{topicId}")
+    @PostMapping(TASKS + "/{topicId}")
     @Operation(summary = "Создать задачу в конкретной теме")
     public ResponseEntity<DefaultResponse<TaskDTO>> createTask(@AuthenticationPrincipal Jwt user,
                                                                 @Validated @RequestBody CreateTaskModel createTaskModel,
@@ -54,7 +49,7 @@ public class TaskController {
         ));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(TASKS + "/{id}")
     @Operation(summary = "Редактировать задачу")
     public ResponseEntity<DefaultResponse<TaskDTO>> editTask(@AuthenticationPrincipal Jwt user,
                                                                @Validated @RequestBody EditTaskModel editTaskModel,
@@ -67,7 +62,7 @@ public class TaskController {
         ));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping(TASKS + "/{id}")
     @Operation(summary = "Удалить задачу")
     public ResponseEntity<DefaultResponse<?>> deleteTask(@AuthenticationPrincipal Jwt user,
                                                           @PathVariable UUID id) {
@@ -80,7 +75,7 @@ public class TaskController {
     }
 
 
-    @GetMapping
+    @GetMapping(TASKS)
     @Operation(summary = "Получить список задач с фильтром и пагинацией")
     public ResponseEntity<DefaultResponse<Page<TaskDTO>>> getTasks(TaskFilter taskFilter,
                                                                    @ParameterObject @PageableDefault(sort="name", direction = Sort.Direction.ASC) Pageable pageable) {

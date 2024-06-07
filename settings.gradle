@@ -13,5 +13,5 @@ include 'service-registry'
 include 'user-service'
 include 'solution-service'
 include 'solution-service'
-
+include 'common'
 

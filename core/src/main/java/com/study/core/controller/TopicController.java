@@ -27,16 +27,16 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.UUID;
 
+import static com.study.common.Constants.Consts.TOPICS;
+
 @RestController
-@RequestMapping("/api/topics")
 @RequiredArgsConstructor
 @Tag(name = "Topic")
 public class TopicController {
     private final TopicService topicService;
     private final TopicMapper topicMapper;
 
-
-    @PostMapping("/{categoryId}")
+    @PostMapping(TOPICS + "/{categoryId}")
     @Operation(summary = "Создать тему в конкретной категории")
     public ResponseEntity<DefaultResponse<TopicDTO>> createTopic(@AuthenticationPrincipal Jwt user,
                                                                  @Validated @RequestBody CreateTopicModel createTopicModel,
@@ -49,7 +49,7 @@ public class TopicController {
         ));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(TOPICS + "/{id}")
     @Operation(summary = "Редактировать тему")
     public ResponseEntity<DefaultResponse<TopicDTO>> editTopic(@AuthenticationPrincipal Principal user,
                                                                @Validated @RequestBody EditTopicModel editTopicModel,
@@ -63,7 +63,7 @@ public class TopicController {
     }
 
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping(TOPICS + "/{id}")
     @Operation(summary = "Удалить тему")
     public ResponseEntity<DefaultResponse<?>> deleteTopic(@AuthenticationPrincipal Principal user,
                                                           @PathVariable UUID id) {
@@ -75,7 +75,7 @@ public class TopicController {
         ));
     }
 
-    @GetMapping
+    @GetMapping(TOPICS)
     @Operation(summary = "Получить список тем с пагинацией и запросом поиска")
     public ResponseEntity<DefaultResponse<Page<TopicDTO>>> getTopics(@RequestParam(required = false) String queryText,
                                                                      @ParameterObject @PageableDefault(sort="name", direction = Sort.Direction.ASC) Pageable pageable) {

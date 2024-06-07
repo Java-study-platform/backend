@@ -17,20 +17,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.UUID;
+
+import static com.study.common.Constants.Consts.CATEGORIES;
+import static com.study.common.Constants.Consts.EDIT_CATEGORY;
 
 
 @RestController
-@RequestMapping("/api/categories")
 @RequiredArgsConstructor
 @Tag(name = "Category")
 public class CategoryController {
@@ -38,7 +37,7 @@ public class CategoryController {
     private final CategoryMapper categoryMapper;
 
 
-    @PostMapping
+    @PostMapping(CATEGORIES)
     @Operation(summary = "Создать категорию")
     public ResponseEntity<DefaultResponse<CategoryDTO>> createCategory(@AuthenticationPrincipal Jwt user,
                                                                       @Validated @RequestBody CreateCategoryModel createCategoryModel) {
@@ -52,7 +51,7 @@ public class CategoryController {
     }
 
 
-    @PutMapping("/{id}")
+    @PutMapping(EDIT_CATEGORY)
     @Operation(summary = "Отредактировать категорию")
     public ResponseEntity<DefaultResponse<CategoryDTO>> editCategory(@AuthenticationPrincipal Jwt user,
                                           @Validated @RequestBody EditCategoryModel editCategoryModel,
@@ -66,7 +65,7 @@ public class CategoryController {
     }
 
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping(EDIT_CATEGORY)
     @Operation(summary = "Удалить категорию по id")
     public ResponseEntity<DefaultResponse<?>> deleteCategory(@AuthenticationPrincipal Jwt user,
                                             @PathVariable UUID id) {
@@ -79,7 +78,7 @@ public class CategoryController {
     }
 
 
-    @GetMapping
+    @GetMapping(CATEGORIES)
     @Operation(summary = "Получить список категорий", description = "Список категорий с пагинацией и текстом запроса (поиск одновременно по названию и описанию) ")
     public ResponseEntity<DefaultResponse<Page<CategoryDTO>>> getCategories(@RequestParam(required = false) String queryText,
                                                                            @ParameterObject @PageableDefault(sort="name", direction = Sort.Direction.ASC) Pageable pageable) {

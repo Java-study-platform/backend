@@ -18,17 +18,22 @@ public class Solution {
     private UUID id;
 
     @NotNull
+    @Column(nullable = false)
     private String solutionCode;
 
     @NotNull
+    @Column(nullable = false)
     private UUID userId;
 
     @NotNull
+    @Column(nullable = false)
     private UUID taskId;
 
     @NotNull
-    private int testIndex;
+    @Column(nullable = false)
+    private Long testIndex;
 
     @NotNull
+    @Column(nullable = false)
     private Status status;
 }
