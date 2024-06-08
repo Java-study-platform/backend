@@ -1,5 +1,6 @@
 package com.study.solution.Controller;
 
+import com.study.solution.DTO.SendTestSolutionRequest;
 import com.study.solution.Service.SolutionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -26,14 +27,14 @@ public class SolutionController {
 
     @PostMapping(SOLUTIONS)
     @Operation(
-            summary = "Выход из аккаунта",
-            description = "Позволяет пользователю выйти из аккаунта"
+            summary = "Отправка решения",
+            description = "Позволяет пользователю отправить решение на проверку"
     )
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<?> test(
+    public ResponseEntity<?> testSolution(
             @AuthenticationPrincipal Jwt user,
-            @RequestParam UUID taskId,
-            @RequestBody String code) throws IOException {
+            @RequestParam(name = "taskId") UUID taskId,
+            @RequestBody SendTestSolutionRequest code) throws IOException {
         return solutionService.testSolution(user, taskId, code);
     }
 }

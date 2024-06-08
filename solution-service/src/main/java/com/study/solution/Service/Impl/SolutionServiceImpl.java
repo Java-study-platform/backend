@@ -1,6 +1,7 @@
 package com.study.solution.Service.Impl;
 
 import com.study.common.DTO.TestCaseDto;
+import com.study.solution.DTO.SendTestSolutionRequest;
 import com.study.solution.Service.SolutionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ public class SolutionServiceImpl implements SolutionService {
     @Value("${services.api-key}")
     private String apiKey;
 
-    public ResponseEntity<?> testSolution(Jwt user, UUID taskId, String code) throws IOException {
+    public ResponseEntity<?> testSolution(Jwt user, UUID taskId, SendTestSolutionRequest request) throws IOException {
         List<TestCaseDto> tests = getTestCases(taskId).block();
 
 //        code = "import java.io.BufferedReader;\n" +
@@ -47,11 +48,11 @@ public class SolutionServiceImpl implements SolutionService {
 
         if (tests != null && !tests.isEmpty()) {
             for (TestCaseDto test : tests) {
-                String result = runCode(code, test.getExpectedInput());
+                String result = runCode(request.getCode(), test.getExpectedInput());
                 if (result.equals(test.getExpectedInput())) {
-                    return ResponseEntity.ok("Победа");
+                    log.info("Победа");
                 } else {
-                    return ResponseEntity.ok("Поражение");
+                    log.info("Поражение");
                 }
             }
         }
