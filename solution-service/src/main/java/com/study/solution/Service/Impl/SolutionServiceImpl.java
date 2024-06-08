@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -65,7 +67,7 @@ public class SolutionServiceImpl implements SolutionService {
 
         Path path = Files.createTempDirectory("compile");
 
-        File tempFile = new File(path.toAbsolutePath() + "Main.java");
+        File tempFile = new File(path.toAbsolutePath() + "\\Main.java");
 //File tempFile = File.createTempFile("Main", ".java");
         BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));;
         writer.write(code);
@@ -114,11 +116,17 @@ public class SolutionServiceImpl implements SolutionService {
     private Mono<List<TestCaseDto>> getTestCases(UUID taskId){
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/api/learning/tests")
-                        .queryParam("taskId", taskId)
+                        .path("/api/learning/tests/" + taskId)
                         .build())
                 .header("X-API-KEY", apiKey)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<TestCaseDto>>() {});
+                .onStatus(HttpStatusCode::is4xxClientError, response -> {
+                    return Mono.error(new RuntimeException("Client error: " + response.statusCode()));
+                })
+                .onStatus(HttpStatusCode::is5xxServerError, response -> {
+                    return Mono.error(new RuntimeException("Server error: " + response.statusCode()));
+                })
+                .bodyToMono(new ParameterizedTypeReference<List<TestCaseDto>>() {})
+                .doOnError(e -> log.error("Error retrieving test cases", e));
     }
 }

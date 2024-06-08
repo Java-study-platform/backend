@@ -28,7 +28,6 @@ public class TestServiceImpl implements TestService {
     @Override
     public List<TestCaseDto> getTaskTestCases(String apiKey, UUID taskId) {
         if (apiKey != null && apiKey.equals(secretApiKey)) {
-
             Task task = taskRepository.findTaskById(taskId)
                     .orElseThrow(() -> new TaskNotFoundException(taskId));
 

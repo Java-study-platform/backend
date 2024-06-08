@@ -18,5 +18,5 @@ server:
   port: 8084
 
 services:
-  url: http://localhost:9090
+  url: http://localhost:8082
   api-key: asfasgbasgqwfrqwgfvavashahnodqpwohqjm
