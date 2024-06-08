@@ -29,20 +29,20 @@ public class SolutionServiceImpl implements SolutionService {
     public ResponseEntity<?> testSolution(UUID taskId, String code, String username) throws IOException {
         List<TestCaseDto> tests = getTestCases(taskId).block();
 
-        code = "import java.io.BufferedReader;\n" +
-                "import java.io.IOException;\n" +
-                "import java.io.InputStreamReader;\n" +
-                "\n" +
-                "public class Main {\n" +
-                "\n" +
-                "    public static void main(String[] args) throws IOException {\n" +
-                "        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));\n" +
-                "        int a = Integer.parseInt(reader.readLine());\n" +
-                "        int b = Integer.parseInt(reader.readLine());\n" +
-                "\n" +
-                "        System.out.println(a+b);\n" +
-                "    }\n" +
-                "}";
+//        code = "import java.io.BufferedReader;\n" +
+//                "import java.io.IOException;\n" +
+//                "import java.io.InputStreamReader;\n" +
+//                "\n" +
+//                "public class Main {\n" +
+//                "\n" +
+//                "    public static void main(String[] args) throws IOException {\n" +
+//                "        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));\n" +
+//                "        int a = Integer.parseInt(reader.readLine());\n" +
+//                "        int b = Integer.parseInt(reader.readLine());\n" +
+//                "\n" +
+//                "        System.out.println(a+b);\n" +
+//                "    }\n" +
+//                "}";
 
         if (tests != null && !tests.isEmpty()) {
             for (TestCaseDto test : tests) {
