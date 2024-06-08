@@ -4,6 +4,7 @@ package com.study.core.controller;
 import com.study.common.DTO.TestCaseDto;
 import com.study.core.service.TestService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -11,10 +12,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.study.common.Constants.Consts.GET_TESTS;
-
 import java.util.List;
 import java.util.UUID;
+
+import static com.study.common.Constants.Consts.GET_TESTS;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,8 +24,12 @@ public class TestController {
     private final TestService testService;
 
     @GetMapping(GET_TESTS + "/{taskId}")
-    public List<TestCaseDto> getTaskTestCases(@AuthenticationPrincipal Jwt user,
-                                              @PathVariable UUID taskId){
-        return testService.getTaskTestCases(taskId);
+    public List<TestCaseDto> getTaskTestCases(
+            HttpServletRequest request,
+            @AuthenticationPrincipal Jwt user,
+            @PathVariable UUID taskId){
+        String apiKey = request.getHeader("X-API-KEY");
+
+        return testService.getTaskTestCases(apiKey, taskId);
     }
 }

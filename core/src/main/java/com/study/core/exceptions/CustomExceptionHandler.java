@@ -4,6 +4,7 @@ package com.study.core.exceptions;
 import com.study.core.dto.DefaultResponse;
 import com.study.core.exceptions.Category.CategoryAlreadyExistsException;
 import com.study.core.exceptions.Category.CategoryNotFoundException;
+import com.study.core.exceptions.Category.ForbiddenException;
 import com.study.core.exceptions.Task.TaskAlreadyExistsException;
 import com.study.core.exceptions.Task.TaskNotFoundException;
 import com.study.core.exceptions.Topic.TopicAlreadyExistsException;
@@ -149,6 +150,15 @@ public class CustomExceptionHandler {
         return DefaultResponseBuilder.error(
                 "Check your json-format request!",
                 HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public DefaultResponse<?> handleForbiddenException(ForbiddenException exception){
+        return DefaultResponseBuilder.error(
+                exception.getMessage(),
+                HttpStatus.FORBIDDEN
         );
     }
 

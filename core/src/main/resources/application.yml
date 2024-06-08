@@ -50,3 +50,6 @@ eureka:
 
 server:
   port: 8082
+
+additional:
+  api-key: asfasgbasgqwfrqwgfvavashahnodqpwohqjm

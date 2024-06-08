@@ -1,15 +1,15 @@
 package com.study.core.service.impl;
 
 import com.study.common.DTO.TestCaseDto;
+import com.study.core.exceptions.Category.ForbiddenException;
 import com.study.core.exceptions.Task.TaskNotFoundException;
-import com.study.core.mapper.TaskMapper;
 import com.study.core.mapper.TestCaseListMapper;
 import com.study.core.models.Task;
-import com.study.core.models.TestCase;
 import com.study.core.repository.TaskRepository;
 import com.study.core.repository.TestRepository;
 import com.study.core.service.TestService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,11 +22,20 @@ public class TestServiceImpl implements TestService {
     private final TaskRepository taskRepository;
     private final TestCaseListMapper testCaseListMapper;
 
-    @Override
-    public List<TestCaseDto> getTaskTestCases(UUID taskId) {
-        Task task = taskRepository.findTaskById(taskId)
-                .orElseThrow(() -> new TaskNotFoundException(taskId));
+    @Value("${additional.api-key}")
+    private String secretApiKey;
 
-        return testCaseListMapper.toModelList(testRepository.findTestCasesByTask(task));
+    @Override
+    public List<TestCaseDto> getTaskTestCases(String apiKey, UUID taskId) {
+        if (apiKey.equals(secretApiKey)) {
+
+            Task task = taskRepository.findTaskById(taskId)
+                    .orElseThrow(() -> new TaskNotFoundException(taskId));
+
+            return testCaseListMapper.toModelList(testRepository.findTestCasesByTask(task));
+        }
+        else{
+            throw new ForbiddenException();
+        }
     }
 }
