@@ -122,7 +122,7 @@ services:
 
   solutions-app:
     build:
-      context: ./
+      context: ./solution-service
       dockerfile: Dockerfile
       network: host
     environment:
