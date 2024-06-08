@@ -12,6 +12,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
@@ -59,7 +61,9 @@ public class SolutionServiceImpl implements SolutionService {
     private static String runCode(String code, String input) throws IOException {
         StringBuilder result = new StringBuilder();
 
-        File tempFile = new File("Main.java");
+        Path path = Files.createTempDirectory("compile");
+
+        File tempFile = new File(path.toAbsolutePath() + "Main.java");
 //File tempFile = File.createTempFile("Main", ".java");
         BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));;
         writer.write(code);
