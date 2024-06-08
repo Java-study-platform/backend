@@ -3,6 +3,7 @@ package com.study.core.controller;
 
 import com.study.common.DTO.TestCaseDto;
 import com.study.core.service.TestService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,10 @@ public class TestController {
     private final TestService testService;
 
     @GetMapping(GET_TESTS + "/{taskId}")
+    @Operation(
+            summary = "Получение тестов для задачи",
+            description = "Позволяет получить тесты, относящиеся к конкретной задаче"
+    )
     public List<TestCaseDto> getTaskTestCases(
             HttpServletRequest request,
             @AuthenticationPrincipal Jwt user,

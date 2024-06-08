@@ -14,4 +14,5 @@ public final class Consts {
     public static final String TASKS = "/api/learning/tasks";
     public static final String TOPICS = "/api/learning/topics";
     public static final String GET_TESTS = "/api/learning/tests";
+    public static final String SOLUTIONS = "/api/solutions";
 }

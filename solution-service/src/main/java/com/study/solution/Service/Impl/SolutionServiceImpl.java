@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -26,7 +27,7 @@ public class SolutionServiceImpl implements SolutionService {
     @Value("${services.api-key}")
     private String apiKey;
 
-    public ResponseEntity<?> testSolution(UUID taskId, String code, String username) throws IOException {
+    public ResponseEntity<?> testSolution(Jwt user, UUID taskId, String code) throws IOException {
         List<TestCaseDto> tests = getTestCases(taskId).block();
 
 //        code = "import java.io.BufferedReader;\n" +
@@ -48,9 +49,9 @@ public class SolutionServiceImpl implements SolutionService {
             for (TestCaseDto test : tests) {
                 String result = runCode(code, test.getExpectedInput());
                 if (result.equals(test.getExpectedInput())) {
-                    System.out.println("победа");
+                    return ResponseEntity.ok("Победа");
                 } else {
-                    System.out.println("поражение");
+                    return ResponseEntity.ok("Поражение");
                 }
             }
         }
