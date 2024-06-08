@@ -19,7 +19,7 @@ VALUES
 -- changeset shuml:1717415748938-8
 INSERT INTO tasks (id, name, description, experience_amount, topic_id, author_login, create_time, modified_date)
 VALUES
-    ('c844ad85-f607-414f-af2a-6250a1f488ca', 'Sum two numbers', 'Sum to numbers', 200, '845f68a5-8ae5-48b7-a834-abd906199ed3', 'author', '2024-06-08 10:30:00', NULL);
+    ('c844ad85-f607-414f-af2a-6250a1f488ca', 'Sum two numbers', 'Sum two numbers', 200, '845f68a5-8ae5-48b7-a834-abd906199ed3', 'author', '2024-06-08 10:30:00', NULL);
 
 -- test_cases
 -- changeset shuml:1717415748938-9
