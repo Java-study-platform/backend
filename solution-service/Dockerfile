@@ -1,5 +1,5 @@
 FROM openjdk:17-jdk-alpine
 WORKDIR /app
 COPY build/libs/*.jar /app/app.jar
-EXPOSE 9090
+EXPOSE 8084
 CMD ["java", "-jar", "app.jar"]
