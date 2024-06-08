@@ -6,7 +6,7 @@ plugins {
 }
 
 bootJar {
-    mainClassName = 'com.study.user.NotificationApplication'
+    mainClassName = 'com.study.notification.NotificationApplication'
 }
 
 jar{

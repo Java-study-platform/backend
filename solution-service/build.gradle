@@ -6,7 +6,7 @@ plugins {
 }
 
 bootJar {
-    mainClassName = 'com.study.user.SolutionApplication'
+    mainClassName = 'com.study.solution.SolutionApplication'
 }
 
 jar{
