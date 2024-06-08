@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: SOLUTION-SERVICE
+  datasource:
+    url: jdbc:postgresql://postgres_solutions:5436/solutions
+    username: postgres
+    password: postgressergtosp
+    driverClassName: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  liquibase:
+    enabled: false
+    change-log: classpath:/db/changelog/app-changelog.xml
+
+server:
+  port: 8084
+
+services:
+  url: http://95.163.230.65:9090
+  api-key: asfasgbasgqwfrqwgfvavashahnodqpwohqjm
