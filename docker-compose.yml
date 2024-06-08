@@ -145,6 +145,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - backend
 
   kafka:
     image: confluentinc/cp-kafka:6.2.0
@@ -167,6 +169,8 @@ services:
       KAFKA_JMX_HOSTNAME: localhost
     depends_on:
       - zookeeper
+    networks:
+      - backend
 
   service-registry:
     restart: always
@@ -208,6 +212,9 @@ services:
     depends_on:
       - postgres_keycloak
     command: [ "start-dev" ]
+    networks:
+      - backend
+
 
 networks:
   backend:
