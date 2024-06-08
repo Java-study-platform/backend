@@ -22,7 +22,7 @@ import java.util.UUID;
 public class TestController {
     private final TestService testService;
 
-    @GetMapping(GET_TESTS + "{taskId}")
+    @GetMapping(GET_TESTS + "/{taskId}")
     public List<TestCaseDto> getTaskTestCases(@AuthenticationPrincipal Jwt user,
                                               @PathVariable UUID taskId){
         return testService.getTaskTestCases(taskId);
