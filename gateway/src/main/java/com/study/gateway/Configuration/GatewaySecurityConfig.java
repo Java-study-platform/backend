@@ -11,6 +11,11 @@ import org.springframework.security.oauth2.client.oidc.web.server.logout.OidcCli
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableMethodSecurity
@@ -20,9 +25,21 @@ public class GatewaySecurityConfig {
     private ReactiveClientRegistrationRepository registrationRepository;
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowedOrigins(List.of("*", "http://localhost:5173"));
+        corsConfiguration.setAllowedMethods(List.of("*"));
+        corsConfiguration.setAllowedHeaders(List.of("*"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfiguration);
+
+        return source;
+    }
+
+    @Bean
     public SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
         http.csrf(ServerHttpSecurity.CsrfSpec::disable);
-
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
         http.authorizeExchange(exchange -> exchange
                 .anyExchange().permitAll())
                 .oauth2Login(Customizer.withDefaults())
