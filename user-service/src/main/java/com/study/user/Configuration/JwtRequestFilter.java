@@ -50,10 +50,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
         String jwt;
 
-        response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
-        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, X-Auth-Token");
-
         if (authHeader != null && authHeader.equals("Bearer null")) {
             authHeader = null;
         }
