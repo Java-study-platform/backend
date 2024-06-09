@@ -17,8 +17,13 @@ import reactor.core.publisher.Mono;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -50,7 +55,7 @@ public class SolutionServiceImpl implements SolutionService {
         if (tests != null && !tests.isEmpty()) {
             for (TestCaseDto test : tests) {
                 String result = runCode(request.getCode(), test.getExpectedInput());
-                if (result.equals(test.getExpectedInput())) {
+                if (result.equals(test.getExpectedOutput())) {
                     log.info("Победа");
                 } else {
                     log.info("Поражение");
@@ -85,29 +90,45 @@ public class SolutionServiceImpl implements SolutionService {
                 errorReader.close();
             }
             else {
-                String command = String.format("java -cp %s %s", tempFile.getParent(), tempFile.getName());
+                String command = String.format("java -cp %s Main", tempFile.getParent());
 
                 Process process = Runtime.getRuntime().exec(command);
-                BufferedWriter inputWriter = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
-                inputWriter.write(input);
-                inputWriter.close();
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                String line;
-
-                while ((line = reader.readLine()) != null) {
-                    result.append(line).append("\n");
+                try (BufferedWriter inputWriter = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()))) {
+                    inputWriter.write(input);
+                    inputWriter.flush();
                 }
-                reader.close();
 
-                process.waitFor();
+                Future<String> outputFuture = Executors.newSingleThreadExecutor().submit(() -> {
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                        return reader.lines().collect(Collectors.joining("\n"));
+                    }
+                });
+
+                Future<String> errorFuture = Executors.newSingleThreadExecutor().submit(() -> {
+                    try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
+                        return errorReader.lines().collect(Collectors.joining("\n"));
+                    }
+                });
+
+                int runResult = process.waitFor();
+                result.append(outputFuture.get()).append("\n");
+                String errors = errorFuture.get();
+                if (!errors.isEmpty()) {
+                    log.error(errors);
+                    result.append(errors).append("\n");
+                }
+                if (runResult != 0) {
+                    return "Runtime Error:\n" + result.toString();
+                }
             }
         }
-        catch (InterruptedException e){
+        catch (InterruptedException | ExecutionException e){
             e.printStackTrace();
+        } finally {
+            tempFile.delete();
+            //Files.delete(path);
         }
 
-        tempFile.delete();
 
         return result.toString();
     }
