@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
@@ -38,6 +39,7 @@ public class TaskController {
 
     @PostMapping(TASKS + "/{topicId}")
     @Operation(summary = "Создать задачу в конкретной теме")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DefaultResponse<TaskDTO>> createTask(@AuthenticationPrincipal Jwt user,
                                                                 @Validated @RequestBody CreateTaskModel createTaskModel,
                                                                 @PathVariable UUID topicId) {
@@ -51,6 +53,7 @@ public class TaskController {
 
     @PutMapping(TASKS + "/{id}")
     @Operation(summary = "Редактировать задачу")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DefaultResponse<TaskDTO>> editTask(@AuthenticationPrincipal Jwt user,
                                                                @Validated @RequestBody EditTaskModel editTaskModel,
                                                                @PathVariable UUID id) {
@@ -64,6 +67,7 @@ public class TaskController {
 
     @DeleteMapping(TASKS + "/{id}")
     @Operation(summary = "Удалить задачу")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DefaultResponse<?>> deleteTask(@AuthenticationPrincipal Jwt user,
                                                           @PathVariable UUID id) {
         taskService.deleteTask(id);

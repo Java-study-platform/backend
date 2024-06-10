@@ -28,6 +28,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -80,23 +81,10 @@ public class CoreSecurityConfig {
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http
-                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(createPolicyEnforcerFilter(), BearerTokenAuthenticationFilter.class).build();
-    }
-
-    private ServletPolicyEnforcerFilter createPolicyEnforcerFilter() {
-        return new ServletPolicyEnforcerFilter(new ConfigurationResolver() {
-            @Override
-            public PolicyEnforcerConfig resolve(HttpRequest httpRequest) {
-                try {
-                    return JsonSerialization
-                            .readValue(getClass().getResourceAsStream("/policy-enforcer.json"),
-                                    PolicyEnforcerConfig.class);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class).build();
+                //.addFilterBefore(createPolicyEnforcerFilter(), BearerTokenAuthenticationFilter.class).build();
+                // Оказалось, что лучше делать авторизацию (проверку ролей) через Oauth2, потому что на запрос к KeyCloak
+                // уходит ~1,5-2 секунды
     }
 
 
