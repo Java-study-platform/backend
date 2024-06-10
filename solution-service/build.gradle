@@ -30,6 +30,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     //implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.liquibase:liquibase-core'
+    implementation "org.springframework.security:spring-security-oauth2-resource-server:${oAuth2Version}"
     implementation "org.springframework.security:spring-security-oauth2-client:${oAuth2Version}"
     implementation "org.springframework.security:spring-security-oauth2-jose:${oAuth2Version}"
 //    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
@@ -38,6 +39,8 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
     compileOnly "org.projectlombok:lombok"
     annotationProcessor "org.projectlombok:lombok"
+    implementation 'com.auth0:java-jwt:4.4.0'
+    implementation 'com.auth0:jwks-rsa:0.22.1'
     //testImplementation 'org.springframework.boot:spring-boot-starter-test'
     //testImplementation 'org.springframework.kafka:spring-kafka-test'
     //testImplementation 'org.springframework.security:spring-security-test'

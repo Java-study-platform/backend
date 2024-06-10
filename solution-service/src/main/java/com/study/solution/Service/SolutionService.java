@@ -8,5 +8,5 @@ import java.io.IOException;
 import java.util.UUID;
 
 public interface SolutionService {
-    ResponseEntity<?> testSolution(Jwt user, UUID taskId, SendTestSolutionRequest code)  throws IOException;
+    String testSolution(Jwt user, UUID taskId, SendTestSolutionRequest code)  throws IOException;
 }

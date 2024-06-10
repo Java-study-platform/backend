@@ -3,6 +3,7 @@ package com.study.core.mapper;
 import com.study.common.DTO.TestCaseDto;
 import com.study.core.models.TestCase;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 

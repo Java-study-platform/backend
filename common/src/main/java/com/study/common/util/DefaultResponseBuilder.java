@@ -1,6 +1,6 @@
-package com.study.core.util;
+package com.study.common.util;
 
-import com.study.core.dto.DefaultResponse;
+import com.study.common.DTO.DefaultResponse;
 import org.springframework.http.HttpStatus;
 
 import java.util.Date;

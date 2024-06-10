@@ -14,4 +14,5 @@ public class TestCaseDto {
     private Long index;
     private String expectedInput;
     private String expectedOutput;
+    private long timeLimit;
 }

@@ -26,6 +26,9 @@ public class Task {
     @Column(nullable = false)
     private long experienceAmount;
 
+    @Column(nullable = false)
+    private long timeLimit;
+
     @ManyToOne
     @JoinColumn(name = "topic_id", nullable = false)
     private Topic topic;

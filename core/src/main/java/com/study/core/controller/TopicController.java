@@ -2,14 +2,14 @@ package com.study.core.controller;
 
 
 
-import com.study.core.dto.DefaultResponse;
+import com.study.common.DTO.DefaultResponse;
 import com.study.core.dto.Topic.CreateTopicModel;
 import com.study.core.dto.Topic.EditTopicModel;
 import com.study.core.dto.Topic.TopicDTO;
 import com.study.core.mapper.TopicMapper;
 import com.study.core.models.Topic;
 import com.study.core.service.TopicService;
-import com.study.core.util.DefaultResponseBuilder;
+import com.study.common.util.DefaultResponseBuilder;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

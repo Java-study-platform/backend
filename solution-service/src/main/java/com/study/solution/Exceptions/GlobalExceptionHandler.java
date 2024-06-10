@@ -1,14 +1,7 @@
-package com.study.core.exceptions;
-
+package com.study.solution.Exceptions;
 
 import com.study.common.DTO.DefaultResponse;
-import com.study.core.exceptions.Category.CategoryAlreadyExistsException;
-import com.study.core.exceptions.Category.CategoryNotFoundException;
 import com.study.common.Exceptions.ForbiddenException;
-import com.study.core.exceptions.Task.TaskAlreadyExistsException;
-import com.study.core.exceptions.Task.TaskNotFoundException;
-import com.study.core.exceptions.Topic.TopicAlreadyExistsException;
-import com.study.core.exceptions.Topic.TopicNotFoundException;
 import com.study.common.util.DefaultResponseBuilder;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -27,70 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Slf4j
 @RestControllerAdvice
-public class CustomExceptionHandler {
-
-    @ExceptionHandler(CategoryAlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public DefaultResponse<?> handleCategoryAlreadyExists(CategoryAlreadyExistsException exception) {
-        log.error(exception.getMessage());
-        return DefaultResponseBuilder.error(
-                exception.getMessage(),
-                HttpStatus.BAD_REQUEST
-        );
-    }
-
-    @ExceptionHandler(TopicAlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public DefaultResponse<?> handleTopicAlreadyExists(TopicAlreadyExistsException exception) {
-        log.error(exception.getMessage());
-        return DefaultResponseBuilder.error(
-                exception.getMessage(),
-                HttpStatus.BAD_REQUEST
-        );
-    }
-
-    @ExceptionHandler(TaskAlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public DefaultResponse<?> handleTaskAlreadyExists(TaskAlreadyExistsException exception) {
-        log.error(exception.getMessage());
-        return DefaultResponseBuilder.error(
-                exception.getMessage(),
-                HttpStatus.BAD_REQUEST
-        );
-    }
-
-    @ExceptionHandler(CategoryNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public DefaultResponse<?> handleCategoryNotFound(CategoryNotFoundException exception) {
-        log.error(exception.getMessage());
-        return DefaultResponseBuilder.error(
-                exception.getMessage(),
-                HttpStatus.NOT_FOUND
-        );
-    }
-
-    @ExceptionHandler(TopicNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public DefaultResponse<?> handleTopicNotFound(TopicNotFoundException exception) {
-        log.error(exception.getMessage());
-        return DefaultResponseBuilder.error(
-                exception.getMessage(),
-                HttpStatus.NOT_FOUND
-        );
-    }
-
-    @ExceptionHandler(TaskNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public DefaultResponse<?> handleTaskNotFound(TaskNotFoundException exception) {
-        log.error(exception.getMessage());
-        return DefaultResponseBuilder.error(
-                exception.getMessage(),
-                HttpStatus.NOT_FOUND
-        );
-    }
-
+@Slf4j
+public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalStateException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public DefaultResponse<?> handleIllegalState(IllegalStateException exception) {

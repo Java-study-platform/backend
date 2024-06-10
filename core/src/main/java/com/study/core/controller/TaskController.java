@@ -1,7 +1,7 @@
 package com.study.core.controller;
 
 
-import com.study.core.dto.DefaultResponse;
+import com.study.common.DTO.DefaultResponse;
 import com.study.core.dto.Task.CreateTaskModel;
 import com.study.core.dto.Task.EditTaskModel;
 import com.study.core.dto.Task.TaskDTO;
@@ -9,7 +9,7 @@ import com.study.core.dto.Task.TaskFilter;
 import com.study.core.mapper.TaskMapper;
 import com.study.core.models.Task;
 import com.study.core.service.TaskService;
-import com.study.core.util.DefaultResponseBuilder;
+import com.study.common.util.DefaultResponseBuilder;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

@@ -32,7 +32,7 @@ dependencies {
     implementation 'org.liquibase:liquibase-core'
     //implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     //implementation 'org.springframework.cloud:spring-cloud-starter-zookeeper-config'
-    implementation 'org.springframework.security:spring-security-oauth2-resource-server'
+    implementation "org.springframework.security:spring-security-oauth2-resource-server:${oAuth2Version}"
     implementation "org.springframework.security:spring-security-oauth2-client:${oAuth2Version}"
     implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:${eurekaVersion}"
     implementation 'org.keycloak:keycloak-authz-client:24.0.4'

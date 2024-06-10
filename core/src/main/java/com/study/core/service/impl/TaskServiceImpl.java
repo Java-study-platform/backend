@@ -46,6 +46,7 @@ public class TaskServiceImpl implements TaskService {
         task.setExperienceAmount(createTaskModel.getExperienceAmount());
         task.setAuthorLogin(user.getClaim("preferred_username"));
         task.setTopic(topic);
+        task.setTimeLimit(createTaskModel.getTimeLimit());
 
         return taskRepository.save(task);
     }
@@ -62,6 +63,9 @@ public class TaskServiceImpl implements TaskService {
         }
 
         task.setName(editTaskModel.getName());
+        task.setDescription(editTaskModel.getDescription());
+        task.setExperienceAmount(editTaskModel.getExperienceAmount());
+        task.setTimeLimit(editTaskModel.getTimeLimit());
 
         return taskRepository.save(task);
     }

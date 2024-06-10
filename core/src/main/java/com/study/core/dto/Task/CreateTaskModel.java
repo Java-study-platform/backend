@@ -1,10 +1,7 @@
 package com.study.core.dto.Task;
 
 
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,4 +26,9 @@ public class CreateTaskModel {
     @Positive(message = "Количество опыта должно быть строго положительным")
     @Digits(integer = 3, fraction = 0, message = "Количество опыта должно состоять максимум из 3 цифр")
     private long experienceAmount;
+
+    @NotNull(message = "Лимит времени не может быть null")
+    @Positive(message = "Лимит времени должен быть строго положительным")
+    @Min(value = 500, message = "Лимит времени должен быть не меньше 500")
+    private long timeLimit;
 }

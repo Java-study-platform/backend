@@ -1,4 +1,4 @@
-package com.study.solution.Enum;
+package com.study.common.Enum;
 
 public enum Status {
     PENDING,

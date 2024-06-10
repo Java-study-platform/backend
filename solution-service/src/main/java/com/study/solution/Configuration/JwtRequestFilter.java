@@ -1,4 +1,4 @@
-package com.study.user.Configuration;
+package com.study.solution.Configuration;
 
 import com.auth0.jwk.Jwk;
 import com.auth0.jwk.JwkProvider;
@@ -27,7 +27,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j

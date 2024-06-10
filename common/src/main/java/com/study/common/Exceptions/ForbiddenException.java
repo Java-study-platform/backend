@@ -1,4 +1,4 @@
-package com.study.core.exceptions.Category;
+package com.study.common.Exceptions;
 
 public class ForbiddenException extends RuntimeException{
     public ForbiddenException(){

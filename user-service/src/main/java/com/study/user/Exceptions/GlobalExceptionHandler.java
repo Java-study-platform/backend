@@ -1,5 +1,6 @@
 package com.study.user.Exceptions;
 
+import com.study.common.Exceptions.BadCredentialsException;
 import com.study.user.DTO.DefaultResponse;
 import com.study.user.util.DefaultResponseBuilder;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

@@ -1,5 +1,7 @@
 package com.study.solution.Controller;
 
+import com.study.common.DTO.DefaultResponse;
+import com.study.common.util.DefaultResponseBuilder;
 import com.study.solution.DTO.SendTestSolutionRequest;
 import com.study.solution.Service.SolutionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,10 +33,12 @@ public class SolutionController {
             description = "Позволяет пользователю отправить решение на проверку"
     )
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<?> testSolution(
+    public ResponseEntity<DefaultResponse<String>> sendSolution(
             @AuthenticationPrincipal Jwt user,
             @RequestParam(name = "taskId") UUID taskId,
             @RequestBody SendTestSolutionRequest code) throws IOException {
-        return solutionService.testSolution(user, taskId, code);
+        return ResponseEntity.ok(DefaultResponseBuilder.success(
+                solutionService.testSolution(user, taskId, code),
+                null));
     }
 }

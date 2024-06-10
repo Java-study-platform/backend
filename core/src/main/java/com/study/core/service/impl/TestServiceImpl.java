@@ -1,7 +1,7 @@
 package com.study.core.service.impl;
 
 import com.study.common.DTO.TestCaseDto;
-import com.study.core.exceptions.Category.ForbiddenException;
+import com.study.common.Exceptions.ForbiddenException;
 import com.study.core.exceptions.Task.TaskNotFoundException;
 import com.study.core.mapper.TestCaseListMapper;
 import com.study.core.models.Task;

@@ -1,4 +1,4 @@
-package com.study.user.Exceptions;
+package com.study.common.Exceptions;
 
 public class BadCredentialsException extends RuntimeException {
     public BadCredentialsException() {

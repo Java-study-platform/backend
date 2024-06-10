@@ -1,4 +1,4 @@
-package com.study.core.dto;
+package com.study.common.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
