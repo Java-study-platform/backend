@@ -18,26 +18,26 @@ spring:
       config:
         enabled: false
       enabled: false
-#  security:
-#    oauth2:
-#      client:
-#        registration:
-#          keycloak:
-#            client-id: springsecurity
-#            client-secret: 4aSFJvpqjsoc5oDkFSqivT1u6rImh2Yj
-#            authorization-grant-type: authorization_code
-#            scope:
-#              - openid
-#        provider:
-#          keycloak:
-#            issuer-uri: http://localhost:8080/realms/Study-platform
-#            user-name-attribute: preferred_username
-#
-#
-#      resourceserver:
-#        jwt:
-#          issuer-uri: http://localhost:8080/realms/Study-platform
-#          jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: springsecurity
+            client-secret: 4aSFJvpqjsoc5oDkFSqivT1u6rImh2Yj
+            authorization-grant-type: authorization_code
+            scope:
+              - openid
+        provider:
+          keycloak:
+            issuer-uri: http://95.163.230.65:8761/realms/Study-platform
+            user-name-attribute: preferred_username
+
+
+      resourceserver:
+        jwt:
+          issuer-uri: http://95.163.230.65:8761/realms/Study-platform
+          jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
 
 eureka:
   client:
