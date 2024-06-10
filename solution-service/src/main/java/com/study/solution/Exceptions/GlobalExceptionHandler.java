@@ -3,6 +3,9 @@ package com.study.solution.Exceptions;
 import com.study.common.DTO.DefaultResponse;
 import com.study.common.Exceptions.ForbiddenException;
 import com.study.common.util.DefaultResponseBuilder;
+import com.study.solution.Exceptions.NotFound.SolutionNotFoundException;
+import com.study.solution.Exceptions.NotFound.TaskNotFoundException;
+import com.study.solution.Exceptions.NotFound.TestNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -82,6 +85,36 @@ public class GlobalExceptionHandler {
         return DefaultResponseBuilder.error(
                 "Check your json-format request!",
                 HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(TaskNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public DefaultResponse<?> handleTaskNotFoundException(TaskNotFoundException exception) {
+        log.error(exception.getMessage());
+        return DefaultResponseBuilder.error(
+                exception.getMessage(),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
+    @ExceptionHandler(SolutionNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public DefaultResponse<?> handleSolutionNotFoundException(SolutionNotFoundException exception) {
+        log.error(exception.getMessage());
+        return DefaultResponseBuilder.error(
+                exception.getMessage(),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
+    @ExceptionHandler(TestNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public DefaultResponse<?> handleTestNotFoundException(TestNotFoundException exception) {
+        log.error(exception.getMessage());
+        return DefaultResponseBuilder.error(
+                exception.getMessage(),
+                HttpStatus.NOT_FOUND
         );
     }
 

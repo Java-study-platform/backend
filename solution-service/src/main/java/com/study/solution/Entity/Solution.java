@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -24,6 +24,10 @@ public class Solution {
 
     @NotNull
     @Column(nullable = false)
+    private LocalDateTime createTime = LocalDateTime.now();
+
+    @NotNull
+    @Column(nullable = false)
     private String username;
 
     @NotNull
@@ -38,8 +42,4 @@ public class Solution {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status;
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "solution_id")
-    private List<Test> tests;
 }

@@ -41,6 +41,9 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok"
     implementation 'com.auth0:java-jwt:4.4.0'
     implementation 'com.auth0:jwks-rsa:0.22.1'
+    // mapstruct должен стоять после lombok, иначе будет прилетать ошибка
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     //testImplementation 'org.springframework.boot:spring-boot-starter-test'
     //testImplementation 'org.springframework.kafka:spring-kafka-test'
     //testImplementation 'org.springframework.security:spring-security-test'

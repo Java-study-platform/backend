@@ -4,4 +4,5 @@
 https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <include file="db/changelog/scripts/V_0_0_1__create_t_solutions.sql"/>
+    <include file="db/changelog/scripts/V_0_0_2__create_t_tests.sql"/>
 </databaseChangeLog>

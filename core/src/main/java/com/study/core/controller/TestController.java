@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
-import static com.study.common.Constants.Consts.GET_TESTS;
+import static com.study.common.Constants.Consts.GET_TEST_CASES;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,7 +24,7 @@ import static com.study.common.Constants.Consts.GET_TESTS;
 public class TestController {
     private final TestService testService;
 
-    @GetMapping(GET_TESTS + "/{taskId}")
+    @GetMapping(GET_TEST_CASES + "/{taskId}")
     @Operation(
             summary = "Получение тестов для задачи",
             description = "Позволяет получить тесты, относящиеся к конкретной задаче"

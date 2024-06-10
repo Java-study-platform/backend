@@ -53,3 +53,12 @@ server:
 
 additional:
   api-key: asfasgbasgqwfrqwgfvavashahnodqpwohqjm
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    display-request-duration: true

@@ -1,4 +1,4 @@
-package com.study.solution.DTO;
+package com.study.solution.DTO.Solution;
 
 import lombok.Data;
 

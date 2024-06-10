@@ -8,7 +8,6 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.study.common.DTO.UserDto;
 import com.study.common.Exceptions.InternalServerException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -27,6 +26,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 import java.util.List;
+
+import static com.study.common.Constants.Consts.USERNAME_CLAIM;
 
 @Component
 @Slf4j
@@ -77,7 +78,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         .map(SimpleGrantedAuthority::new)
                         .toList();
 
-                SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(decodedJWT.getClaim("preferred_username"), null, authorities));
+                SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(decodedJWT.getClaim(USERNAME_CLAIM), null, authorities));
             }
         } catch (JWTVerificationException e) {
             log.info(e.getMessage());

@@ -1,9 +1,12 @@
 package com.study.user.Configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.study.common.util.DefaultResponseBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,6 +24,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -60,7 +64,17 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin-panel").hasRole(ADMIN)
                         .requestMatchers(REGISTER_USER).anonymous()
                         .requestMatchers(LOGIN_USER).anonymous()
-                        .anyRequest().authenticated());
+                        .anyRequest().authenticated())
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                        .accessDeniedHandler(((request, response, accessDeniedException) -> {
+                            String jsonResponse = new ObjectMapper().writeValueAsString(DefaultResponseBuilder
+                                    .error("У вас нет прав доступа", HttpStatus.FORBIDDEN));
+                            response.setStatus(HttpStatus.FORBIDDEN.value());
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.setCharacterEncoding("UTF-8");
+                            response.getWriter().write(jsonResponse);
+                        })));;
 
         http
                 .oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(Customizer.withDefaults()));
@@ -79,7 +93,7 @@ public class SecurityConfig {
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        converter.setPrincipalClaimName("preferred_username");
+        converter.setPrincipalClaimName(USERNAME_CLAIM);
         converter.setJwtGrantedAuthoritiesConverter(jwt -> {
             Collection<GrantedAuthority> authorities = jwtGrantedAuthoritiesConverter.convert(jwt);
             List<String> roles = jwt.getClaimAsStringList("spring_sec_roles");

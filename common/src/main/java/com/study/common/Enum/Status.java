@@ -5,5 +5,6 @@ public enum Status {
     OK,
     WRONG_ANSWER,
     TIME_LIMIT,
-    RUNTIME_ERROR
+    RUNTIME_ERROR,
+    COMPILATION_ERROR
 }

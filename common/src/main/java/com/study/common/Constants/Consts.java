@@ -13,6 +13,9 @@ public final class Consts {
     public static final String EDIT_CATEGORY = "/api/learning/categories/{id}";
     public static final String TASKS = "/api/learning/tasks";
     public static final String TOPICS = "/api/learning/topics";
-    public static final String GET_TESTS = "/api/learning/tests";
-    public static final String SOLUTIONS = "/api/solutions";
+    public static final String GET_TEST_CASES = "/api/learning/tests";
+    public static final String SOLUTIONS = "/api/solution";
+    public static final String GET_TESTS = "/api/solution/tests";
+    public static final String GET_TEST_INFO = "/api/solution/tests/info";
+    public static final String USERNAME_CLAIM = "preferred_username";
 }
