@@ -4,7 +4,6 @@ import com.study.common.Exceptions.ForbiddenException;
 import com.study.solution.DTO.Test.MentorTestDto;
 import com.study.solution.DTO.Test.TestDto;
 import com.study.solution.Entity.Solution;
-import com.study.solution.Entity.Test;
 import com.study.solution.Exceptions.NotFound.SolutionNotFoundException;
 import com.study.solution.Exceptions.NotFound.TestNotFoundException;
 import com.study.solution.Mapper.TestListMapper;

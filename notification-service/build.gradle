@@ -23,9 +23,26 @@ repositories {
 }
 
 dependencies {
+    implementation project(':common')
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.liquibase:liquibase-core'
+    compileOnly "org.projectlombok:lombok"
+    annotationProcessor "org.projectlombok:lombok"
+    implementation "org.springframework.security:spring-security-oauth2-resource-server:${oAuth2Version}"
+    implementation "org.springframework.security:spring-security-oauth2-client:${oAuth2Version}"
+    implementation "org.springframework.security:spring-security-oauth2-jose:${oAuth2Version}"
+    implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:${eurekaVersion}"
+    implementation 'com.auth0:java-jwt:4.4.0'
+    implementation 'com.auth0:jwks-rsa:0.22.1'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+    implementation 'org.springframework.kafka:spring-kafka:3.2.0'
+    implementation 'org.apache.kafka:kafka-clients:3.7.0'
+    // mapstruct должен стоять после lombok, иначе будет прилетать ошибка
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     //implementation 'org.springframework.cloud:spring-cloud-starter-zookeeper-config'
    // implementation 'org.springframework.kafka:spring-kafka'
     //testImplementation 'org.springframework.kafka:spring-kafka-test'

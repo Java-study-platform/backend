@@ -2,7 +2,6 @@ package com.study.solution.Service;
 
 import com.study.solution.DTO.Solution.SendTestSolutionRequest;
 import com.study.solution.DTO.Solution.SolutionDto;
-import com.study.solution.Entity.Solution;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package com.study.solution.Configuration;
+package com.study.notification.Configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.common.util.DefaultResponseBuilder;

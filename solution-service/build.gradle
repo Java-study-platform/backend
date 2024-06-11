@@ -19,6 +19,7 @@ repositories {
 
 ext {
     set('oAuth2Version', "6.3.0")
+    set('eurekaVersion', "4.1.2")
 }
 
 
@@ -33,9 +34,9 @@ dependencies {
     implementation "org.springframework.security:spring-security-oauth2-resource-server:${oAuth2Version}"
     implementation "org.springframework.security:spring-security-oauth2-client:${oAuth2Version}"
     implementation "org.springframework.security:spring-security-oauth2-jose:${oAuth2Version}"
-//    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-    //implementation 'org.springframework.cloud:spring-cloud-starter-zookeeper-config'
-    //implementation 'org.springframework.kafka:spring-kafka'
+    implementation "org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:${eurekaVersion}"
+    implementation 'org.springframework.kafka:spring-kafka:3.2.0'
+    implementation 'org.apache.kafka:kafka-clients:3.7.0'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
     compileOnly "org.projectlombok:lombok"
     annotationProcessor "org.projectlombok:lombok"

@@ -4,8 +4,6 @@ import com.study.common.DTO.DefaultResponse;
 import com.study.common.util.DefaultResponseBuilder;
 import com.study.solution.DTO.Solution.SendTestSolutionRequest;
 import com.study.solution.DTO.Solution.SolutionDto;
-import com.study.solution.Mapper.SolutionListMapper;
-import com.study.solution.Mapper.SolutionMapper;
 import com.study.solution.Service.SolutionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -18,8 +16,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.UUID;
 import java.util.List;
+import java.util.UUID;
 
 import static com.study.common.Constants.Consts.SOLUTIONS;
 

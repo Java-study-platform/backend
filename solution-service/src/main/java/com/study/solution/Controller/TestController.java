@@ -4,8 +4,6 @@ import com.study.common.DTO.DefaultResponse;
 import com.study.common.util.DefaultResponseBuilder;
 import com.study.solution.DTO.Test.MentorTestDto;
 import com.study.solution.DTO.Test.TestDto;
-import com.study.solution.Mapper.TestListMapper;
-import com.study.solution.Mapper.TestMapper;
 import com.study.solution.Service.TestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -18,11 +16,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.study.common.Constants.Consts.GET_TESTS;
-import static com.study.common.Constants.Consts.GET_TEST_INFO;
-
 import java.util.List;
 import java.util.UUID;
+
+import static com.study.common.Constants.Consts.GET_TESTS;
+import static com.study.common.Constants.Consts.GET_TEST_INFO;
 
 @RestController
 @RequiredArgsConstructor
