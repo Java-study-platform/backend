@@ -19,6 +19,7 @@ import com.study.solution.Repository.TestRepository;
 import com.study.solution.Service.SolutionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
@@ -31,7 +32,9 @@ import reactor.core.publisher.Mono;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -47,17 +50,49 @@ public class SolutionServiceImpl implements SolutionService {
     private final TestRepository testRepository;
     private final SolutionListMapper solutionListMapper;
     private final SolutionMapper solutionMapper;
+    private final HashSet<String> maliciousWords;
 
     @Value("${services.api-key}")
     private String apiKey;
+
+    @Autowired
+    public SolutionServiceImpl(WebClient webClient,
+                               SolutionRepository solutionRepository,
+                               TestRepository testRepository,
+                               SolutionListMapper solutionListMapper,
+                               SolutionMapper solutionMapper){
+        this.webClient = webClient;
+        this.solutionRepository = solutionRepository;
+        this.testRepository = testRepository;
+        this.solutionListMapper = solutionListMapper;
+        this.solutionMapper = solutionMapper;
+        this.maliciousWords = new HashSet<>();
+
+        maliciousWords.add("shutdown");
+        maliciousWords.add("File");
+        maliciousWords.add("exec");
+        maliciousWords.add("Runtime.getRuntime");
+        maliciousWords.add("System.exit");
+        maliciousWords.add("ProcessBuilder");
+        maliciousWords.add("delete");
+        maliciousWords.add("rm");
+        maliciousWords.add("format");
+        maliciousWords.add("del");
+        maliciousWords.add("mkfs");
+        maliciousWords.add("dd");
+        maliciousWords.add("netsh");
+        maliciousWords.add("powershell");
+    }
 
     @Transactional
     public String testSolution(Jwt user, UUID taskId, SendTestSolutionRequest request) throws IOException {
         List<TestCaseDto> tests = getTestCases(taskId).block();
 
+
         if (tests != null && !tests.isEmpty()) {
             Solution solution = new Solution();
             String code = request.getCode().replaceAll("(?m)^package\\s+.*?;", "").trim();
+
             solution.setSolutionCode(code);
             solution.setStatus(Status.PENDING);
             solution.setTaskId(taskId);
@@ -67,75 +102,91 @@ public class SolutionServiceImpl implements SolutionService {
 
             long timeLimit = tests.get(0).getTimeLimit();
 
-            CompletableFuture.runAsync(() -> {
-                String result = null;
-                for (TestCaseDto test : tests) {
-                    Long testIndex = test.getIndex();
-                    String input = test.getExpectedInput();
-
-                    Test testEntity = new Test();
-                    testEntity.setSolution(solution);
-                    testEntity.setTestInput(input);
-                    testEntity.setStatus(Status.PENDING);
-                    testEntity.setTestIndex(testIndex);
-                    testRepository.save(testEntity);
-
-                    try {
-                        result = runCode(code, input, timeLimit)
-                                .replaceAll("\n\n", "\n")
-                                .replaceAll(" \n", "\n").trim();
-                    }
-                    catch (TimeLimitException e){
-                        solution.setStatus(Status.TIME_LIMIT);
-                        solution.setTestIndex(testIndex);
-                        testEntity.setStatus(Status.TIME_LIMIT);
-                    }
-                    catch (CodeRuntimeException e){
-                        solution.setStatus(Status.RUNTIME_ERROR);
-                        solution.setTestIndex(testIndex);
-
-                        testEntity.setStatus(Status.RUNTIME_ERROR);
-                        testEntity.setTestOutput(e.getMessage());
-                    }
-                    catch (CodeCompilationException e){
-                        solution.setStatus(Status.COMPILATION_ERROR);
-                        solution.setTestIndex(testIndex);
-
-                        testEntity.setStatus(Status.COMPILATION_ERROR);
-                        testEntity.setTestOutput(e.getMessage().replaceAll("^[A-Za-z]:\\\\(?:[^\\\\\\n]+\\\\)*compile[^:\\n]+:", ""));
-                    }
-                    catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                    if (result != null) {
-                        testEntity.setTestOutput(result);
-
-                        if (result.equals(test.getExpectedOutput())) {
-                            testEntity.setStatus(Status.OK);
-                            if (test.getIndex() == tests.size()) {
-                                solution.setStatus(Status.OK);
-                                solution.setTestIndex(test.getIndex());
-                            }
-                        } else  {
-                            testEntity.setStatus(Status.WRONG_ANSWER);
-                            solution.setStatus(Status.WRONG_ANSWER);
-                            solution.setTestIndex(test.getIndex());
-                            break;
-                        }
-                    }
-
-                    testRepository.save(testEntity);
-                }
-
+            if (containsMaliciousWords(code, maliciousWords)) {
+                solution.setStatus(Status.MALICIOUS_CODE);
                 solutionRepository.save(solution);
-            });
+            }
+            else {
+                CompletableFuture.runAsync(() -> {
+                    String result = null;
+                    for (TestCaseDto test : tests) {
+                        Long testIndex = test.getIndex();
+                        String input = test.getExpectedInput();
+
+                        Test testEntity = new Test();
+                        testEntity.setSolution(solution);
+                        testEntity.setTestInput(input);
+                        testEntity.setStatus(Status.PENDING);
+                        testEntity.setTestIndex(testIndex);
+                        testRepository.save(testEntity);
+
+                        try {
+                            result = runCode(code, input, timeLimit)
+                                    .replaceAll("\n\n", "\n")
+                                    .replaceAll(" \n", "\n").trim();
+                        } catch (TimeLimitException e) {
+                            solution.setStatus(Status.TIME_LIMIT);
+                            solution.setTestIndex(testIndex);
+                            testEntity.setStatus(Status.TIME_LIMIT);
+                        } catch (CodeRuntimeException e) {
+                            solution.setStatus(Status.RUNTIME_ERROR);
+                            solution.setTestIndex(testIndex);
+
+                            testEntity.setStatus(Status.RUNTIME_ERROR);
+                            testEntity.setTestOutput(e.getMessage());
+                        } catch (CodeCompilationException e) {
+                            solution.setStatus(Status.COMPILATION_ERROR);
+                            solution.setTestIndex(testIndex);
+
+                            testEntity.setStatus(Status.COMPILATION_ERROR);
+                            testEntity.setTestOutput(e.getMessage().replaceAll("^[A-Za-z]:\\\\(?:[^\\\\\\n]+\\\\)*compile[^:\\n]+:", ""));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        if (result != null) {
+                            testEntity.setTestOutput(result);
+
+                            if (result.equals(test.getExpectedOutput())) {
+                                testEntity.setStatus(Status.OK);
+                                if (test.getIndex() == tests.size()) {
+                                    solution.setStatus(Status.OK);
+                                    solution.setTestIndex(test.getIndex());
+                                }
+                            } else {
+                                testEntity.setStatus(Status.WRONG_ANSWER);
+                                solution.setStatus(Status.WRONG_ANSWER);
+                                solution.setTestIndex(test.getIndex());
+                                break;
+                            }
+                        }
+
+                        testRepository.save(testEntity);
+                    }
+
+                    solutionRepository.save(solution);
+                });
+            }
         }
         else{
             throw new TaskNotFoundException(taskId);
         }
 
         return "Решение успешно отправлено";
+    }
+
+    private static boolean containsMaliciousWords(String code, Set<String> maliciousWords) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new StringReader(code))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                for (String word : maliciousWords) {
+                    if (line.contains(word)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     @Override

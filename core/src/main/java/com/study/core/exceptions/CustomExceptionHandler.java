@@ -8,6 +8,7 @@ import com.study.core.exceptions.Category.CategoryAlreadyExistsException;
 import com.study.core.exceptions.Category.CategoryNotFoundException;
 import com.study.core.exceptions.Task.TaskAlreadyExistsException;
 import com.study.core.exceptions.Task.TaskNotFoundException;
+import com.study.core.exceptions.Test.TestNotFoundException;
 import com.study.core.exceptions.Topic.TopicAlreadyExistsException;
 import com.study.core.exceptions.Topic.TopicNotFoundException;
 import jakarta.validation.ConstraintViolation;
@@ -74,6 +75,16 @@ public class CustomExceptionHandler {
     @ExceptionHandler(TopicNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public DefaultResponse<?> handleTopicNotFound(TopicNotFoundException exception) {
+        log.error(exception.getMessage());
+        return DefaultResponseBuilder.error(
+                exception.getMessage(),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
+    @ExceptionHandler(TestNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public DefaultResponse<?> handleTestNotFoundException(TestNotFoundException exception) {
         log.error(exception.getMessage());
         return DefaultResponseBuilder.error(
                 exception.getMessage(),

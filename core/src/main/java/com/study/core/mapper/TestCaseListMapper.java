@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = TestMapper.class)
+@Mapper(componentModel = "spring", uses = TestCaseMapper.class)
 public interface TestCaseListMapper {
     List<TestCaseDto> toModelList(List<TestCase> testCases);
 }

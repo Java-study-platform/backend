@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public interface TestMapper {
+public interface TestCaseMapper {
     @Mapping(source = "task.timeLimit", target = "timeLimit")
     TestCaseDto toDTO(TestCase testCase);
 
