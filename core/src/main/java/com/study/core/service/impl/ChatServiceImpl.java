@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -68,7 +67,7 @@ public class ChatServiceImpl implements ChatService {
                    .orElse(new Reaction());
 
             return messageMapper.toDTO(message, reaction.getReactions());
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     @Override

@@ -8,10 +8,7 @@ import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Data
 @Entity
@@ -43,7 +40,7 @@ public class Message {
     @MapKeyColumn(name = "reaction_type")
     @Column(name = "reaction_count")
     @Enumerated(EnumType.STRING)
-    private Map<ReactionType, Integer> reactions = new HashMap<>();
+    private Map<ReactionType, Integer> reactions = new EnumMap<>(ReactionType.class);
 
     @Enumerated(EnumType.STRING)
     private MessageEventType eventType;
