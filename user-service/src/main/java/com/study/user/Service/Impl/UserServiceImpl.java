@@ -1,7 +1,9 @@
 package com.study.user.Service.Impl;
 
+import com.study.common.DTO.UserDto;
 import com.study.user.Entity.User;
 import com.study.user.Exceptions.UserNotFoundException;
+import com.study.user.Mapper.UserMapper;
 import com.study.user.Repository.UserRepository;
 import com.study.user.Service.AdminService;
 import com.study.user.Service.UserService;
@@ -15,12 +17,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final AdminService adminService;
+    private final UserMapper userMapper;
 
-    public UserRepresentation getUserProfile(String username){
+    public UserDto getUserProfile(String username){
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Пользователь с данным никнеймом не найден"));
 
-        return adminService.getUsersResourse().get(user.getKeyCloakId()).toRepresentation();
+        return userMapper.toDTO(user);
     }
 }

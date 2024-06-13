@@ -1,5 +1,6 @@
 package com.study.user.Exceptions;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.study.common.Exceptions.BadCredentialsException;
 import com.study.user.DTO.DefaultResponse;
 import com.study.user.util.DefaultResponseBuilder;
@@ -106,6 +107,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public DefaultResponse<?> handleBadCredentialsException(BadCredentialsException e) {
+        log.error(e.getMessage(), e);
+
+        return DefaultResponseBuilder.error(
+                e.getMessage(),
+                HttpStatus.UNAUTHORIZED
+        );
+    }
+
+    @ExceptionHandler(JWTVerificationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public DefaultResponse<?> handleJWTVerificationException(JWTVerificationException e) {
         log.error(e.getMessage(), e);
 
         return DefaultResponseBuilder.error(

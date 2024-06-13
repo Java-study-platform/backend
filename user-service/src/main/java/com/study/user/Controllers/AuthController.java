@@ -25,7 +25,7 @@ import static com.study.common.Constants.Consts.*;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Авторизация",
-        description = "Контроллер, отвечающий за работу с авторизацией и аутенфикацией пользователей")
+        description = "Контроллер, отвечающий за работу с авторизацией и аутентификацией пользователей")
 public class AuthController {
     private final AuthService authService;
 
@@ -39,7 +39,7 @@ public class AuthController {
         authService.registerUser(userRegistrationModel);
 
         return ResponseEntity.ok(DefaultResponseBuilder.success(
-                "Пользователь успешной зарегестрирован",
+                "Пользователь успешной зарегистрирован",
                 null
         ));
     }

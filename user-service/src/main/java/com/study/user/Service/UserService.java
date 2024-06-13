@@ -1,7 +1,7 @@
 package com.study.user.Service;
 
-import org.keycloak.representations.idm.UserRepresentation;
+import com.study.common.DTO.UserDto;
 
 public interface UserService {
-    UserRepresentation getUserProfile(String username);
+    UserDto getUserProfile(String username);
 }

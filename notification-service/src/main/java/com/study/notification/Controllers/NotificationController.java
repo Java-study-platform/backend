@@ -1,7 +1,6 @@
 package com.study.notification.Controllers;
 
 import com.study.common.DTO.DefaultResponse;
-import com.study.common.DTO.UserDto;
 import com.study.common.util.DefaultResponseBuilder;
 import com.study.notification.DTO.NotificationForUserModel;
 import com.study.notification.Service.NotificationService;

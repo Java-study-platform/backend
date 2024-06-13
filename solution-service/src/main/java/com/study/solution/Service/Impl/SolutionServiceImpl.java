@@ -12,6 +12,7 @@ import com.study.solution.Exceptions.Code.CodeRuntimeException;
 import com.study.solution.Exceptions.Code.TimeLimitException;
 import com.study.solution.Exceptions.NotFound.SolutionNotFoundException;
 import com.study.solution.Exceptions.NotFound.TaskNotFoundException;
+import com.study.solution.Kafka.KafkaProducer;
 import com.study.solution.Mapper.SolutionListMapper;
 import com.study.solution.Mapper.SolutionMapper;
 import com.study.solution.Repository.SolutionRepository;
@@ -39,6 +40,7 @@ import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
+import static com.study.common.Constants.Consts.EMAIL_CLAIM;
 import static com.study.common.Constants.Consts.USERNAME_CLAIM;
 
 @Service
@@ -51,6 +53,7 @@ public class SolutionServiceImpl implements SolutionService {
     private final SolutionListMapper solutionListMapper;
     private final SolutionMapper solutionMapper;
     private final HashSet<String> maliciousWords;
+    private final KafkaProducer kafkaProducer;
 
     @Value("${services.api-key}")
     private String apiKey;
@@ -60,12 +63,14 @@ public class SolutionServiceImpl implements SolutionService {
                                SolutionRepository solutionRepository,
                                TestRepository testRepository,
                                SolutionListMapper solutionListMapper,
-                               SolutionMapper solutionMapper){
+                               SolutionMapper solutionMapper,
+                               KafkaProducer kafkaProducer){
         this.webClient = webClient;
         this.solutionRepository = solutionRepository;
         this.testRepository = testRepository;
         this.solutionListMapper = solutionListMapper;
         this.solutionMapper = solutionMapper;
+        this.kafkaProducer = kafkaProducer;
         this.maliciousWords = new HashSet<>();
 
         maliciousWords.add("shutdown");
@@ -165,6 +170,11 @@ public class SolutionServiceImpl implements SolutionService {
                     }
 
                     solutionRepository.save(solution);
+
+                    kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),
+                            "Решение завершило проверку",
+                            String.format("Статус решения: %s", solution.getStatus()),
+                            true);
                 });
             }
         }

@@ -10,6 +10,7 @@ import com.study.user.DTO.UserRegistrationModel;
 import com.study.user.Entity.User;
 import com.study.user.Exceptions.UserAlreadyExistsException;
 import com.study.user.Exceptions.UserNotFoundException;
+import com.study.user.Kafka.KafkaProducer;
 import com.study.user.Repository.UserRepository;
 import com.study.user.Service.AdminService;
 import com.study.user.Service.AuthService;
@@ -36,6 +37,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final AuthzClient authzClient;
     private final AdminService adminService;
+    private final KafkaProducer kafkaProducer;
 
     @Override
     public void logoutUser(String username){
@@ -68,13 +70,17 @@ public class AuthServiceImpl implements AuthService {
 
     @Transactional
     public void registerUser(UserRegistrationModel userRegistrationModel) {
+        String email = userRegistrationModel.getEmail();
+
         UserRepresentation user = new UserRepresentation();
         user.setEnabled(true);
         user.setEmailVerified(true);
-        user.setEmail(userRegistrationModel.getEmail());
+        user.setEmail(email);
         user.setUsername(userRegistrationModel.getUsername());
         user.setFirstName(userRegistrationModel.getFirstName());
         user.setLastName(userRegistrationModel.getLastName());
+
+
 
         CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
         credentialRepresentation.setValue(userRegistrationModel.getPassword());
@@ -96,6 +102,11 @@ public class AuthServiceImpl implements AuthService {
                 User entityUser = getUser(registeredUser);
 
                 userRepository.save(entityUser);
+
+                kafkaProducer.sendMessage(email,
+                        "Регистрация",
+                        "Поздравляем, вы успешно зарегистрировали",
+                        false);
             }
             else if (Objects.equals(409, resp.getStatus())){
                 String errorMessage = "Пользователь с указанными данными уже существует";
