@@ -31,7 +31,7 @@ public class WebSocketChatController {
     @MessageMapping("/chat/{id}")
     @SendTo("/topic/chats/{id}")
     public MessageDTO sendMessage(
-            @Payload SendMessageModel sendMessageModel,
+            @Validated @Payload SendMessageModel sendMessageModel,
             @DestinationVariable UUID id,
             @AuthenticationPrincipal Jwt user
             ) {
