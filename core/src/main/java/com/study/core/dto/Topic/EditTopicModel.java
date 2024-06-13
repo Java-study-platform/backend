@@ -16,4 +16,9 @@ public class EditTopicModel {
     @NotNull(message = "Название темы не может быть null")
     @Length(min = 1, max = 30, message = "Название темы должно быть длиной от 1 до 30 символов")
     private String name;
+
+    @NotBlank(message = "Материал не может быть пустым")
+    @NotNull(message = "Материал не может быть null")
+    @Length(min = 1, max = 15000, message = "Материал должен содержать от 1 до 15000 символов")
+    private String material;
 }

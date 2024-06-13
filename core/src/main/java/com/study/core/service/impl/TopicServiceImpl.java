@@ -38,6 +38,7 @@ public class TopicServiceImpl implements TopicService {
 
         Topic topic = new Topic();
         topic.setName(createTopicModel.getName());
+        topic.setMaterial(createTopicModel.getMaterial());
         topic.setCategory(category);
         topic.setAuthorLogin(user.getClaim("preferred_username"));
 
@@ -55,6 +56,7 @@ public class TopicServiceImpl implements TopicService {
         }
 
         topic.setName(editTopicModel.getName());
+        topic.setMaterial(editTopicModel.getMaterial());
 
         return topicRepository.save(topic);
     }

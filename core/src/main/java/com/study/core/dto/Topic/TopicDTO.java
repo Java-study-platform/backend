@@ -15,6 +15,7 @@ import java.util.UUID;
 public class TopicDTO {
     private UUID id;
     private String name;
+    private String material;
     private UUID categoryId;
     private List<TaskDTO> tasks;
     private String authorLogin;

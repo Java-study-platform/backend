@@ -20,6 +20,9 @@ public class Topic {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false, length = 15000)
+    private String material;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
