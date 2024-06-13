@@ -8,6 +8,7 @@ import com.study.core.exceptions.Category.ForbiddenException;
 import com.study.core.exceptions.Chat.ChatNotFoundException;
 import com.study.core.exceptions.Message.MessageNotFoundException;
 import com.study.core.exceptions.Message.ReactionAlreadyExistsException;
+import com.study.core.exceptions.Message.ReactionNotFoundException;
 import com.study.core.exceptions.Task.TaskAlreadyExistsException;
 import com.study.core.exceptions.Task.TaskNotFoundException;
 import com.study.core.exceptions.Topic.TopicAlreadyExistsException;
@@ -118,6 +119,16 @@ public class CustomExceptionHandler {
     @ExceptionHandler(MessageNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public DefaultResponse<?> handleMessageNotFound(MessageNotFoundException exception) {
+        log.error(exception.getMessage());
+        return DefaultResponseBuilder.error(
+                exception.getMessage(),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
+    @ExceptionHandler(ReactionNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public DefaultResponse<?> handleReactionNotFound(ReactionNotFoundException exception) {
         log.error(exception.getMessage());
         return DefaultResponseBuilder.error(
                 exception.getMessage(),
