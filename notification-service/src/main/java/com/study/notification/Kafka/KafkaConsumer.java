@@ -28,7 +28,10 @@ public class KafkaConsumer {
     public void listenMessage(NotificationDTO notificationDTO)
             throws MessagingException, UnsupportedEncodingException {
 
-        Notification notification = notificationMapper.toEntity(notificationDTO);
+        Notification notification = new Notification();
+        notification.setContent(notificationDTO.getContent());
+        notification.setTitle(notificationDTO.getTitle());
+        notification.setUserEmail(notificationDTO.getUserEmail());
 
         log.info("Получено сообщение с title: " + notification.getTitle());
 

@@ -14,7 +14,7 @@ import java.util.UUID;
 @Schema(description = "Модель для уведомлений, которые получает пользователь")
 public class NotificationForUserModel {
     @Schema(description = "Идентификатор уведомления")
-    private UUID notificationId;
+    private UUID id;
 
     @Schema(description = "Заголовок")
     private String title;
