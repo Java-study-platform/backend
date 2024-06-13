@@ -33,6 +33,9 @@ public class Task {
     @Column(name = "author_login", nullable = false)
     private String authorLogin;
 
+    @OneToOne(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Chat chat;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createTime;

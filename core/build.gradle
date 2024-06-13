@@ -45,6 +45,7 @@ dependencies {
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     implementation 'com.google.guava:guava-base:r03'
     compileOnly "org.projectlombok:lombok"
+    implementation 'org.springframework:spring-websocket:6.1.8'
     annotationProcessor "org.projectlombok:lombok"
     // mapstruct должен стоять после lombok, иначе будет прилетать ошибка
     implementation 'org.mapstruct:mapstruct:1.5.5.Final'

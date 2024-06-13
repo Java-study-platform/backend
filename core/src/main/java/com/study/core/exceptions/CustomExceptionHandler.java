@@ -5,6 +5,9 @@ import com.study.core.dto.DefaultResponse;
 import com.study.core.exceptions.Category.CategoryAlreadyExistsException;
 import com.study.core.exceptions.Category.CategoryNotFoundException;
 import com.study.core.exceptions.Category.ForbiddenException;
+import com.study.core.exceptions.Chat.ChatNotFoundException;
+import com.study.core.exceptions.Message.MessageNotFoundException;
+import com.study.core.exceptions.Message.ReactionAlreadyExistsException;
 import com.study.core.exceptions.Task.TaskAlreadyExistsException;
 import com.study.core.exceptions.Task.TaskNotFoundException;
 import com.study.core.exceptions.Topic.TopicAlreadyExistsException;
@@ -61,6 +64,17 @@ public class CustomExceptionHandler {
         );
     }
 
+    @ExceptionHandler(ReactionAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public DefaultResponse<?> handleReactionAlreadyExists(ReactionAlreadyExistsException exception) {
+        log.error(exception.getMessage());
+        return DefaultResponseBuilder.error(
+                exception.getMessage(),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+
     @ExceptionHandler(CategoryNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public DefaultResponse<?> handleCategoryNotFound(CategoryNotFoundException exception) {
@@ -84,6 +98,26 @@ public class CustomExceptionHandler {
     @ExceptionHandler(TaskNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public DefaultResponse<?> handleTaskNotFound(TaskNotFoundException exception) {
+        log.error(exception.getMessage());
+        return DefaultResponseBuilder.error(
+                exception.getMessage(),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
+    @ExceptionHandler(ChatNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public DefaultResponse<?> handleChatNotFound(ChatNotFoundException exception) {
+        log.error(exception.getMessage());
+        return DefaultResponseBuilder.error(
+                exception.getMessage(),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
+    @ExceptionHandler(MessageNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public DefaultResponse<?> handleMessageNotFound(MessageNotFoundException exception) {
         log.error(exception.getMessage());
         return DefaultResponseBuilder.error(
                 exception.getMessage(),
