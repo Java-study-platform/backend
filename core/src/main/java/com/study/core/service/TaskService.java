@@ -19,4 +19,6 @@ public interface TaskService {
     void deleteTask(UUID id);
 
     Page<Task> getTasks(TaskFilter taskFilter, Pageable pageable);
+
+    Task getTask(UUID id);
 }

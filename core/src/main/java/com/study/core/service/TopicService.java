@@ -18,4 +18,6 @@ public interface TopicService {
     void deleteTopic(UUID id);
 
     Page<Topic> getTopics(String queryText, Pageable pageable);
+
+    Topic getTopic(UUID id);
 }

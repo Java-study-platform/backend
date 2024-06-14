@@ -34,6 +34,9 @@ public class Topic {
     @Column(name = "author_login", nullable = false)
     private String authorLogin;
 
+    @OneToOne(mappedBy = "topic", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Chat chat;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createTime;

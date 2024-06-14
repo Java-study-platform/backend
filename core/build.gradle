@@ -48,6 +48,7 @@ dependencies {
     implementation 'org.keycloak:keycloak-policy-enforcer:23.0.6'
     implementation 'com.google.guava:guava:32.1.1-jre'
     compileOnly "org.projectlombok:lombok"
+    implementation 'org.springframework:spring-websocket:6.1.8'
     annotationProcessor "org.projectlombok:lombok"
     // mapstruct должен стоять после lombok, иначе будет прилетать ошибка
     implementation 'org.mapstruct:mapstruct:1.5.5.Final'

@@ -94,5 +94,11 @@ public class TaskServiceImpl implements TaskService {
 
         return taskRepository.findAll(predicate, pageable);
     }
+
+    @Override
+    public Task getTask(UUID id) {
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new TaskNotFoundException(id));
+    }
 }
 
