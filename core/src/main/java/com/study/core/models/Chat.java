@@ -16,8 +16,8 @@ public class Chat {
     private UUID id;
 
     @OneToOne
-    @JoinColumn(name = "task_id")
-    private Task task;
+    @JoinColumn(name = "topic_id")
+    private Topic topic;
 
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("sentAt ASC")

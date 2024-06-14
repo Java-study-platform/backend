@@ -18,6 +18,7 @@ public class TopicDTO {
     private UUID categoryId;
     private List<TaskDTO> tasks;
     private String authorLogin;
+    private UUID chatId;
     private LocalDateTime createTime;
     private LocalDateTime modifiedDate;
 }

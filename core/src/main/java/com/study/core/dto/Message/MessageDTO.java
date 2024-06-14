@@ -21,7 +21,7 @@ public class MessageDTO {
     private String content;
     private String senderLogin;
     private UUID parentMessageId;
-    private UUID taskId;
+    private UUID topicId;
     private List<MessageDTO> replies;
     private Map<ReactionType, Integer> reactions;
     private Set<ReactionType> currentUserReactions;

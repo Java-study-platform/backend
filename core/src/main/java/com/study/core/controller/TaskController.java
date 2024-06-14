@@ -84,4 +84,13 @@ public class TaskController {
                 taskService.getTasks(taskFilter, pageable).map(taskMapper::toDTO)
         ));
     }
+
+    @GetMapping(TASKS + "/{id}")
+    @Operation(summary = "Получить конкретную задачу")
+    public ResponseEntity<DefaultResponse<TaskDTO>> getTask(@PathVariable UUID id) {
+        return ResponseEntity.ok(DefaultResponseBuilder.success(
+                "Задача",
+                taskMapper.toDTO(taskService.getTask(id))
+        ));
+    }
 }

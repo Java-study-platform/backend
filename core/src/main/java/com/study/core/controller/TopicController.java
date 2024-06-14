@@ -85,4 +85,14 @@ public class TopicController {
         ));
     }
 
+    @GetMapping(TOPICS + "/{id}")
+    @Operation(summary = "Получить конкретную тему")
+    public ResponseEntity<DefaultResponse<TopicDTO>> getTopic(@PathVariable UUID id) {
+
+        return ResponseEntity.ok(DefaultResponseBuilder.success(
+                "Тема",
+                topicMapper.toDTO(topicService.getTopic(id))
+        ));
+    }
+
 }

@@ -6,6 +6,7 @@ import com.study.core.exceptions.Category.CategoryNotFoundException;
 import com.study.core.exceptions.Topic.TopicAlreadyExistsException;
 import com.study.core.exceptions.Topic.TopicNotFoundException;
 import com.study.core.models.Category;
+import com.study.core.models.Chat;
 import com.study.core.models.Topic;
 import com.study.core.repository.CategoryRepository;
 import com.study.core.repository.TopicRepository;
@@ -40,6 +41,9 @@ public class TopicServiceImpl implements TopicService {
         topic.setName(createTopicModel.getName());
         topic.setCategory(category);
         topic.setAuthorLogin(user.getClaim("preferred_username"));
+
+        Chat chat = new Chat();
+        chat.setTopic(topic);
 
         return topicRepository.save(topic);
     }
@@ -76,5 +80,11 @@ public class TopicServiceImpl implements TopicService {
         else {
             return topicRepository.findByNameContainingIgnoreCase(queryText, pageable);
         }
+    }
+
+    @Override
+    public Topic getTopic(UUID id) {
+        return topicRepository.findById(id)
+                .orElseThrow(() -> new TopicNotFoundException(id));
     }
 }
