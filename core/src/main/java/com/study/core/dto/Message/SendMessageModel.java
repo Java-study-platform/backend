@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.UUID;
 public class SendMessageModel {
     @NotBlank(message = "Нельзя отправить пустое сообщение")
     @NotNull(message = "Текст сообщения не может быть равен null")
+    @Length(message = "Текст сообщения должен содержать от 1 до 6000 символов")
     private String content;
 
     private UUID parentMessageId;

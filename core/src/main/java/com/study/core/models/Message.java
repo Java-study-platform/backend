@@ -18,7 +18,7 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 6000)
     private String content;
 
     @Column(nullable = false)
