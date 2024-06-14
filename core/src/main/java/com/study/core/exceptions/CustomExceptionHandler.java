@@ -6,7 +6,6 @@ import com.study.common.Exceptions.ForbiddenException;
 import com.study.common.util.DefaultResponseBuilder;
 import com.study.core.exceptions.Category.CategoryAlreadyExistsException;
 import com.study.core.exceptions.Category.CategoryNotFoundException;
-import com.study.core.exceptions.Category.ForbiddenException;
 import com.study.core.exceptions.Chat.ChatNotFoundException;
 import com.study.core.exceptions.Message.MessageAndChatMissmatchException;
 import com.study.core.exceptions.Message.MessageNotFoundException;
