@@ -1,6 +1,5 @@
 package com.study.core.service;
 
-import com.querydsl.core.group.GroupBy;
 import com.study.core.dto.Message.MessageDTO;
 import com.study.core.dto.Message.ReactMessageModel;
 import com.study.core.dto.Message.SendMessageModel;

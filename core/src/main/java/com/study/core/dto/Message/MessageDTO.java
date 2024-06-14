@@ -2,7 +2,6 @@ package com.study.core.dto.Message;
 
 import com.study.core.enums.MessageEventType;
 import com.study.core.enums.ReactionType;
-import com.study.core.models.Message;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

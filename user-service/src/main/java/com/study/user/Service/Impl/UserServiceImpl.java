@@ -5,11 +5,9 @@ import com.study.user.Entity.User;
 import com.study.user.Exceptions.UserNotFoundException;
 import com.study.user.Mapper.UserMapper;
 import com.study.user.Repository.UserRepository;
-import com.study.user.Service.AdminService;
 import com.study.user.Service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
 
 @Slf4j

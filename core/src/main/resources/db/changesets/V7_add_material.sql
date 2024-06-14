@@ -2,9 +2,14 @@
 
 -- changeset shuml:1718296040393-1
 ALTER TABLE topics
-    ADD material VARCHAR(15000);
+    ADD COLUMN material VARCHAR(15000) DEFAULT '' NOT NULL;
 
--- changeset shuml:1718296040393-2
+UPDATE topics
+SET material = 'default value';
+
 ALTER TABLE topics
-    ALTER COLUMN material SET NOT NULL;
+    ALTER COLUMN material DROP DEFAULT;
+
+
+
 

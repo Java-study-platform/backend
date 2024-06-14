@@ -1,11 +1,11 @@
 package com.study.core.controller;
 
 
-import com.study.core.dto.DefaultResponse;
+import com.study.common.DTO.DefaultResponse;
+import com.study.common.util.DefaultResponseBuilder;
 import com.study.core.dto.Message.MessageDTO;
 import com.study.core.mapper.MessageMapper;
 import com.study.core.service.ChatService;
-import com.study.core.util.DefaultResponseBuilder;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RequestMapping("/api/learning/chats")
 @RestController
