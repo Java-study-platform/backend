@@ -6,6 +6,7 @@ import com.study.core.exceptions.Category.CategoryAlreadyExistsException;
 import com.study.core.exceptions.Category.CategoryNotFoundException;
 import com.study.core.exceptions.Category.ForbiddenException;
 import com.study.core.exceptions.Chat.ChatNotFoundException;
+import com.study.core.exceptions.Message.MessageAndChatMissmatchException;
 import com.study.core.exceptions.Message.MessageNotFoundException;
 import com.study.core.exceptions.Message.ReactionAlreadyExistsException;
 import com.study.core.exceptions.Message.ReactionNotFoundException;
@@ -75,6 +76,15 @@ public class CustomExceptionHandler {
         );
     }
 
+    @ExceptionHandler(MessageAndChatMissmatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public DefaultResponse<?> handleMessageAndChatMissmatch(MessageAndChatMissmatchException exception) {
+        log.error(exception.getMessage());
+        return DefaultResponseBuilder.error(
+                exception.getMessage(),
+                HttpStatus.BAD_REQUEST
+        );
+    }
 
     @ExceptionHandler(CategoryNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)

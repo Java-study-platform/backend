@@ -6,6 +6,7 @@ import com.study.core.dto.Message.SendMessageModel;
 import com.study.core.dto.Message.UnreactMessageModel;
 import com.study.core.enums.MessageEventType;
 import com.study.core.exceptions.Chat.ChatNotFoundException;
+import com.study.core.exceptions.Message.MessageAndChatMissmatchException;
 import com.study.core.exceptions.Message.MessageNotFoundException;
 import com.study.core.exceptions.Message.ReactionAlreadyExistsException;
 import com.study.core.exceptions.Message.ReactionNotFoundException;
@@ -78,6 +79,9 @@ public class ChatServiceImpl implements ChatService {
         Message message = messageRepository.findById(reactMessageModel.getMessageId())
                 .orElseThrow(() -> new MessageNotFoundException(reactMessageModel.getMessageId()));
 
+        if (!message.getChat().getId().equals(id)) {
+            throw new MessageAndChatMissmatchException(reactMessageModel.getMessageId(), id);
+        }
 
         Reaction reaction = reactionRepository.findByAuthorLoginAndMessage(authorLogin, message)
                .orElse(new Reaction());
@@ -107,6 +111,9 @@ public class ChatServiceImpl implements ChatService {
         Message message = messageRepository.findById(unreactMessageModel.getMessageId())
                 .orElseThrow(() -> new MessageNotFoundException(unreactMessageModel.getMessageId()));
 
+        if (!message.getChat().getId().equals(id)) {
+            throw new MessageAndChatMissmatchException(unreactMessageModel.getMessageId(), id);
+        }
 
         Reaction reaction = reactionRepository.findByAuthorLoginAndMessage(authorLogin, message)
                 .orElseThrow(() -> new ReactionNotFoundException(message.getId(), unreactMessageModel.getReactionType().getPrettyName()));
