@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
@@ -39,6 +40,7 @@ public class CategoryController {
 
     @PostMapping(CATEGORIES)
     @Operation(summary = "Создать категорию")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DefaultResponse<CategoryDTO>> createCategory(@AuthenticationPrincipal Jwt user,
                                                                       @Validated @RequestBody CreateCategoryModel createCategoryModel) {
 
@@ -53,6 +55,7 @@ public class CategoryController {
 
     @PutMapping(EDIT_CATEGORY)
     @Operation(summary = "Отредактировать категорию")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DefaultResponse<CategoryDTO>> editCategory(@AuthenticationPrincipal Jwt user,
                                           @Validated @RequestBody EditCategoryModel editCategoryModel,
                                           @PathVariable UUID id) {
@@ -67,6 +70,7 @@ public class CategoryController {
 
     @DeleteMapping(EDIT_CATEGORY)
     @Operation(summary = "Удалить категорию по id")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DefaultResponse<?>> deleteCategory(@AuthenticationPrincipal Jwt user,
                                             @PathVariable UUID id) {
         categoryService.deleteCategory(id);

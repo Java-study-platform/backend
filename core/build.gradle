@@ -36,6 +36,7 @@ dependencies {
     //implementation 'org.springframework.cloud:spring-cloud-starter-zookeeper-config'
     //implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.hibernate.validator:hibernate-validator:8.0.0.Final'
+    implementation 'org.springframework.security:spring-security-oauth2-resource-server'
     implementation "org.springframework.security:spring-security-oauth2-client:${oAuth2Version}"
     implementation "org.springframework.security:spring-security-oauth2-jose:${oAuth2Version}"
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
@@ -43,7 +44,9 @@ dependencies {
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
     implementation 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
-    implementation 'com.google.guava:guava-base:r03'
+    implementation 'org.keycloak:keycloak-core:23.0.6'
+    implementation 'org.keycloak:keycloak-policy-enforcer:23.0.6'
+    implementation 'com.google.guava:guava:32.1.1-jre'
     compileOnly "org.projectlombok:lombok"
     annotationProcessor "org.projectlombok:lombok"
     // mapstruct должен стоять после lombok, иначе будет прилетать ошибка
@@ -51,6 +54,11 @@ dependencies {
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0'
    // testImplementation 'org.springframework.kafka:spring-kafka-test'
+    implementation 'org.jboss.resteasy:resteasy-client:6.2.9.Final'
+    implementation 'org.jboss.resteasy:resteasy-jackson2-provider:6.2.9.Final'
+    implementation 'com.auth0:java-jwt:4.4.0'
+    implementation 'com.auth0:jwks-rsa:0.22.1'
+    implementation 'org.passay:passay:1.6.1'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

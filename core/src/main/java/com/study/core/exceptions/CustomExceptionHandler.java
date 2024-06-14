@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -164,11 +165,11 @@ public class CustomExceptionHandler {
         );
     }
 
-    @ExceptionHandler(ForbiddenException.class)
+    @ExceptionHandler({ForbiddenException.class, AccessDeniedException.class})
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public DefaultResponse<?> handleForbiddenException(ForbiddenException exception){
+    public DefaultResponse<?> handleForbiddenException(){
         return DefaultResponseBuilder.error(
-                exception.getMessage(),
+                "Access Denied",
                 HttpStatus.FORBIDDEN
         );
     }

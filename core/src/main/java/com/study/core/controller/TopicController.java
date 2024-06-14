@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
@@ -37,6 +38,7 @@ public class TopicController {
 
     @PostMapping(TOPICS + "/{categoryId}")
     @Operation(summary = "Создать тему в конкретной категории")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DefaultResponse<TopicDTO>> createTopic(@AuthenticationPrincipal Jwt user,
                                                                  @Validated @RequestBody CreateTopicModel createTopicModel,
                                                                  @PathVariable UUID categoryId) {
@@ -50,6 +52,7 @@ public class TopicController {
 
     @PutMapping(TOPICS + "/{id}")
     @Operation(summary = "Редактировать тему")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DefaultResponse<TopicDTO>> editTopic(@AuthenticationPrincipal Principal user,
                                                                @Validated @RequestBody EditTopicModel editTopicModel,
                                                                @PathVariable UUID id) {
@@ -64,6 +67,7 @@ public class TopicController {
 
     @DeleteMapping(TOPICS + "/{id}")
     @Operation(summary = "Удалить тему")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DefaultResponse<?>> deleteTopic(@AuthenticationPrincipal Principal user,
                                                           @PathVariable UUID id) {
         topicService.deleteTopic(id);
