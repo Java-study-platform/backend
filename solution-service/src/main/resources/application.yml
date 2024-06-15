@@ -66,3 +66,7 @@ springdoc:
     operationsSorter: method
     tagsSorter: alpha
     display-request-duration: true
+
+docker:
+  network: netw
+  host: tcp://localhost:2376

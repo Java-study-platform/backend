@@ -33,13 +33,13 @@ public class SolutionController {
             description = "Позволяет пользователю отправить решение на проверку"
     )
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<DefaultResponse<String>> sendSolution(
+    public ResponseEntity<DefaultResponse<SolutionDto>> sendSolution(
             @AuthenticationPrincipal Jwt user,
             @RequestParam(name = "taskId") UUID taskId,
             @RequestBody SendTestSolutionRequest code) throws IOException {
         return ResponseEntity.ok(DefaultResponseBuilder.success(
-                solutionService.testSolution(user, taskId, code),
-                null));
+                "Решение успешно отправлено",
+                solutionService.testSolution(user, taskId, code)));
     }
 
     @GetMapping(SOLUTIONS + "/{taskId}")

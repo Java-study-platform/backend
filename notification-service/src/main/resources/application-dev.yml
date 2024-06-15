@@ -40,13 +40,13 @@ spring:
               - openid
         provider:
           keycloak:
-            issuer-uri: http://95.163.230.65:8080/realms/Study-platform
+            issuer-uri: http://localhost:8080/realms/Study-platform
             user-name-attribute: preferred_username
 
 
       resourceserver:
         jwt:
-          issuer-uri: http://95.163.230.65:8080/realms/Study-platform
+          issuer-uri: http://localhost:8080/realms/Study-platform
           jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
   kafka:
     bootstrap-servers: http://localhost:9092
@@ -65,4 +65,4 @@ eureka:
     prefer-ip-address: true
 
 server:
-  port: 8082
+  port: 8083

@@ -1,10 +1,22 @@
 package com.study.solution.Service.Impl;
 
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.async.ResultCallback;
+import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.command.ExecCreateCmdResponse;
+import com.github.dockerjava.api.exception.DockerException;
+import com.github.dockerjava.api.model.Bind;
+import com.github.dockerjava.api.model.Frame;
+import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.Volume;
+import com.github.dockerjava.core.DockerClientBuilder;
+import com.github.dockerjava.core.command.ExecStartResultCallback;
 import com.study.common.DTO.TestCaseDto;
 import com.study.common.Enum.Status;
 import com.study.common.Exceptions.ForbiddenException;
 import com.study.solution.DTO.Solution.SendTestSolutionRequest;
 import com.study.solution.DTO.Solution.SolutionDto;
+import com.study.solution.DTO.Test.TestDto;
 import com.study.solution.Entity.Solution;
 import com.study.solution.Entity.Test;
 import com.study.solution.Exceptions.Code.CodeCompilationException;
@@ -15,6 +27,7 @@ import com.study.solution.Exceptions.NotFound.TaskNotFoundException;
 import com.study.solution.Kafka.KafkaProducer;
 import com.study.solution.Mapper.SolutionListMapper;
 import com.study.solution.Mapper.SolutionMapper;
+import com.study.solution.Mapper.TestMapper;
 import com.study.solution.Repository.SolutionRepository;
 import com.study.solution.Repository.TestRepository;
 import com.study.solution.Service.SolutionService;
@@ -24,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,6 +68,11 @@ public class SolutionServiceImpl implements SolutionService {
     private final SolutionMapper solutionMapper;
     private final HashSet<String> maliciousWords;
     private final KafkaProducer kafkaProducer;
+    private final SimpMessagingTemplate messagingTemplate;
+    private final TestMapper testMapper;
+    private final DockerClient dockerClient;
+
+    private static final String DOCKER_IMAGE = "openjdk:17";
 
     @Value("${services.api-key}")
     private String apiKey;
@@ -64,7 +83,10 @@ public class SolutionServiceImpl implements SolutionService {
                                TestRepository testRepository,
                                SolutionListMapper solutionListMapper,
                                SolutionMapper solutionMapper,
-                               KafkaProducer kafkaProducer){
+                               KafkaProducer kafkaProducer,
+                               SimpMessagingTemplate messagingTemplate,
+                               TestMapper testMapper,
+                               DockerClient dockerClient){
         this.webClient = webClient;
         this.solutionRepository = solutionRepository;
         this.testRepository = testRepository;
@@ -72,6 +94,9 @@ public class SolutionServiceImpl implements SolutionService {
         this.solutionMapper = solutionMapper;
         this.kafkaProducer = kafkaProducer;
         this.maliciousWords = new HashSet<>();
+        this.messagingTemplate = messagingTemplate;
+        this.testMapper = testMapper;
+        this.dockerClient = dockerClient;
 
         maliciousWords.add("shutdown");
         maliciousWords.add("File");
@@ -90,15 +115,15 @@ public class SolutionServiceImpl implements SolutionService {
     }
 
     @Transactional
-    public String testSolution(Jwt user, UUID taskId, SendTestSolutionRequest request) throws IOException {
+    public SolutionDto testSolution(Jwt user, UUID taskId, SendTestSolutionRequest request) throws IOException {
         List<TestCaseDto> tests = getTestCases(taskId).block();
-
 
         if (tests != null && !tests.isEmpty()) {
             Solution solution = new Solution();
             String code = request.getCode().replaceAll("(?m)^package\\s+.*?;", "").trim();
 
             solution.setSolutionCode(code);
+            solution.setId(UUID.randomUUID());
             solution.setStatus(Status.PENDING);
             solution.setTaskId(taskId);
             solution.setTestIndex(0L);
@@ -119,11 +144,11 @@ public class SolutionServiceImpl implements SolutionService {
                         String input = test.getExpectedInput();
 
                         Test testEntity = new Test();
+                        testEntity.setId(UUID.randomUUID());
                         testEntity.setSolution(solution);
                         testEntity.setTestInput(input);
                         testEntity.setStatus(Status.PENDING);
                         testEntity.setTestIndex(testIndex);
-                        testRepository.save(testEntity);
 
                         try {
                             result = runCode(code, input, timeLimit)
@@ -167,6 +192,8 @@ public class SolutionServiceImpl implements SolutionService {
                         }
 
                         testRepository.save(testEntity);
+
+                        sendWebSocketMessage(user, testMapper.toDTO(testEntity), solution.getId());
                     }
 
                     solutionRepository.save(solution);
@@ -177,12 +204,13 @@ public class SolutionServiceImpl implements SolutionService {
                             true);
                 });
             }
+
+            return solutionMapper.toDTO(solution);
+
         }
         else{
             throw new TaskNotFoundException(taskId);
         }
-
-        return "Решение успешно отправлено";
     }
 
     private static boolean containsMaliciousWords(String code, Set<String> maliciousWords) throws IOException {
@@ -219,103 +247,193 @@ public class SolutionServiceImpl implements SolutionService {
         return solutionMapper.toDTO(solution);
     }
 
-    private static String runCode(String code, String input, long timeLimit) throws IOException {
+//    private static String runCode(String code, String input, long timeLimit) throws IOException {
+//        StringBuilder result = new StringBuilder();
+//
+//        Path path = Files.createTempDirectory("compile");
+//
+//        File tempFile = new File(path.toAbsolutePath() + "\\Main.java");
+//
+//        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));;
+//        writer.write(code);
+//        writer.close();
+//
+//        Process compileProcess = Runtime.getRuntime().exec("javac " + tempFile.getAbsolutePath());
+//        try {
+//            int compileResult = compileProcess.waitFor();
+//            if (compileResult != 0 ){
+//                BufferedReader errorReader = new BufferedReader(new InputStreamReader(compileProcess.getErrorStream()));
+//
+//                StringBuilder errorBuilder = new StringBuilder();
+//                String line;
+//
+//                while ((line = errorReader.readLine()) != null) {
+//                    errorBuilder.append(line).append("\n");
+//                }
+//                errorReader.close();
+//
+//                throw new CodeCompilationException(errorBuilder.toString());
+//            }
+//            else {
+//                String command = String.format("java -cp %s Main", tempFile.getParent());
+//
+//                Process process = Runtime.getRuntime().exec(command);
+//                try (BufferedWriter inputWriter = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()))) {
+//                    inputWriter.write(input);
+//                    inputWriter.flush();
+//                }
+//
+//                ExecutorService executor = Executors.newSingleThreadExecutor();
+//
+//                Callable<String> outputTask = () -> {
+//                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+//                        return reader.lines().collect(Collectors.joining("\n"));
+//                    }
+//                };
+//
+//                Callable<String> errorTask = () -> {
+//                    try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
+//                        return errorReader.lines().collect(Collectors.joining("\n"));
+//                    }
+//                };
+//
+//                try{
+//                    Future<String> outputFuture = executor.submit(outputTask);
+//                    Future<String> errorFuture = executor.submit(errorTask);
+//
+//    //                boolean finished = process.waitFor(timeLimit, TimeUnit.MILLISECONDS);
+//    //                if (!finished) {
+//    //                    process.destroy();
+//    //                    executor.shutdownNow();
+//    //                    throw new TimeLimitException();
+//    //                }
+//
+//                    result.append(outputFuture.get(timeLimit, TimeUnit.MILLISECONDS)).append("\n");
+//
+//                    String errors = errorFuture.get();
+//                    if (!errors.isEmpty()) {
+//                        result.append(errors).append("\n");
+//
+//                        throw new CodeRuntimeException(result.toString());
+//                    }
+//
+//                    if (process.exitValue() != 0) {
+//                        throw new CodeRuntimeException(result.toString());
+//                    }
+//                }
+//                catch (InterruptedException | ExecutionException e){
+//                    throw new CodeRuntimeException(e.getMessage());
+//                } catch (TimeoutException e) {
+//                    process.destroy();
+//                    executor.shutdownNow();
+//
+//                    throw new TimeLimitException();
+//                }
+//                finally {
+//                    executor.shutdown();
+//                }
+//            }
+//        }
+//        catch (InterruptedException e){
+//            throw new CodeRuntimeException(e.getMessage());
+//        } finally {
+//            File classFile = new File(tempFile.getParent(), "Main.class");
+//
+//            tempFile.delete();
+//            classFile.delete();
+//            Files.delete(path);
+//        }
+//
+//        return result.toString();
+//    }
+
+    private String runCode(String code, String input, long timeLimit) throws IOException, CodeCompilationException, CodeRuntimeException, TimeLimitException {
         StringBuilder result = new StringBuilder();
+        StringBuilder errorResult = new StringBuilder();
 
         Path path = Files.createTempDirectory("compile");
+        File tempFile = new File(path.toAbsolutePath() + "/Main.java");
 
-        File tempFile = new File(path.toAbsolutePath() + "\\Main.java");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
+            writer.write(code);
+        }
 
-        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));;
-        writer.write(code);
-        writer.close();
+        Volume volume = new Volume("/code");
+        HostConfig hostConfig = HostConfig.newHostConfig()
+                .withBinds(new Bind(path.toAbsolutePath().toString(), volume));
 
-        Process compileProcess = Runtime.getRuntime().exec("javac " + tempFile.getAbsolutePath());
+        CreateContainerResponse container = dockerClient.createContainerCmd(DOCKER_IMAGE)
+                .withHostConfig(hostConfig)
+                .withWorkingDir("/code")
+                .exec();
+
+        dockerClient.startContainerCmd(container.getId()).exec();
+
+        ExecCreateCmdResponse compileCmd = dockerClient.execCreateCmd(container.getId())
+                .withCmd("sh", "-c", "javac Main.java")
+                .exec();
+
         try {
-            int compileResult = compileProcess.waitFor();
-            if (compileResult != 0 ){
-                BufferedReader errorReader = new BufferedReader(new InputStreamReader(compileProcess.getErrorStream()));
+            dockerClient.execStartCmd(compileCmd.getId())
+                    .exec(new ResultCallback.Adapter<Frame>() {
+                        @Override
+                        public void onNext(Frame item) {
+                            result.append(item.toString()).append("\n");
+                        }
 
-                StringBuilder errorBuilder = new StringBuilder();
-                String line;
-
-                while ((line = errorReader.readLine()) != null) {
-                    errorBuilder.append(line).append("\n");
-                }
-                errorReader.close();
-
-                throw new CodeCompilationException(errorBuilder.toString());
-            }
-            else {
-                String command = String.format("java -cp %s Main", tempFile.getParent());
-
-                Process process = Runtime.getRuntime().exec(command);
-                try (BufferedWriter inputWriter = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()))) {
-                    inputWriter.write(input);
-                    inputWriter.flush();
-                }
-
-                ExecutorService executor = Executors.newSingleThreadExecutor();
-
-                Callable<String> outputTask = () -> {
-                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                        return reader.lines().collect(Collectors.joining("\n"));
-                    }
-                };
-
-                Callable<String> errorTask = () -> {
-                    try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-                        return errorReader.lines().collect(Collectors.joining("\n"));
-                    }
-                };
-
-                try{
-                    Future<String> outputFuture = executor.submit(outputTask);
-                    Future<String> errorFuture = executor.submit(errorTask);
-
-    //                boolean finished = process.waitFor(timeLimit, TimeUnit.MILLISECONDS);
-    //                if (!finished) {
-    //                    process.destroy();
-    //                    executor.shutdownNow();
-    //                    throw new TimeLimitException();
-    //                }
-
-                    result.append(outputFuture.get(timeLimit, TimeUnit.MILLISECONDS)).append("\n");
-
-                    String errors = errorFuture.get();
-                    if (!errors.isEmpty()) {
-                        result.append(errors).append("\n");
-
-                        throw new CodeRuntimeException(result.toString());
-                    }
-
-                    if (process.exitValue() != 0) {
-                        throw new CodeRuntimeException(result.toString());
-                    }
-                }
-                catch (InterruptedException | ExecutionException e){
-                    throw new CodeRuntimeException(e.getMessage());
-                } catch (TimeoutException e) {
-                    process.destroy();
-                    executor.shutdownNow();
-
-                    throw new TimeLimitException();
-                }
-                finally {
-                    executor.shutdown();
-                }
-            }
-        }
-        catch (InterruptedException e){
-            throw new CodeRuntimeException(e.getMessage());
-        } finally {
-            File classFile = new File(tempFile.getParent(), "Main.class");
-
-            tempFile.delete();
-            classFile.delete();
-            Files.delete(path);
+                        @Override
+                        public void onError(Throwable throwable) {
+                            errorResult.append(throwable.getMessage()).append("\n");
+                        }
+                    }).awaitCompletion(timeLimit, TimeUnit.MILLISECONDS);
+        } catch (DockerException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            dockerClient.removeContainerCmd(container.getId()).exec();
+            throw new TimeLimitException();
         }
 
+        if (!errorResult.toString().isEmpty()) {
+            dockerClient.removeContainerCmd(container.getId()).exec();
+            throw new CodeCompilationException(errorResult.toString());
+        }
+
+        errorResult.setLength(0);
+        result.setLength(0);
+
+        ExecCreateCmdResponse runCmd = dockerClient.execCreateCmd(container.getId())
+                .withCmd("sh", "-c", "echo \"" + input + "\" | java Main")
+                .exec();
+
+        try {
+            dockerClient.execStartCmd(runCmd.getId())
+                    .exec(new ResultCallback.Adapter<Frame>() {
+                        @Override
+                        public void onNext(Frame item) {
+                            result.append(item.toString()).append("\n");
+                        }
+
+                        @Override
+                        public void onError(Throwable throwable) {
+                            errorResult.append(throwable.getMessage()).append("\n");
+                        }
+                    }).awaitCompletion(timeLimit, TimeUnit.MILLISECONDS);
+        } catch ( DockerException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            dockerClient.removeContainerCmd(container.getId()).exec();
+            throw new TimeLimitException();
+        }
+
+        if (!errorResult.toString().isEmpty()) {
+            dockerClient.removeContainerCmd(container.getId()).exec();
+            throw new CodeRuntimeException(errorResult.toString());
+        }
+
+        dockerClient.removeContainerCmd(container.getId()).exec();
+
+        Files.delete(tempFile.toPath());
+        Files.delete(path);
 
         return result.toString();
     }
@@ -327,13 +445,18 @@ public class SolutionServiceImpl implements SolutionService {
                         .build())
                 .header("X-API-KEY", apiKey)
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, response -> {
-                    return Mono.error(new RuntimeException("Client error: " + response.statusCode()));
-                })
-                .onStatus(HttpStatusCode::is5xxServerError, response -> {
-                    return Mono.error(new RuntimeException("Server error: " + response.statusCode()));
-                })
+                .onStatus(HttpStatusCode::is4xxClientError, response -> Mono.error(new RuntimeException("Client error: " + response.statusCode())))
+                .onStatus(HttpStatusCode::is5xxServerError, response -> Mono.error(new RuntimeException("Server error: " + response.statusCode())))
                 .bodyToMono(new ParameterizedTypeReference<List<TestCaseDto>>() {})
                 .doOnError(e -> log.error("Error retrieving test cases", e));
+    }
+
+    private void sendWebSocketMessage(Jwt user, TestDto testDto, UUID solutionId) {
+        try {
+            messagingTemplate.convertAndSendToUser(user.getClaim(USERNAME_CLAIM), String.format("/solution/%s", solutionId.toString()), testDto);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

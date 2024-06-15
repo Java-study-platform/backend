@@ -1,4 +1,19 @@
 spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8080/realms/Study-platform
+        registration:
+          gateway:
+            provider: keycloak
+            client-id: springsecurity
+            client-secret: W0Wa5HOln1rQUsSipM2iOBhs6TszaEHj
+            authorization-grant-type: authorization_code
+            scope:
+              - openid
+              - resource.read
   application:
     name: GATEWAY
   main:
@@ -20,5 +35,19 @@ spring:
           uri: lb://CORE-SERVICE
           predicates:
             - Path=/api/learning/**
+
+        - id: solution-service
+          uri: lb://SOLUTION-SERVICE
+          predicates:
+            - Path=/api/solution/**
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    hostname: localhost
 server:
   port: 9090

@@ -19,19 +19,19 @@ spring:
         registration:
           keycloak:
             client-id: springsecurity
-            client-secret: kNrIeJCEM6VWtpz35TAGhRsFQjyMnLf6
+            client-secret: W0Wa5HOln1rQUsSipM2iOBhs6TszaEHj
             authorization-grant-type: authorization_code
             scope:
               - openid
         provider:
           keycloak:
-            issuer-uri: http://95.163.230.65:8080/realms/Study-platform
+            issuer-uri: http://localhost:8080/realms/Study-platform
             user-name-attribute: preferred_username
 
 
       resourceserver:
         jwt:
-          issuer-uri: http://95.163.230.65:8080/realms/Study-platform
+          issuer-uri: http://localhost:8080/realms/Study-platform
           jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
   kafka:
     bootstrap-servers: http://localhost:9092
@@ -57,3 +57,7 @@ server:
 services:
   url: http://localhost:8082
   api-key: asfasgbasgqwfrqwgfvavashahnodqpwohqjm
+
+docker:
+  network: netw
+  host: tcp://localhost:2375

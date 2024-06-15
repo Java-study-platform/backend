@@ -58,9 +58,7 @@ public class CoreSecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/api/admin-panel").hasRole(ADMIN)
-                        .requestMatchers(REGISTER_USER).anonymous()
-                        .requestMatchers(LOGIN_USER).anonymous()
+                        .requestMatchers(HttpMethod.GET, TEST_CASES + "**").anonymous()
                         .anyRequest().authenticated());
 
         http
@@ -123,6 +121,6 @@ public class CoreSecurityConfig {
                 .requestMatchers("/v3/api-docs/**","/configuration/**",
                         "/swagger-ui/**", "/swagger-resources/**",
                         "/swagger-ui.html", "/api-docs/**")
-                .requestMatchers(LOGIN_USER, REGISTER_USER);
+                .requestMatchers(HttpMethod.GET, TEST_CASES + "/**");
     }
 }
