@@ -70,7 +70,6 @@ public class CustomExceptionHandler {
     }
 
     @MessageExceptionHandler(ReactionAlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public DefaultResponse<?> handleReactionAlreadyExists(ReactionAlreadyExistsException exception) {
         log.error(exception.getMessage());
         return DefaultResponseBuilder.error(
@@ -80,7 +79,6 @@ public class CustomExceptionHandler {
     }
 
     @MessageExceptionHandler(MessageAndChatMissmatchException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public DefaultResponse<?> handleMessageAndChatMissmatch(MessageAndChatMissmatchException exception) {
         log.error(exception.getMessage());
         return DefaultResponseBuilder.error(
@@ -130,7 +128,6 @@ public class CustomExceptionHandler {
     }
 
     @MessageExceptionHandler(ChatNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
     public DefaultResponse<?> handleChatNotFound(ChatNotFoundException exception) {
         log.error(exception.getMessage());
         return DefaultResponseBuilder.error(
@@ -140,7 +137,6 @@ public class CustomExceptionHandler {
     }
 
     @MessageExceptionHandler(MessageNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
     public DefaultResponse<?> handleMessageNotFound(MessageNotFoundException exception) {
         log.error(exception.getMessage());
         return DefaultResponseBuilder.error(
@@ -150,7 +146,6 @@ public class CustomExceptionHandler {
     }
 
     @MessageExceptionHandler(ReactionNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
     public DefaultResponse<?> handleReactionNotFound(ReactionNotFoundException exception) {
         log.error(exception.getMessage());
         return DefaultResponseBuilder.error(
