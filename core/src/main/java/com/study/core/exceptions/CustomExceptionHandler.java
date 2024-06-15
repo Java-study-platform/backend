@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -68,8 +69,7 @@ public class CustomExceptionHandler {
         );
     }
 
-    @ExceptionHandler(ReactionAlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @MessageExceptionHandler(ReactionAlreadyExistsException.class)
     public DefaultResponse<?> handleReactionAlreadyExists(ReactionAlreadyExistsException exception) {
         log.error(exception.getMessage());
         return DefaultResponseBuilder.error(
@@ -78,8 +78,7 @@ public class CustomExceptionHandler {
         );
     }
 
-    @ExceptionHandler(MessageAndChatMissmatchException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @MessageExceptionHandler(MessageAndChatMissmatchException.class)
     public DefaultResponse<?> handleMessageAndChatMissmatch(MessageAndChatMissmatchException exception) {
         log.error(exception.getMessage());
         return DefaultResponseBuilder.error(
@@ -128,8 +127,7 @@ public class CustomExceptionHandler {
         );
     }
 
-    @ExceptionHandler(ChatNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @MessageExceptionHandler(ChatNotFoundException.class)
     public DefaultResponse<?> handleChatNotFound(ChatNotFoundException exception) {
         log.error(exception.getMessage());
         return DefaultResponseBuilder.error(
@@ -138,8 +136,7 @@ public class CustomExceptionHandler {
         );
     }
 
-    @ExceptionHandler(MessageNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @MessageExceptionHandler(MessageNotFoundException.class)
     public DefaultResponse<?> handleMessageNotFound(MessageNotFoundException exception) {
         log.error(exception.getMessage());
         return DefaultResponseBuilder.error(
@@ -148,8 +145,7 @@ public class CustomExceptionHandler {
         );
     }
 
-    @ExceptionHandler(ReactionNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @MessageExceptionHandler(ReactionNotFoundException.class)
     public DefaultResponse<?> handleReactionNotFound(ReactionNotFoundException exception) {
         log.error(exception.getMessage());
         return DefaultResponseBuilder.error(
