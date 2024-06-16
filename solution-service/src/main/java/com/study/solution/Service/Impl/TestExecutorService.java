@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 import java.util.concurrent.TimeUnit;
 
 import static com.study.common.Constants.Consts.USERNAME_CLAIM;
@@ -180,8 +181,20 @@ public class TestExecutorService {
         dockerClient.stopContainerCmd(containerId).exec();
         dockerClient.removeContainerCmd(containerId).exec();
 
-        Files.deleteIfExists(tempFile.toPath());
-        Files.deleteIfExists(path);
+        try (Stream<Path> paths = Files.walk(path)) {
+            paths.filter(Files::isRegularFile)
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void sendWebSocketMessage(Jwt user, TestDto testDto, UUID solutionId) {
