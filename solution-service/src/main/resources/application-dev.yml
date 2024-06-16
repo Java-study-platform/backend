@@ -2,7 +2,7 @@ spring:
   application:
     name: SOLUTION-SERVICE
   datasource:
-    url: jdbc:postgresql://postgres_solutions:5436/solutions
+    url: jdbc:postgresql://postgres_solutions/solutions
     username: postgres
     password: postgressergtosp
     driverClassName: org.postgresql.Driver
