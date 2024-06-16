@@ -377,9 +377,10 @@ public class SolutionServiceImpl implements SolutionService {
                 throw new RuntimeException("Ошибка при создании контейнера Docker", e);
             }
 
-            dockerClient.startContainerCmd(container.getId()).exec();
+            String containerId = container.getId();
+            dockerClient.startContainerCmd(containerId).exec();
 
-            ExecCreateCmdResponse compileCmd = dockerClient.execCreateCmd(container.getId())
+            ExecCreateCmdResponse compileCmd = dockerClient.execCreateCmd(containerId)
                     .withCmd("sh", "-c", "javac Main.java")
                     .exec();
 
@@ -397,21 +398,25 @@ public class SolutionServiceImpl implements SolutionService {
                             }
                         }).awaitCompletion(timeLimit, TimeUnit.MILLISECONDS);
             } catch (DockerException e) {
+                log.error(e.getMessage());
                 throw new RuntimeException(e);
             } catch (InterruptedException e) {
-                dockerClient.removeContainerCmd(container.getId()).exec();
+                log.error(e.getMessage());
+                dockerClient.stopContainerCmd(containerId).exec();
+                dockerClient.removeContainerCmd(containerId).exec();
                 throw new TimeLimitException();
             }
 
             if (!errorResult.toString().isEmpty()) {
-                dockerClient.removeContainerCmd(container.getId()).exec();
+                dockerClient.stopContainerCmd(containerId).exec();
+                dockerClient.removeContainerCmd(containerId).exec();
                 throw new CodeCompilationException(errorResult.toString());
             }
 
             errorResult.setLength(0);
             result.setLength(0);
 
-            ExecCreateCmdResponse runCmd = dockerClient.execCreateCmd(container.getId())
+            ExecCreateCmdResponse runCmd = dockerClient.execCreateCmd(containerId)
                     .withCmd("sh", "-c", "echo \"" + input + "\" | java Main")
                     .exec();
 
@@ -431,16 +436,19 @@ public class SolutionServiceImpl implements SolutionService {
             } catch (DockerException e) {
                 throw new RuntimeException(e);
             } catch (InterruptedException e) {
-                dockerClient.removeContainerCmd(container.getId()).exec();
+                dockerClient.stopContainerCmd(containerId).exec();
+                dockerClient.removeContainerCmd(containerId).exec();
                 throw new TimeLimitException();
             }
 
             if (!errorResult.toString().isEmpty()) {
-                dockerClient.removeContainerCmd(container.getId()).exec();
+                dockerClient.stopContainerCmd(containerId).exec();
+                dockerClient.removeContainerCmd(containerId).exec();
                 throw new CodeRuntimeException(errorResult.toString());
             }
 
-            dockerClient.removeContainerCmd(container.getId()).exec();
+            dockerClient.stopContainerCmd(containerId).exec();
+            dockerClient.removeContainerCmd(containerId).exec();
 
             Files.delete(tempFile.toPath());
             Files.delete(path);
