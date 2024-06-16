@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -361,68 +362,38 @@ public class SolutionServiceImpl implements SolutionService {
             writer.write(code);
         }
 
-        Volume volume = new Volume("/code");
-        Bind bind = new Bind(path.toAbsolutePath().toString(), volume);
-        HostConfig hostConfig = HostConfig.newHostConfig()
-                .withBinds(bind);
-        log.info("Путь: " + path.toAbsolutePath());
-        log.info("Bind: " + bind.toString());
+        Process compileProcess = Runtime.getRuntime().exec("javac " + tempFile.getAbsolutePath());
+        try {
+            int compileResult = compileProcess.waitFor();
+            if (compileResult != 0) {
+                BufferedReader errorReader = new BufferedReader(new InputStreamReader(compileProcess.getErrorStream()));
+
+                StringBuilder errorBuilder = new StringBuilder();
+                String line;
+
+                while ((line = errorReader.readLine()) != null) {
+                    errorBuilder.append(line).append("\n");
+                }
+                errorReader.close();
+
+                throw new CodeCompilationException(errorBuilder.toString());
+            }
+        } catch (InterruptedException e){
+            throw new RuntimeException();
+        }
+
         CreateContainerResponse container = dockerClient.createContainerCmd(DOCKER_IMAGE)
-                .withHostConfig(hostConfig)
                 .withWorkingDir("/code")
-                .exec();;
-
-        String containerId = container.getId();
-        dockerClient.startContainerCmd(containerId).exec();
-
-        ExecCreateCmdResponse compileCmd = dockerClient.execCreateCmd(containerId)
-                .withCmd("sh", "-c", "ls -l && cat Main.java && javac Mai.java")
                 .exec();
 
+        String containerId = container.getId();
+        String classFilePath = tempFile.getParent() + "/Main.class";
+        dockerClient.copyArchiveToContainerCmd(containerId)
+                .withRemotePath("/code")
+                .withHostResource(classFilePath)
+                .exec();
 
-        try {
-            dockerClient.execStartCmd(compileCmd.getId())
-                .exec(new ResultCallback.Adapter<Frame>() {
-                    @Override
-                    public void onNext(Frame item) {
-                        String payload = new String(item.getPayload(), StandardCharsets.UTF_8);
-                        log.info("Compilation result: " + payload);
-
-                        if (payload.toLowerCase().contains("error")
-                                || payload.toLowerCase().contains("caused by")
-                                || payload.toLowerCase().contains("exception")) {
-                            log.warn("Записываю payload в ошибку: " + payload);
-                            errorResult.append(payload).append("\n");
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable throwable) {
-                        errorResult.append(throwable.getMessage()).append("\n");
-                    }
-                }).awaitCompletion(timeLimit, TimeUnit.MILLISECONDS);
-        } catch (DockerException e) {
-            log.error(e.getMessage());
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            log.error(e.getMessage());
-            dockerClient.stopContainerCmd(containerId).exec();
-            dockerClient.removeContainerCmd(containerId).exec();
-            throw new TimeLimitException();
-        }
-        InspectContainerResponse inspectContainerResponse = dockerClient.inspectContainerCmd(containerId).exec();
-        log.info("exit code: " + inspectContainerResponse.getState().getExitCodeLong());
-
-        log.info("Код скомпилирован");
-
-        if (!errorResult.toString().isEmpty()) {
-            dockerClient.stopContainerCmd(containerId).exec();
-            dockerClient.removeContainerCmd(containerId).exec();
-            throw new CodeCompilationException(errorResult.toString());
-        }
-
-        errorResult.setLength(0);
-        result.setLength(0);
+        dockerClient.startContainerCmd(containerId).exec();
 
         ExecCreateCmdResponse runCmd = dockerClient.execCreateCmd(containerId)
                 .withCmd("sh", "-c", "ls -l && echo \"" + input + "\" | java -cp . Main")
@@ -475,8 +446,8 @@ public class SolutionServiceImpl implements SolutionService {
         dockerClient.stopContainerCmd(containerId).exec();
         dockerClient.removeContainerCmd(containerId).exec();
 
-        Files.delete(tempFile.toPath());
-        Files.delete(path);
+        Files.deleteIfExists(tempFile.toPath());
+        Files.deleteIfExists(path);
 
         return result.toString();
     }
