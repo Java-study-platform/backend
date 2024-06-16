@@ -419,10 +419,12 @@ public class SolutionServiceImpl implements SolutionService {
             result.setLength(0);
 
             ExecCreateCmdResponse runCmd = dockerClient.execCreateCmd(containerId)
-                    .withCmd("java", "Main")
+                    .withCmd("sh", "-c", "echo \"" + input + "\" | java Main")
                     .withAttachStdin(true)
                     .withAttachStdout(true)
+                    .withAttachStderr(true)
                     .exec();
+            log.info("runCmd запущен");
 
             try {
                 dockerClient.execStartCmd(runCmd.getId())
