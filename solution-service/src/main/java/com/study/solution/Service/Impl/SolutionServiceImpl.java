@@ -380,7 +380,7 @@ public class SolutionServiceImpl implements SolutionService {
             dockerClient.startContainerCmd(containerId).exec();
 
             ExecCreateCmdResponse compileCmd = dockerClient.execCreateCmd(containerId)
-                    .withCmd("sh", "-c", "javac Main.java")
+                    .withCmd("sh", "-c", "javac /code/Main.java")
                     .exec();
 
             try {
@@ -419,7 +419,7 @@ public class SolutionServiceImpl implements SolutionService {
             result.setLength(0);
 
             ExecCreateCmdResponse runCmd = dockerClient.execCreateCmd(containerId)
-                    .withCmd("sh", "-c", "echo \"" + input + "\" | java Main")
+                    .withCmd("sh", "-c", "echo \"" + input + "\" | java -cp /code Main")
                     .withAttachStdin(true)
                     .withAttachStdout(true)
                     .withAttachStderr(true)
@@ -432,7 +432,7 @@ public class SolutionServiceImpl implements SolutionService {
                             @Override
                             public void onNext(Frame item) {
                                 String payload = Arrays.toString(item.getPayload());
-                                log.info(payload);
+                                log.info("Payload: " + payload);
                                 result.append(payload).append("\n");
                             }
 
@@ -442,6 +442,7 @@ public class SolutionServiceImpl implements SolutionService {
                             }
                         }).awaitCompletion(timeLimit, TimeUnit.MILLISECONDS);
             } catch (DockerException e) {
+                log.error(e.getMessage());
                 throw new RuntimeException(e);
             } catch (InterruptedException e) {
 //                dockerClient.stopContainerCmd(containerId).exec();
@@ -450,6 +451,7 @@ public class SolutionServiceImpl implements SolutionService {
             }
 
             if (!errorResult.toString().isEmpty()) {
+                log.error(errorResult.toString());
 //                dockerClient.stopContainerCmd(containerId).exec();
 //                dockerClient.removeContainerCmd(containerId).exec();
                 throw new CodeRuntimeException(errorResult.toString());
