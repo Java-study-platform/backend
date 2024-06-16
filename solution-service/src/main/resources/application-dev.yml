@@ -68,5 +68,5 @@ springdoc:
     display-request-duration: true
 
 docker:
-  network: netw
+  network: backend
   host: unix:///var/run/docker.sock
