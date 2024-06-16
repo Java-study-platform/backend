@@ -154,16 +154,19 @@ public class SolutionServiceImpl implements SolutionService {
                                     .replaceAll(" \n", "\n").trim();
                             log.info("Результат: " + result);
                         } catch (TimeLimitException e) {
+                            log.info("Тайм лимит");
                             solution.setStatus(Status.TIME_LIMIT);
                             solution.setTestIndex(testIndex);
                             testEntity.setStatus(Status.TIME_LIMIT);
                         } catch (CodeRuntimeException e) {
+                            log.info("Ошибка в рантайме кода");
                             solution.setStatus(Status.RUNTIME_ERROR);
                             solution.setTestIndex(testIndex);
 
                             testEntity.setStatus(Status.RUNTIME_ERROR);
                             testEntity.setTestOutput(e.getMessage());
                         } catch (CodeCompilationException e) {
+                            log.info("Код не был скомпилирован");
                             solution.setStatus(Status.COMPILATION_ERROR);
                             solution.setTestIndex(testIndex);
 
@@ -382,11 +385,14 @@ public class SolutionServiceImpl implements SolutionService {
                         String payload = new String(item.getPayload(), StandardCharsets.UTF_8);
                         log.info("Payload: " + payload);
 
-                        if (payload.toLowerCase().contains("error") || payload.toLowerCase().contains("caused by")) {
+                        if (payload.toLowerCase().contains("error")
+                                || payload.toLowerCase().contains("caused by")
+                                || payload.toLowerCase().contains("exception")) {
                             errorResult.append(payload).append("\n");
                         }
-
-                        result.append(payload).append("\n");
+                        else {
+                            result.append(payload).append("\n");
+                        }
                     }
 
                     @Override
