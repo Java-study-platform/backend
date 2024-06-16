@@ -46,7 +46,7 @@ spring:
 
       resourceserver:
         jwt:
-          issuer-uri: http://auth:8080/realms/Study-platform
+          issuer-uri:  http://localhost:8080/realms/Study-platform
           jwk-set-uri: http://auth:8080/protocol/openid-connect/certs
   kafka:
     bootstrap-servers: broker:29092

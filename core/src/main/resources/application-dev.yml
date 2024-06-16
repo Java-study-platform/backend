@@ -30,7 +30,7 @@ spring:
               - openid
         provider:
           keycloak:
-            issuer-uri: http://auth:8080/realms/Study-platform
+            issuer-uri:  http://localhost:8080/realms/Study-platform
             user-name-attribute: preferred_username
 
 
