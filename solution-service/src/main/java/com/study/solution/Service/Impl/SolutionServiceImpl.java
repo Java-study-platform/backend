@@ -64,16 +64,12 @@ import static com.study.common.Constants.Consts.USERNAME_CLAIM;
 public class SolutionServiceImpl implements SolutionService {
     private final WebClient webClient;
     private final SolutionRepository solutionRepository;
-    private final TestRepository testRepository;
     private final SolutionListMapper solutionListMapper;
     private final SolutionMapper solutionMapper;
     private final HashSet<String> maliciousWords;
     private final KafkaProducer kafkaProducer;
-    private final SimpMessagingTemplate messagingTemplate;
-    private final TestMapper testMapper;
-    private final DockerClient dockerClient;
+    private final TestExecutorService testExecutorService;
 
-    private static final String DOCKER_IMAGE = "openjdk:17-oracle";
 
     @Value("${services.api-key}")
     private String apiKey;
@@ -81,23 +77,17 @@ public class SolutionServiceImpl implements SolutionService {
     @Autowired
     public SolutionServiceImpl(WebClient webClient,
                                SolutionRepository solutionRepository,
-                               TestRepository testRepository,
                                SolutionListMapper solutionListMapper,
                                SolutionMapper solutionMapper,
                                KafkaProducer kafkaProducer,
-                               SimpMessagingTemplate messagingTemplate,
-                               TestMapper testMapper,
-                               DockerClient dockerClient){
+                               TestExecutorService testExecutorService){
         this.webClient = webClient;
         this.solutionRepository = solutionRepository;
-        this.testRepository = testRepository;
         this.solutionListMapper = solutionListMapper;
         this.solutionMapper = solutionMapper;
         this.kafkaProducer = kafkaProducer;
+        this.testExecutorService = testExecutorService;
         this.maliciousWords = new HashSet<>();
-        this.messagingTemplate = messagingTemplate;
-        this.testMapper = testMapper;
-        this.dockerClient = dockerClient;
 
         maliciousWords.add("shutdown");
         maliciousWords.add("File");
@@ -129,7 +119,6 @@ public class SolutionServiceImpl implements SolutionService {
             solution.setTaskId(taskId);
             solution.setTestIndex(0L);
             solution.setUsername(user.getClaim(USERNAME_CLAIM));
-            solutionRepository.saveAndFlush(solution);
 
             long timeLimit = tests.get(0).getTimeLimit();
 
@@ -139,7 +128,7 @@ public class SolutionServiceImpl implements SolutionService {
             }
             else {
                 try {
-                    runCode(tests, code, timeLimit, solution, user);
+                   testExecutorService.runCode(tests, code, timeLimit, solution, user);
                 } catch (TimeLimitException e) {
                     log.info("Тайм лимит");
                     solution.setStatus(Status.TIME_LIMIT);
@@ -302,148 +291,6 @@ public class SolutionServiceImpl implements SolutionService {
 //        return result.toString();
 //    }
 
-    @Transactional
-    protected void runCode(List<TestCaseDto> tests, String code, long timeLimit, Solution solution, Jwt user) throws IOException, CodeCompilationException, CodeRuntimeException, TimeLimitException {
-        Path path = Files.createTempDirectory("compile");
-        File tempFile = new File(path.toAbsolutePath() + "/Main.java");
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
-            writer.write(code);
-        }
-
-        Process compileProcess = Runtime.getRuntime().exec("javac " + tempFile.getAbsolutePath());
-        try {
-            int compileResult = compileProcess.waitFor();
-            if (compileResult != 0) {
-                BufferedReader errorReader = new BufferedReader(new InputStreamReader(compileProcess.getErrorStream()));
-
-                StringBuilder errorBuilder = new StringBuilder();
-                String line;
-
-                while ((line = errorReader.readLine()) != null) {
-                    errorBuilder.append(line).append("\n");
-                }
-                errorReader.close();
-
-                throw new CodeCompilationException(errorBuilder.toString());
-            }
-        } catch (InterruptedException e){
-            throw new RuntimeException();
-        }
-
-        CreateContainerResponse container = dockerClient.createContainerCmd(DOCKER_IMAGE)
-                .withWorkingDir("/code")
-                .exec();
-
-        String containerId = container.getId();
-        String classFilePath = tempFile.getParent() + "/Main.class";
-        dockerClient.copyArchiveToContainerCmd(containerId)
-                .withRemotePath("/code")
-                .withHostResource(classFilePath)
-                .exec();
-
-        dockerClient.startContainerCmd(containerId).exec();
-
-        for (TestCaseDto test : tests) {
-            StringBuilder result = new StringBuilder();
-            StringBuilder errorResult = new StringBuilder();
-
-            String input = test.getExpectedInput();
-            Long testIndex = test.getIndex();
-            log.info("Тест номер: " + testIndex);
-
-            Test testEntity = new Test();
-            testEntity.setSolution(solution);
-            testEntity.setTestInput(input);
-            testEntity.setStatus(Status.PENDING);
-            testEntity.setTestIndex(testIndex);
-
-            log.info("solutionId: " + solution.getId());
-            log.info("testSolId: " + testEntity.getSolution().getId());
-
-
-            sendWebSocketMessage(user, testMapper.toDTO(testEntity), solution.getId());
-
-            ExecCreateCmdResponse runCmd = dockerClient.execCreateCmd(containerId)
-                    .withCmd("sh", "-c", "echo \"" + input + "\" | java -cp . Main")
-                    .withAttachStdin(true)
-                    .withAttachStdout(true)
-                    .withAttachStderr(true)
-                    .exec();
-
-            try {
-                dockerClient.execStartCmd(runCmd.getId())
-                        .exec(new ResultCallback.Adapter<Frame>() {
-                            @Override
-                            public void onNext(Frame item) {
-                                String payload = new String(item.getPayload(), StandardCharsets.UTF_8);
-
-                                if (payload.toLowerCase().contains("error")
-                                        || payload.toLowerCase().contains("caused by")
-                                        || payload.toLowerCase().contains("exception")) {
-                                    log.warn("Записываю payload в ошибку: " + payload);
-                                    errorResult.append(payload).append("\n");
-                                } else {
-                                    result.append(payload).append("\n");
-                                }
-                            }
-
-                            @Override
-                            public void onError(Throwable throwable) {
-                                errorResult.append(throwable.getMessage()).append("\n");
-                            }
-                        }).awaitCompletion(timeLimit, TimeUnit.MILLISECONDS);
-            } catch (DockerException e) {
-                log.error(e.getMessage());
-                throw new RuntimeException(e);
-            } catch (InterruptedException e) {
-                dockerClient.stopContainerCmd(containerId).exec();
-                dockerClient.removeContainerCmd(containerId).exec();
-                throw new TimeLimitException();
-            }
-
-            if (!errorResult.toString().isEmpty()) {
-                log.error(errorResult.toString());
-                dockerClient.stopContainerCmd(containerId).exec();
-                dockerClient.removeContainerCmd(containerId).exec();
-                throw new CodeRuntimeException(errorResult.toString());
-            }
-
-
-            String strResult = result.toString()
-                    .replaceAll("\n\n", "\n")
-                    .replaceAll(" \n", "\n").trim();
-
-            log.info("Результат теста: " + strResult);
-            if (!strResult.isEmpty()) {
-                testEntity.setTestOutput(strResult);
-
-                if (strResult.equals(test.getExpectedOutput())) {
-                    testEntity.setStatus(Status.OK);
-                    if (test.getIndex() == tests.size()) {
-                        solution.setStatus(Status.OK);
-                        solution.setTestIndex(test.getIndex());
-                    }
-                } else {
-                    testEntity.setStatus(Status.WRONG_ANSWER);
-                    solution.setStatus(Status.WRONG_ANSWER);
-                    solution.setTestIndex(test.getIndex());
-                    break;
-                }
-            }
-
-            testRepository.save(testEntity);
-
-            sendWebSocketMessage(user, testMapper.toDTO(testEntity), solution.getId());
-        }
-
-        dockerClient.stopContainerCmd(containerId).exec();
-        dockerClient.removeContainerCmd(containerId).exec();
-
-        Files.deleteIfExists(tempFile.toPath());
-        Files.deleteIfExists(path);
-    }
-
     private Mono<List<TestCaseDto>> getTestCases(UUID taskId){
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
@@ -455,14 +302,5 @@ public class SolutionServiceImpl implements SolutionService {
                 .onStatus(HttpStatusCode::is5xxServerError, response -> Mono.error(new RuntimeException("Server error: " + response.statusCode())))
                 .bodyToMono(new ParameterizedTypeReference<List<TestCaseDto>>() {})
                 .doOnError(e -> log.error("Error retrieving test cases", e));
-    }
-
-    private void sendWebSocketMessage(Jwt user, TestDto testDto, UUID solutionId) {
-        try {
-            messagingTemplate.convertAndSendToUser(user.getClaim(USERNAME_CLAIM), String.format("/solution/%s", solutionId.toString()), testDto);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
-        }
     }
 }
