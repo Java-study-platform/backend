@@ -138,66 +138,18 @@ public class SolutionServiceImpl implements SolutionService {
             }
             else {
                 CompletableFuture.runAsync(() -> {
-                    String result = null;
-                    for (TestCaseDto test : tests) {
-                        Long testIndex = test.getIndex();
-                        String input = test.getExpectedInput();
+                    try {
+                        runCode(tests, code, timeLimit, solution, user);
+                    } catch (TimeLimitException e) {
+                        log.info("Тайм лимит");
+                        solution.setStatus(Status.TIME_LIMIT);
+                    } catch (CodeRuntimeException | IOException e) {
+                        log.info("Ошибка в рантайме кода");
+                        solution.setStatus(Status.RUNTIME_ERROR);
 
-                        Test testEntity = new Test();
-                        testEntity.setId(UUID.randomUUID());
-                        testEntity.setSolution(solution);
-                        testEntity.setTestInput(input);
-                        testEntity.setStatus(Status.PENDING);
-                        testEntity.setTestIndex(testIndex);
-
-                        try {
-                            result = runCode(code, input, timeLimit)
-                                    .replaceAll("\n\n", "\n")
-                                    .replaceAll(" \n", "\n").trim();
-                        } catch (TimeLimitException e) {
-                            log.info("Тайм лимит");
-                            solution.setStatus(Status.TIME_LIMIT);
-                            solution.setTestIndex(testIndex);
-                            testEntity.setStatus(Status.TIME_LIMIT);
-                        } catch (CodeRuntimeException e) {
-                            log.info("Ошибка в рантайме кода");
-                            solution.setStatus(Status.RUNTIME_ERROR);
-                            solution.setTestIndex(testIndex);
-
-                            testEntity.setStatus(Status.RUNTIME_ERROR);
-                            testEntity.setTestOutput(e.getMessage());
-                        } catch (CodeCompilationException e) {
-                            log.info("Код не был скомпилирован");
-                            solution.setStatus(Status.COMPILATION_ERROR);
-                            solution.setTestIndex(testIndex);
-
-                            testEntity.setStatus(Status.COMPILATION_ERROR);
-                            testEntity.setTestOutput(e.getMessage().replaceAll("^[A-Za-z]:\\\\(?:[^\\\\\\n]+\\\\)*compile[^:\\n]+:", ""));
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-
-                        if (result != null) {
-                            log.info(result);
-                            testEntity.setTestOutput(result);
-
-                            if (result.equals(test.getExpectedOutput())) {
-                                testEntity.setStatus(Status.OK);
-                                if (test.getIndex() == tests.size()) {
-                                    solution.setStatus(Status.OK);
-                                    solution.setTestIndex(test.getIndex());
-                                }
-                            } else {
-                                testEntity.setStatus(Status.WRONG_ANSWER);
-                                solution.setStatus(Status.WRONG_ANSWER);
-                                solution.setTestIndex(test.getIndex());
-                                break;
-                            }
-                        }
-
-                        testRepository.save(testEntity);
-
-                        sendWebSocketMessage(user, testMapper.toDTO(testEntity), solution.getId());
+                    } catch (CodeCompilationException e) {
+                        log.info("Код не был скомпилирован");
+                        solution.setStatus(Status.COMPILATION_ERROR);
                     }
 
                     solutionRepository.save(solution);
@@ -351,10 +303,7 @@ public class SolutionServiceImpl implements SolutionService {
 //        return result.toString();
 //    }
 
-    private String runCode(String code, String input, long timeLimit) throws IOException, CodeCompilationException, CodeRuntimeException, TimeLimitException {
-        StringBuilder result = new StringBuilder();
-        StringBuilder errorResult = new StringBuilder();
-
+    private void runCode(List<TestCaseDto> tests, String code, long timeLimit, Solution solution, Jwt user) throws IOException, CodeCompilationException, CodeRuntimeException, TimeLimitException {
         Path path = Files.createTempDirectory("compile");
         File tempFile = new File(path.toAbsolutePath() + "/Main.java");
 
@@ -395,52 +344,92 @@ public class SolutionServiceImpl implements SolutionService {
 
         dockerClient.startContainerCmd(containerId).exec();
 
-        ExecCreateCmdResponse runCmd = dockerClient.execCreateCmd(containerId)
-                .withCmd("sh", "-c", "echo \"" + input + "\" | java -cp . Main")
-                .withAttachStdin(true)
-                .withAttachStdout(true)
-                .withAttachStderr(true)
-                .exec();
-        log.info("runCmd запущен");
+        for (TestCaseDto test : tests) {
+            StringBuilder result = new StringBuilder();
+            StringBuilder errorResult = new StringBuilder();
 
-        try {
-            dockerClient.execStartCmd(runCmd.getId())
-                    .exec(new ResultCallback.Adapter<Frame>() {
-                        @Override
-                        public void onNext(Frame item) {
-                            String payload = new String(item.getPayload(), StandardCharsets.UTF_8);
+            String input = test.getExpectedInput();
+            Long testIndex = test.getIndex();
 
-                            if (payload.toLowerCase().contains("error")
-                                    || payload.toLowerCase().contains("caused by")
-                                    || payload.toLowerCase().contains("exception")) {
-                                log.warn("Записываю payload в ошибку: " + payload);
-                                errorResult.append(payload).append("\n");
+            Test testEntity = new Test();
+            testEntity.setId(UUID.randomUUID());
+            testEntity.setSolution(solution);
+            testEntity.setTestInput(input);
+            testEntity.setStatus(Status.PENDING);
+            testEntity.setTestIndex(testIndex);
+
+            ExecCreateCmdResponse runCmd = dockerClient.execCreateCmd(containerId)
+                    .withCmd("sh", "-c", "echo \"" + input + "\" | java -cp . Main")
+                    .withAttachStdin(true)
+                    .withAttachStdout(true)
+                    .withAttachStderr(true)
+                    .exec();
+            log.info("runCmd запущен");
+
+            try {
+                dockerClient.execStartCmd(runCmd.getId())
+                        .exec(new ResultCallback.Adapter<Frame>() {
+                            @Override
+                            public void onNext(Frame item) {
+                                String payload = new String(item.getPayload(), StandardCharsets.UTF_8);
+
+                                if (payload.toLowerCase().contains("error")
+                                        || payload.toLowerCase().contains("caused by")
+                                        || payload.toLowerCase().contains("exception")) {
+                                    log.warn("Записываю payload в ошибку: " + payload);
+                                    errorResult.append(payload).append("\n");
+                                } else {
+                                    log.info("Payload в результат: " + payload);
+                                    result.append(payload).append("\n");
+                                }
                             }
-                            else {
-                                log.info("Payload в результат: " + payload);
-                                result.append(payload).append("\n");
+
+                            @Override
+                            public void onError(Throwable throwable) {
+                                errorResult.append(throwable.getMessage()).append("\n");
                             }
-                        }
+                        }).awaitCompletion(timeLimit, TimeUnit.MILLISECONDS);
+            } catch (DockerException e) {
+                log.error(e.getMessage());
+                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
+                dockerClient.stopContainerCmd(containerId).exec();
+                dockerClient.removeContainerCmd(containerId).exec();
+                throw new TimeLimitException();
+            }
 
-                        @Override
-                        public void onError(Throwable throwable) {
-                            errorResult.append(throwable.getMessage()).append("\n");
-                        }
-                    }).awaitCompletion(timeLimit, TimeUnit.MILLISECONDS);
-        } catch (DockerException e) {
-            log.error(e.getMessage());
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            dockerClient.stopContainerCmd(containerId).exec();
-            dockerClient.removeContainerCmd(containerId).exec();
-            throw new TimeLimitException();
-        }
+            if (!errorResult.toString().isEmpty()) {
+                log.error(errorResult.toString());
+                dockerClient.stopContainerCmd(containerId).exec();
+                dockerClient.removeContainerCmd(containerId).exec();
+                throw new CodeRuntimeException(errorResult.toString());
+            }
 
-        if (!errorResult.toString().isEmpty()) {
-            log.error(errorResult.toString());
-            dockerClient.stopContainerCmd(containerId).exec();
-            dockerClient.removeContainerCmd(containerId).exec();
-            throw new CodeRuntimeException(errorResult.toString());
+
+            String strResult = result.toString()
+                    .replaceAll("\n\n", "\n")
+                    .replaceAll(" \n", "\n").trim();
+            if (!strResult.isEmpty()) {
+                log.info(strResult);
+                testEntity.setTestOutput(strResult);
+
+                if (strResult.equals(test.getExpectedOutput())) {
+                    testEntity.setStatus(Status.OK);
+                    if (test.getIndex() == tests.size()) {
+                        solution.setStatus(Status.OK);
+                        solution.setTestIndex(test.getIndex());
+                    }
+                } else {
+                    testEntity.setStatus(Status.WRONG_ANSWER);
+                    solution.setStatus(Status.WRONG_ANSWER);
+                    solution.setTestIndex(test.getIndex());
+                    break;
+                }
+            }
+
+            testRepository.save(testEntity);
+
+            sendWebSocketMessage(user, testMapper.toDTO(testEntity), solution.getId());
         }
 
         dockerClient.stopContainerCmd(containerId).exec();
@@ -448,8 +437,6 @@ public class SolutionServiceImpl implements SolutionService {
 
         Files.deleteIfExists(tempFile.toPath());
         Files.deleteIfExists(path);
-
-        return result.toString();
     }
 
     private Mono<List<TestCaseDto>> getTestCases(UUID taskId){
