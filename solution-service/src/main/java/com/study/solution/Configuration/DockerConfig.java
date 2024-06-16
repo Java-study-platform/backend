@@ -8,14 +8,11 @@ import com.github.dockerjava.api.model.Version;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
-import com.github.dockerjava.core.command.VersionCmdImpl;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.io.IOException;
 
 @Configuration
 public class DockerConfig {
@@ -23,7 +20,7 @@ public class DockerConfig {
     private String host;
 
     @Bean
-    public DockerClient dockerClient() throws IOException {
+    public DockerClient dockerClient() {
         DockerClientConfig config =
                 DefaultDockerClientConfig.createDefaultConfigBuilder()
                         .withDockerHost(host)
@@ -34,22 +31,9 @@ public class DockerConfig {
                 .sslConfig(config.getSSLConfig())
                 .build();
 
-        DockerClient dockerClient = DockerClientBuilder
+        return DockerClientBuilder
                 .getInstance(config)
                 .withDockerHttpClient(httpClient)
                 .build();
-
-        try{
-            VersionCmd versionCmd = dockerClient.versionCmd();
-            Version versionResponse = versionCmd.exec();
-            System.out.println("Docker версия: " + versionResponse.getVersion());
-        } catch (Exception e) {
-            System.err.println("Ошибка при подключении к Docker: " + e.getMessage());
-        } finally {
-            dockerClient.close();
-            ((ApacheDockerHttpClient) httpClient).close();
-        }
-
-        return dockerClient;
     }
 }
