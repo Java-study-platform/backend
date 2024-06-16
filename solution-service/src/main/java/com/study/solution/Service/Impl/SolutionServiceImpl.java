@@ -388,7 +388,9 @@ public class SolutionServiceImpl implements SolutionService {
                         .exec(new ResultCallback.Adapter<Frame>() {
                             @Override
                             public void onNext(Frame item) {
-                                result.append(item.toString()).append("\n");
+                                String payload = Arrays.toString(item.getPayload());
+                                log.info("Payload: " + payload);
+                                result.append(payload).append("\n");
                             }
 
                             @Override
@@ -405,6 +407,7 @@ public class SolutionServiceImpl implements SolutionService {
 //                dockerClient.removeContainerCmd(containerId).exec();
                 throw new TimeLimitException();
             }
+            log.info("Код скомпилирован");
 
             if (!errorResult.toString().isEmpty()) {
 //                dockerClient.stopContainerCmd(containerId).exec();
