@@ -45,6 +45,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -373,14 +374,12 @@ public class SolutionServiceImpl implements SolutionService {
                 .withCmd("sh", "-c", "javac Main.java && ls -l /code && ls && cat Main.java && cat /code/Main.java")
                 .exec();
 
-        log.info(compileCmd.toString());
-
         try {
             dockerClient.execStartCmd(compileCmd.getId())
                 .exec(new ResultCallback.Adapter<Frame>() {
                     @Override
                     public void onNext(Frame item) {
-                        String payload = Arrays.toString(item.getPayload());
+                        String payload = new String(item.getPayload(), StandardCharsets.UTF_8);
                         log.info("Payload: " + payload);
                         result.append(payload).append("\n");
                     }
@@ -399,6 +398,7 @@ public class SolutionServiceImpl implements SolutionService {
             dockerClient.removeContainerCmd(containerId).exec();
             throw new TimeLimitException();
         }
+        log.info("compilation res: " + result.toString());
         log.info("Код скомпилирован");
 
         if (!errorResult.toString().isEmpty()) {
@@ -423,7 +423,7 @@ public class SolutionServiceImpl implements SolutionService {
                     .exec(new ResultCallback.Adapter<Frame>() {
                         @Override
                         public void onNext(Frame item) {
-                            String payload = Arrays.toString(item.getPayload());
+                            String payload = new String(item.getPayload(), StandardCharsets.UTF_8);
                             log.info("Payload: " + payload);
                             result.append(payload).append("\n");
                         }
