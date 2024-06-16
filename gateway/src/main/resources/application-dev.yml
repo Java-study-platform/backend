@@ -37,9 +37,8 @@ spring:
           uri: http://user-app:8081
           predicates:
             - Path=/api/user/**
-
         - id: core-service
-          uri: http://core:8082
+          uri: http://core-app:8082
           predicates:
             - Path=/api/learning/**
       default-filters:
