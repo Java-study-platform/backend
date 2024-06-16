@@ -16,6 +16,7 @@ public class TaskDTO {
     private String name;
     private String description;
     private long experienceAmount;
+    private long timeLimit;
     private UUID topicId;
     private String authorLogin;
     private LocalDateTime createTime;
