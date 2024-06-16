@@ -2,7 +2,7 @@ spring:
   application:
     name: SOLUTION-SERVICE
   datasource:
-    url: jdbc:postgresql://postgres_solutions:5436/solutions
+    url: jdbc:postgresql://postgres_solutions/solutions
     username: postgres
     password: postgressergtosp
     driverClassName: org.postgresql.Driver
@@ -25,16 +25,16 @@ spring:
               - openid
         provider:
           keycloak:
-            issuer-uri: http://95.163.230.65:8080/realms/Study-platform
+            issuer-uri: http://auth:8080/realms/Study-platform
             user-name-attribute: preferred_username
 
 
       resourceserver:
         jwt:
-          issuer-uri: http://95.163.230.65:8080/realms/Study-platform
-          jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+          issuer-uri:  http://auth:8080/realms/Study-platform
+          jwk-set-uri: http://auth:8080/realms/Study-platform/protocol/openid-connect/certs
   kafka:
-    bootstrap-servers: http://95.163.230.65:29092
+    bootstrap-servers: broker:29092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -50,12 +50,12 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://95.163.230.65:8761/eureka/
+      defaultZone: http://service-registry:8761/eureka/
   instance:
     prefer-ip-address: true
 
 services:
-  url: http://95.163.230.65:9090
+  url: http://gateway:9090
   api-key: asfasgbasgqwfrqwgfvavashahnodqpwohqjm
 
 springdoc:
@@ -68,5 +68,5 @@ springdoc:
     display-request-duration: true
 
 docker:
-  network: netw
-  host: tcp://localhost:2376
+  network: backend
+  host: unix:///var/run/docker.sock

@@ -4,6 +4,7 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.ExecCreateCmdResponse;
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.exception.DockerException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Frame;
@@ -37,20 +38,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -63,16 +66,13 @@ import static com.study.common.Constants.Consts.USERNAME_CLAIM;
 public class SolutionServiceImpl implements SolutionService {
     private final WebClient webClient;
     private final SolutionRepository solutionRepository;
-    private final TestRepository testRepository;
     private final SolutionListMapper solutionListMapper;
     private final SolutionMapper solutionMapper;
     private final HashSet<String> maliciousWords;
     private final KafkaProducer kafkaProducer;
-    private final SimpMessagingTemplate messagingTemplate;
-    private final TestMapper testMapper;
-    private final DockerClient dockerClient;
+    private final TestExecutorService testExecutorService;
+    private final JdbcTemplate jdbcTemplate;
 
-    private static final String DOCKER_IMAGE = "openjdk:17";
 
     @Value("${services.api-key}")
     private String apiKey;
@@ -80,23 +80,19 @@ public class SolutionServiceImpl implements SolutionService {
     @Autowired
     public SolutionServiceImpl(WebClient webClient,
                                SolutionRepository solutionRepository,
-                               TestRepository testRepository,
                                SolutionListMapper solutionListMapper,
                                SolutionMapper solutionMapper,
                                KafkaProducer kafkaProducer,
-                               SimpMessagingTemplate messagingTemplate,
-                               TestMapper testMapper,
-                               DockerClient dockerClient){
+                               TestExecutorService testExecutorService,
+                               JdbcTemplate jdbcTemplate){
         this.webClient = webClient;
         this.solutionRepository = solutionRepository;
-        this.testRepository = testRepository;
         this.solutionListMapper = solutionListMapper;
         this.solutionMapper = solutionMapper;
         this.kafkaProducer = kafkaProducer;
+        this.testExecutorService = testExecutorService;
+        this.jdbcTemplate = jdbcTemplate;
         this.maliciousWords = new HashSet<>();
-        this.messagingTemplate = messagingTemplate;
-        this.testMapper = testMapper;
-        this.dockerClient = dockerClient;
 
         maliciousWords.add("shutdown");
         maliciousWords.add("File");
@@ -118,100 +114,61 @@ public class SolutionServiceImpl implements SolutionService {
     public SolutionDto testSolution(Jwt user, UUID taskId, SendTestSolutionRequest request) throws IOException {
         List<TestCaseDto> tests = getTestCases(taskId).block();
 
-        if (tests != null && !tests.isEmpty()) {
-            Solution solution = new Solution();
-            String code = request.getCode().replaceAll("(?m)^package\\s+.*?;", "").trim();
-
-            solution.setSolutionCode(code);
-            solution.setId(UUID.randomUUID());
-            solution.setStatus(Status.PENDING);
-            solution.setTaskId(taskId);
-            solution.setTestIndex(0L);
-            solution.setUsername(user.getClaim(USERNAME_CLAIM));
-            solutionRepository.saveAndFlush(solution);
-
-            long timeLimit = tests.get(0).getTimeLimit();
-
-            if (containsMaliciousWords(code, maliciousWords)) {
-                solution.setStatus(Status.MALICIOUS_CODE);
-                solutionRepository.save(solution);
-            }
-            else {
-                CompletableFuture.runAsync(() -> {
-                    String result = null;
-                    for (TestCaseDto test : tests) {
-                        Long testIndex = test.getIndex();
-                        String input = test.getExpectedInput();
-
-                        Test testEntity = new Test();
-                        testEntity.setId(UUID.randomUUID());
-                        testEntity.setSolution(solution);
-                        testEntity.setTestInput(input);
-                        testEntity.setStatus(Status.PENDING);
-                        testEntity.setTestIndex(testIndex);
-
-                        try {
-                            result = runCode(code, input, timeLimit)
-                                    .replaceAll("\n\n", "\n")
-                                    .replaceAll(" \n", "\n").trim();
-                        } catch (TimeLimitException e) {
-                            solution.setStatus(Status.TIME_LIMIT);
-                            solution.setTestIndex(testIndex);
-                            testEntity.setStatus(Status.TIME_LIMIT);
-                        } catch (CodeRuntimeException e) {
-                            solution.setStatus(Status.RUNTIME_ERROR);
-                            solution.setTestIndex(testIndex);
-
-                            testEntity.setStatus(Status.RUNTIME_ERROR);
-                            testEntity.setTestOutput(e.getMessage());
-                        } catch (CodeCompilationException e) {
-                            solution.setStatus(Status.COMPILATION_ERROR);
-                            solution.setTestIndex(testIndex);
-
-                            testEntity.setStatus(Status.COMPILATION_ERROR);
-                            testEntity.setTestOutput(e.getMessage().replaceAll("^[A-Za-z]:\\\\(?:[^\\\\\\n]+\\\\)*compile[^:\\n]+:", ""));
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-
-                        if (result != null) {
-                            testEntity.setTestOutput(result);
-
-                            if (result.equals(test.getExpectedOutput())) {
-                                testEntity.setStatus(Status.OK);
-                                if (test.getIndex() == tests.size()) {
-                                    solution.setStatus(Status.OK);
-                                    solution.setTestIndex(test.getIndex());
-                                }
-                            } else {
-                                testEntity.setStatus(Status.WRONG_ANSWER);
-                                solution.setStatus(Status.WRONG_ANSWER);
-                                solution.setTestIndex(test.getIndex());
-                                break;
-                            }
-                        }
-
-                        testRepository.save(testEntity);
-
-                        sendWebSocketMessage(user, testMapper.toDTO(testEntity), solution.getId());
-                    }
-
-                    solutionRepository.save(solution);
-
-                    kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),
-                            "Решение завершило проверку",
-                            String.format("Статус решения: %s", solution.getStatus()),
-                            true);
-                });
-            }
-
-            return solutionMapper.toDTO(solution);
-
-        }
-        else{
+        if (tests == null || tests.isEmpty()){
             throw new TaskNotFoundException(taskId);
         }
+
+        Solution solution = new Solution();
+        String code = request.getCode().replaceAll("(?m)^package\\s+.*?;", "").trim();
+
+        solution.setSolutionCode(code);
+        solution.setId(UUID.randomUUID());
+        solution.setStatus(Status.PENDING);
+        solution.setTaskId(taskId);
+        solution.setTestIndex(0L);
+        solution.setUsername(user.getClaim(USERNAME_CLAIM));
+
+        jdbcTemplate.update(
+                "INSERT INTO solutions (id, create_time, solution_code, status, task_id, test_index, username) " +
+                        "VALUES (?, current_timestamp, ?, ?, ?, ?, ?)",
+                solution.getId(), solution.getSolutionCode(), solution.getStatus().toString(),
+                solution.getTaskId(), solution.getTestIndex(), solution.getUsername()
+        );
+
+        long timeLimit = tests.get(0).getTimeLimit();
+
+        if (containsMaliciousWords(code, maliciousWords)) {
+            solution.setStatus(Status.MALICIOUS_CODE);
+            solutionRepository.save(solution);
+        }
+        else {
+            CompletableFuture.runAsync(() -> {
+                try {
+                    testExecutorService.runCode(tests, code, timeLimit, solution, user);
+                } catch (TimeLimitException e) {
+                    log.info("Тайм лимит");
+                    solution.setStatus(Status.TIME_LIMIT);
+                } catch (CodeRuntimeException | IOException e) {
+                    log.info("Ошибка в рантайме кода: " + e.getMessage());
+                    e.printStackTrace();
+                    solution.setStatus(Status.RUNTIME_ERROR);
+                } catch (CodeCompilationException e) {
+                    log.info("Код не был скомпилирован");
+                    solution.setStatus(Status.COMPILATION_ERROR);
+                }
+
+                solutionRepository.save(solution);
+
+//            kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),
+//                    "Решение завершило проверку",
+//                    String.format("Статус решения: %s", solution.getStatus()),
+//                    true);
+            });
+        }
+
+        return solutionMapper.toDTO(solution);
     }
+
 
     private static boolean containsMaliciousWords(String code, Set<String> maliciousWords) throws IOException {
         try (BufferedReader reader = new BufferedReader(new StringReader(code))) {
@@ -247,6 +204,7 @@ public class SolutionServiceImpl implements SolutionService {
         return solutionMapper.toDTO(solution);
     }
 
+//    Код без контейнеризации
 //    private static String runCode(String code, String input, long timeLimit) throws IOException {
 //        StringBuilder result = new StringBuilder();
 //
@@ -347,97 +305,6 @@ public class SolutionServiceImpl implements SolutionService {
 //        return result.toString();
 //    }
 
-    private String runCode(String code, String input, long timeLimit) throws IOException, CodeCompilationException, CodeRuntimeException, TimeLimitException {
-        StringBuilder result = new StringBuilder();
-        StringBuilder errorResult = new StringBuilder();
-
-        Path path = Files.createTempDirectory("compile");
-        File tempFile = new File(path.toAbsolutePath() + "/Main.java");
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
-            writer.write(code);
-        }
-
-        Volume volume = new Volume("/code");
-        HostConfig hostConfig = HostConfig.newHostConfig()
-                .withBinds(new Bind(path.toAbsolutePath().toString(), volume));
-
-        CreateContainerResponse container = dockerClient.createContainerCmd(DOCKER_IMAGE)
-                .withHostConfig(hostConfig)
-                .withWorkingDir("/code")
-                .exec();
-
-        dockerClient.startContainerCmd(container.getId()).exec();
-
-        ExecCreateCmdResponse compileCmd = dockerClient.execCreateCmd(container.getId())
-                .withCmd("sh", "-c", "javac Main.java")
-                .exec();
-
-        try {
-            dockerClient.execStartCmd(compileCmd.getId())
-                    .exec(new ResultCallback.Adapter<Frame>() {
-                        @Override
-                        public void onNext(Frame item) {
-                            result.append(item.toString()).append("\n");
-                        }
-
-                        @Override
-                        public void onError(Throwable throwable) {
-                            errorResult.append(throwable.getMessage()).append("\n");
-                        }
-                    }).awaitCompletion(timeLimit, TimeUnit.MILLISECONDS);
-        } catch (DockerException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            dockerClient.removeContainerCmd(container.getId()).exec();
-            throw new TimeLimitException();
-        }
-
-        if (!errorResult.toString().isEmpty()) {
-            dockerClient.removeContainerCmd(container.getId()).exec();
-            throw new CodeCompilationException(errorResult.toString());
-        }
-
-        errorResult.setLength(0);
-        result.setLength(0);
-
-        ExecCreateCmdResponse runCmd = dockerClient.execCreateCmd(container.getId())
-                .withCmd("sh", "-c", "echo \"" + input + "\" | java Main")
-                .exec();
-
-        try {
-            dockerClient.execStartCmd(runCmd.getId())
-                    .exec(new ResultCallback.Adapter<Frame>() {
-                        @Override
-                        public void onNext(Frame item) {
-                            result.append(item.toString()).append("\n");
-                        }
-
-                        @Override
-                        public void onError(Throwable throwable) {
-                            errorResult.append(throwable.getMessage()).append("\n");
-                        }
-                    }).awaitCompletion(timeLimit, TimeUnit.MILLISECONDS);
-        } catch ( DockerException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            dockerClient.removeContainerCmd(container.getId()).exec();
-            throw new TimeLimitException();
-        }
-
-        if (!errorResult.toString().isEmpty()) {
-            dockerClient.removeContainerCmd(container.getId()).exec();
-            throw new CodeRuntimeException(errorResult.toString());
-        }
-
-        dockerClient.removeContainerCmd(container.getId()).exec();
-
-        Files.delete(tempFile.toPath());
-        Files.delete(path);
-
-        return result.toString();
-    }
-
     private Mono<List<TestCaseDto>> getTestCases(UUID taskId){
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
@@ -449,14 +316,5 @@ public class SolutionServiceImpl implements SolutionService {
                 .onStatus(HttpStatusCode::is5xxServerError, response -> Mono.error(new RuntimeException("Server error: " + response.statusCode())))
                 .bodyToMono(new ParameterizedTypeReference<List<TestCaseDto>>() {})
                 .doOnError(e -> log.error("Error retrieving test cases", e));
-    }
-
-    private void sendWebSocketMessage(Jwt user, TestDto testDto, UUID solutionId) {
-        try {
-            messagingTemplate.convertAndSendToUser(user.getClaim(USERNAME_CLAIM), String.format("/solution/%s", solutionId.toString()), testDto);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
-        }
     }
 }

@@ -67,6 +67,8 @@ services:
       context: ./gateway
       dockerfile: Dockerfile
       network: host
+    depends_on:
+      - auth
     ports:
       - "9090:9090"
     networks:
@@ -83,6 +85,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: postgressergtosp
     depends_on:
       - postgres_core
+      - auth
     ports:
       - "8082:8082"
     networks:
@@ -99,6 +102,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: postgressergtosp
     depends_on:
       - postgres_user
+      - auth
     ports:
       - "8081:8081"
     networks:
@@ -115,6 +119,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: postgressergtosp
     depends_on:
       - postgres_notifications
+      - auth
     ports:
       - "8083:8083"
     networks:
@@ -125,12 +130,15 @@ services:
       context: ./solution-service
       dockerfile: Dockerfile
       network: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_solutions/solutions
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgressergtosp
     depends_on:
       - postgres_solutions
+      - auth
     ports:
       - "8084:8084"
     networks:
@@ -185,16 +193,18 @@ services:
 
   auth:
     image: quay.io/keycloak/keycloak:24.0.4
+    hostname: auth
+    container_name: auth
     restart: always
     ports:
       - "8080:8080"
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: keycloakadmin123
-      KEYCLOAK_FRONTEND_URL: http://95.163.230.65:8080
+      KEYCLOAK_FRONTEND_URL: http://localhost:8080
       KC_HTTP_ENABLED: 'true'
       KC_HOSTNAME_DEBUG: 'true'
-      KC_HOSTNAME: 95.163.230.65:8080
+      KC_HOSTNAME: auth:8080
       KC_HOSTNAME_STRICT_BACKCHANNEL: 'true'
       KC_METRICS_ENABLED: 'true'
       KC_HEALTH_ENABLED: 'true'
@@ -209,9 +219,9 @@ services:
       KC_HOSTNAME_STRICT_HTTPS: 'false'
     volumes:
       - ./realm-export.json:/opt/keycloak/data/import/realm.json:ro
+    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm"]
     depends_on:
       - postgres_keycloak
-    command: [ "start-dev" ]
     networks:
       - backend
 
