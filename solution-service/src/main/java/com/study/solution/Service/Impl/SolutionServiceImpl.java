@@ -204,7 +204,6 @@ public class SolutionServiceImpl implements SolutionService {
         return solutionMapper.toDTO(solution);
     }
 
-//    Код без контейнеризации
 //    private static String runCode(String code, String input, long timeLimit) throws IOException {
 //        StringBuilder result = new StringBuilder();
 //
