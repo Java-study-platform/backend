@@ -15,6 +15,7 @@ import com.study.solution.Exceptions.Code.CodeCompilationException;
 import com.study.solution.Exceptions.Code.CodeRuntimeException;
 import com.study.solution.Exceptions.Code.TimeLimitException;
 import com.study.solution.Mapper.TestMapper;
+import com.study.solution.Repository.SolutionRepository;
 import com.study.solution.Repository.TestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,16 +40,21 @@ import static com.study.common.Constants.Consts.USERNAME_CLAIM;
 @Slf4j
 public class TestExecutorService {
     private final TestRepository testRepository;
+    private final SolutionRepository solutionRepository;
     private final DockerClient dockerClient;
     private final TestMapper testMapper;
     private final SimpMessagingTemplate messagingTemplate;
 
     private static final String DOCKER_IMAGE = "openjdk:17-oracle";
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     protected void runCode(List<TestCaseDto> tests, String code, long timeLimit, Solution solution, Jwt user) throws IOException, CodeCompilationException, CodeRuntimeException, TimeLimitException {
         Path path = Files.createTempDirectory("compile");
         File tempFile = new File(path.toAbsolutePath() + "/Main.java");
+
+        if (solutionRepository.existsById(solution.getId())){
+            log.info("ПОБЕЕЕЕДАА");
+        }
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
             writer.write(code);
