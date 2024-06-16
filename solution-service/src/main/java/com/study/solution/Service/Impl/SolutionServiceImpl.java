@@ -107,14 +107,8 @@ public class SolutionServiceImpl implements SolutionService {
     }
 
     @Async
-    @Transactional
-    public CompletableFuture<Solution> saveSolution(Jwt user, UUID taskId, SendTestSolutionRequest request) throws IOException {
-        List<TestCaseDto> tests = getTestCases(taskId).block();
-
-        if (tests == null || tests.isEmpty()) {
-            throw new TaskNotFoundException(taskId);
-        }
-
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public CompletableFuture<Solution> saveSolution(Jwt user, UUID taskId, SendTestSolutionRequest request) {
         Solution solution = new Solution();
         String code = request.getCode().replaceAll("(?m)^package\\s+.*?;", "").trim();
 
@@ -125,6 +119,7 @@ public class SolutionServiceImpl implements SolutionService {
         solution.setTestIndex(0L);
         solution.setUsername(user.getClaim(USERNAME_CLAIM));
         solutionRepository.saveAndFlush(solution);
+        log.info("saveSolutionID: " + solution.getId());
 
         return CompletableFuture.completedFuture(solution);
     }
@@ -133,6 +128,7 @@ public class SolutionServiceImpl implements SolutionService {
     @Transactional
     public CompletableFuture<SolutionDto> testSolution(Jwt user, UUID taskId, SendTestSolutionRequest request) throws IOException {
         return saveSolution(user, taskId, request).thenCompose(solution -> {
+            log.info("testSolutionID: " + solution.getId());
             List<TestCaseDto> tests = getTestCases(taskId).block();
 
             if (tests == null || tests.isEmpty()){
@@ -161,10 +157,10 @@ public class SolutionServiceImpl implements SolutionService {
 
                     solutionRepository.save(solution);
 
-                    kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),
-                            "Решение завершило проверку",
-                            String.format("Статус решения: %s", solution.getStatus()),
-                            true);
+//                    kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),
+//                            "Решение завершило проверку",
+//                            String.format("Статус решения: %s", solution.getStatus()),
+//                            true);
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
