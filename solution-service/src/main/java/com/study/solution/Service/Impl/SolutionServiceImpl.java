@@ -389,10 +389,6 @@ public class SolutionServiceImpl implements SolutionService {
                             log.warn("Записываю payload в ошибку: " + payload);
                             errorResult.append(payload).append("\n");
                         }
-                        else {
-                            log.info("Payload в результат: " + payload);
-                            result.append(payload).append("\n");
-                        }
                     }
 
                     @Override
@@ -409,7 +405,7 @@ public class SolutionServiceImpl implements SolutionService {
             dockerClient.removeContainerCmd(containerId).exec();
             throw new TimeLimitException();
         }
-        log.info("compilation res: " + result.toString());
+
         log.info("Код скомпилирован");
 
         if (!errorResult.toString().isEmpty()) {
@@ -435,8 +431,17 @@ public class SolutionServiceImpl implements SolutionService {
                         @Override
                         public void onNext(Frame item) {
                             String payload = new String(item.getPayload(), StandardCharsets.UTF_8);
-                            log.info("Payload: " + payload);
-                            result.append(payload).append("\n");
+
+                            if (payload.toLowerCase().contains("error")
+                                    || payload.toLowerCase().contains("caused by")
+                                    || payload.toLowerCase().contains("exception")) {
+                                log.warn("Записываю payload в ошибку: " + payload);
+                                errorResult.append(payload).append("\n");
+                            }
+                            else {
+                                log.info("Payload в результат: " + payload);
+                                result.append(payload).append("\n");
+                            }
                         }
 
                         @Override
