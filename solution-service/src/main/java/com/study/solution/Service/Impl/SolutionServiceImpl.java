@@ -39,7 +39,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.parameters.P;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -106,9 +105,8 @@ public class SolutionServiceImpl implements SolutionService {
         maliciousWords.add("powershell");
     }
 
-    @Async
     @Transactional
-    public CompletableFuture<SolutionDto> testSolution(Jwt user, UUID taskId, SendTestSolutionRequest request) throws IOException {
+    public SolutionDto testSolution(Jwt user, UUID taskId, SendTestSolutionRequest request) throws IOException {
         List<TestCaseDto> tests = getTestCases(taskId).block();
 
         if (tests == null || tests.isEmpty()){
@@ -124,6 +122,7 @@ public class SolutionServiceImpl implements SolutionService {
         solution.setTaskId(taskId);
         solution.setTestIndex(0L);
         solution.setUsername(user.getClaim(USERNAME_CLAIM));
+        solutionRepository.save(solution);
 
         long timeLimit = tests.get(0).getTimeLimit();
 
@@ -132,7 +131,7 @@ public class SolutionServiceImpl implements SolutionService {
             solutionRepository.save(solution);
         }
         else {
-            CompletableFuture<Void> runCodeFuture = CompletableFuture.runAsync(() -> {
+            CompletableFuture.runAsync(() -> {
                 try {
                    testExecutorService.runCode(tests, code, timeLimit, solution, user);
                 } catch (TimeLimitException e) {
@@ -154,11 +153,9 @@ public class SolutionServiceImpl implements SolutionService {
                         String.format("Статус решения: %s", solution.getStatus()),
                         true);
             });
-
-            runCodeFuture.join();
         }
 
-        return CompletableFuture.completedFuture(solutionMapper.toDTO(solution));
+        return solutionMapper.toDTO(solution);
     }
 
     private static boolean containsMaliciousWords(String code, Set<String> maliciousWords) throws IOException {
