@@ -40,7 +40,6 @@ import static com.study.common.Constants.Consts.USERNAME_CLAIM;
 @Slf4j
 public class TestExecutorService {
     private final TestRepository testRepository;
-    private final SolutionRepository solutionRepository;
     private final DockerClient dockerClient;
     private final TestMapper testMapper;
     private final SimpMessagingTemplate messagingTemplate;
@@ -51,13 +50,6 @@ public class TestExecutorService {
     protected void runCode(List<TestCaseDto> tests, String code, long timeLimit, Solution solution, Jwt user) throws IOException, CodeCompilationException, CodeRuntimeException, TimeLimitException {
         Path path = Files.createTempDirectory("compile");
         File tempFile = new File(path.toAbsolutePath() + "/Main.java");
-
-        if (solutionRepository.existsById(solution.getId())){
-            log.info("ПОБЕЕЕЕДАА");
-        }
-        else{
-            log.info("Это фиаско, братан");
-        }
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
             writer.write(code);
@@ -109,7 +101,6 @@ public class TestExecutorService {
             testEntity.setTestInput(input);
             testEntity.setStatus(Status.PENDING);
             testEntity.setTestIndex(testIndex);
-
 
             sendWebSocketMessage(user, testMapper.toDTO(testEntity), solution.getId());
 

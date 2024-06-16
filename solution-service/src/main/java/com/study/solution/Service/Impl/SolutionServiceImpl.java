@@ -122,7 +122,7 @@ public class SolutionServiceImpl implements SolutionService {
         solution.setTaskId(taskId);
         solution.setTestIndex(0L);
         solution.setUsername(user.getClaim(USERNAME_CLAIM));
-        solutionRepository.save(solution);
+        solutionRepository.saveAndFlush(solution);
 
         long timeLimit = tests.get(0).getTimeLimit();
 
