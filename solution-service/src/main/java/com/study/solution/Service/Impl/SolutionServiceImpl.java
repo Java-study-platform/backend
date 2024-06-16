@@ -131,28 +131,33 @@ public class SolutionServiceImpl implements SolutionService {
             solutionRepository.save(solution);
         }
         else {
-            try {
-               testExecutorService.runCode(tests, code, timeLimit, solution, user);
-            } catch (TimeLimitException e) {
-                log.info("Тайм лимит");
-                solution.setStatus(Status.TIME_LIMIT);
-            } catch (CodeRuntimeException | IOException e) {
-                log.info("Ошибка в рантайме кода");
-                solution.setStatus(Status.RUNTIME_ERROR);
-            } catch (CodeCompilationException e) {
-                log.info("Код не был скомпилирован");
-                solution.setStatus(Status.COMPILATION_ERROR);
-            }
-
-            solutionRepository.save(solution);
-
-            kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),
-                    "Решение завершило проверку",
-                    String.format("Статус решения: %s", solution.getStatus()),
-                    true);
+            runTestsInSeparateTransaction(tests, code, timeLimit, solution, user);
         }
 
         return solutionMapper.toDTO(solution);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void runTestsInSeparateTransaction(List<TestCaseDto> tests, String code, long timeLimit, Solution solution, Jwt user) throws IOException {
+        try {
+            testExecutorService.runCode(tests, code, timeLimit, solution, user);
+        } catch (TimeLimitException e) {
+            log.info("Тайм лимит");
+            solution.setStatus(Status.TIME_LIMIT);
+        } catch (CodeRuntimeException | IOException e) {
+            log.info("Ошибка в рантайме кода");
+            solution.setStatus(Status.RUNTIME_ERROR);
+        } catch (CodeCompilationException e) {
+            log.info("Код не был скомпилирован");
+            solution.setStatus(Status.COMPILATION_ERROR);
+        }
+
+        solutionRepository.save(solution);
+
+        kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),
+                "Решение завершило проверку",
+                String.format("Статус решения: %s", solution.getStatus()),
+                true);
     }
 
     private static boolean containsMaliciousWords(String code, Set<String> maliciousWords) throws IOException {
