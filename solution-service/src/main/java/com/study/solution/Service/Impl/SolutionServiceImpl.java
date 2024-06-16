@@ -362,10 +362,20 @@ public class SolutionServiceImpl implements SolutionService {
         HostConfig hostConfig = HostConfig.newHostConfig()
                 .withBinds(new Bind(path.toAbsolutePath().toString(), volume));
 
-        CreateContainerResponse container = dockerClient.createContainerCmd(DOCKER_IMAGE)
-                .withHostConfig(hostConfig)
-                .withWorkingDir("/code")
-                .exec();
+        CreateContainerResponse container;
+
+        try {
+            container = dockerClient.createContainerCmd(DOCKER_IMAGE)
+                    .withHostConfig(hostConfig)
+                    .withWorkingDir("/code")
+                    .exec();
+            log.info("Контейнер создан");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Ошибка при создании контейнера Docker: " + e.getMessage());
+            throw new RuntimeException("Ошибка при создании контейнера Docker", e);
+        }
 
         dockerClient.startContainerCmd(container.getId()).exec();
 
