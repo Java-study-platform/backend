@@ -366,7 +366,7 @@ public class SolutionServiceImpl implements SolutionService {
 
         CreateContainerResponse container = dockerClient.createContainerCmd(DOCKER_IMAGE)
                 .withHostConfig(hostConfig)
-                .withWorkingDir("/")
+                .withWorkingDir("/code")
                 .exec();;
 
         String containerId = container.getId();
