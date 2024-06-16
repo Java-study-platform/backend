@@ -418,7 +418,9 @@ public class SolutionServiceImpl implements SolutionService {
             result.setLength(0);
 
             ExecCreateCmdResponse runCmd = dockerClient.execCreateCmd(containerId)
-                    .withCmd("sh", "-c", "echo \"" + input + "\" | java Main")
+                    .withCmd("java", "Main")
+                    .withAttachStdin(true)
+                    .withAttachStdout(true)
                     .exec();
 
             try {
@@ -426,7 +428,7 @@ public class SolutionServiceImpl implements SolutionService {
                         .exec(new ResultCallback.Adapter<Frame>() {
                             @Override
                             public void onNext(Frame item) {
-                                result.append(item.toString()).append("\n");
+                                result.append(new String(item.getPayload())).append("\n");
                             }
 
                             @Override
