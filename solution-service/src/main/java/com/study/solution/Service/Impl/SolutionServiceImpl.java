@@ -361,9 +361,11 @@ public class SolutionServiceImpl implements SolutionService {
         }
 
         Volume volume = new Volume("/code");
+        Bind bind = new Bind(path.toAbsolutePath().toString(), volume);
         HostConfig hostConfig = HostConfig.newHostConfig()
-                .withBinds(new Bind(path.toAbsolutePath().toString(), volume));
+                .withBinds(bind);
         log.info("Путь: " + path.toAbsolutePath());
+        log.info("Bind: " + bind.toString());
         CreateContainerResponse container = dockerClient.createContainerCmd(DOCKER_IMAGE)
                 .withHostConfig(hostConfig)
                 .withWorkingDir("/code")
