@@ -4,12 +4,12 @@ spring:
       client:
         provider:
           keycloak:
-            issuer-uri: http://localhost:8080/realms/Study-platform
+            issuer-uri: http://auth:8080/realms/Study-platform
         registration:
           gateway:
             provider: keycloak
             client-id: springsecurity
-            client-secret: W0Wa5HOln1rQUsSipM2iOBhs6TszaEHj
+            client-secret: kNrIeJCEM6VWtpz35TAGhRsFQjyMnLf6
             authorization-grant-type: authorization_code
             scope:
               - openid
@@ -20,34 +20,39 @@ spring:
     web-application-type: reactive
   cloud:
     gateway:
+      discovery:
+        locator:
+          lower-case-service-id: true
+          enabled: true
       routes:
         - id: notification-service
-          uri: lb://NOTIFICATION-SERVICE
+          uri: http://notifications-app:8083
           predicates:
             - Path=/api/notification/**
-
+        - id: solution-service
+          uri: http://solutions-app:8083
+          predicates:
+            - Path=/api/solution/**
         - id: user-service
-          uri: lb://USER-SERVICE
+          uri: http://user-app:8081
           predicates:
             - Path=/api/user/**
 
         - id: core-service
-          uri: lb://CORE-SERVICE
+          uri: http://core:8082
           predicates:
             - Path=/api/learning/**
-
-        - id: solution-service
-          uri: lb://SOLUTION-SERVICE
-          predicates:
-            - Path=/api/solution/**
+      default-filters:
+        - TokenRelay=
+        - RemoveRequestHeader=Cookie
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://service-registry:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
   instance:
     prefer-ip-address: true
-    hostname: localhost
+    hostname: service-registry
 server:
   port: 9090

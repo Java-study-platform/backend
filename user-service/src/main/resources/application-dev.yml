@@ -2,9 +2,9 @@ spring:
   application:
     name: USER-SERVICE
   datasource:
-    url: jdbc:postgresql://localhost:5432/keycloak
+    url: jdbc:postgresql://postgres_user/user
     username: postgres
-    password: gbhfns
+    password: postgressergtosp
     driverClassName: org.postgresql.Driver
   jpa:
     hibernate:
@@ -24,22 +24,22 @@ spring:
         registration:
           keycloak:
             client-id: springsecurity
-            client-secret: W0Wa5HOln1rQUsSipM2iOBhs6TszaEHj
+            client-secret: kNrIeJCEM6VWtpz35TAGhRsFQjyMnLf6
             authorization-grant-type: authorization_code
             scope:
               - openid
         provider:
           keycloak:
-            issuer-uri: http://localhost:8080/realms/Study-platform
+            issuer-uri: http://auth/realms/Study-platform
             user-name-attribute: preferred_username
 
 
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8080/realms/Study-platform
+          issuer-uri: http://auth/realms/Study-platform
           jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
   kafka:
-    bootstrap-servers: http://localhost:9092
+    bootstrap-servers: http://broker:29092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -64,14 +64,13 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://95.163.230.65:8761/eureka/
   instance:
     prefer-ip-address: true
 
-
 keycloak:
-  server-url: http://localhost:8080
+  server-url: http://95.163.230.65:8080
   admin-client-id: admin-cli
-  admin-client-secret: oeUMouV5eez6SMH22FUFni8AMmipF1og
+  admin-client-secret: lpm8EeAJdDovYVtH34aUcluStO8CePYJ
   realm: Study-platform
-  configuration: http://localhost:8080/realms/Study-platform/.well-known/openid-configuration
+  configuration: http://95.163.230.65:8080/realms/Study-platform/.well-known/openid-configuration
