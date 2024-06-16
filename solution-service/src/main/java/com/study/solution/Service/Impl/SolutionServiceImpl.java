@@ -380,7 +380,7 @@ public class SolutionServiceImpl implements SolutionService {
             dockerClient.startContainerCmd(containerId).exec();
 
             ExecCreateCmdResponse compileCmd = dockerClient.execCreateCmd(containerId)
-                    .withCmd("sh", "-c", "javac /code/Main.java")
+                    .withCmd("sh", "-c", "javac Main.java && ls -l /code && ls && cat Main.java && cat /code/Main.java")
                     .exec();
 
             try {
