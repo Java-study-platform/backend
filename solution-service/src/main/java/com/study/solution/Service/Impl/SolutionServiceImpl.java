@@ -152,7 +152,6 @@ public class SolutionServiceImpl implements SolutionService {
                             result = runCode(code, input, timeLimit)
                                     .replaceAll("\n\n", "\n")
                                     .replaceAll(" \n", "\n").trim();
-                            log.info("Результат: " + result);
                         } catch (TimeLimitException e) {
                             log.info("Тайм лимит");
                             solution.setStatus(Status.TIME_LIMIT);
@@ -383,14 +382,15 @@ public class SolutionServiceImpl implements SolutionService {
                     @Override
                     public void onNext(Frame item) {
                         String payload = new String(item.getPayload(), StandardCharsets.UTF_8);
-                        log.info("Payload: " + payload);
 
                         if (payload.toLowerCase().contains("error")
                                 || payload.toLowerCase().contains("caused by")
                                 || payload.toLowerCase().contains("exception")) {
+                            log.warn("Записываю payload в ошибку: " + payload);
                             errorResult.append(payload).append("\n");
                         }
                         else {
+                            log.info("Payload в результат: " + payload);
                             result.append(payload).append("\n");
                         }
                     }
