@@ -42,6 +42,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.parameters.P;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -128,6 +129,7 @@ public class SolutionServiceImpl implements SolutionService {
             solution.setTaskId(taskId);
             solution.setTestIndex(0L);
             solution.setUsername(user.getClaim(USERNAME_CLAIM));
+            solutionRepository.saveAndFlush(solution);
 
             long timeLimit = tests.get(0).getTimeLimit();
 
@@ -302,10 +304,8 @@ public class SolutionServiceImpl implements SolutionService {
 //        return result.toString();
 //    }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     protected void runCode(List<TestCaseDto> tests, String code, long timeLimit, Solution solution, Jwt user) throws IOException, CodeCompilationException, CodeRuntimeException, TimeLimitException {
-        solutionRepository.saveAndFlush(solution);
-
         Path path = Files.createTempDirectory("compile");
         File tempFile = new File(path.toAbsolutePath() + "/Main.java");
 
@@ -367,7 +367,6 @@ public class SolutionServiceImpl implements SolutionService {
                     .withAttachStdout(true)
                     .withAttachStderr(true)
                     .exec();
-            log.info("runCmd запущен");
 
             try {
                 dockerClient.execStartCmd(runCmd.getId())
@@ -414,7 +413,6 @@ public class SolutionServiceImpl implements SolutionService {
 
             log.info("Результат теста: " + strResult);
             if (!strResult.isEmpty()) {
-                log.info(strResult);
                 testEntity.setTestOutput(strResult);
 
                 if (strResult.equals(test.getExpectedOutput())) {
