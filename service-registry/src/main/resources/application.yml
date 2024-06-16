@@ -3,10 +3,10 @@ eureka:
     register-with-eureka: false
     fetch-registry: false
     service-url:
-      defaultZone: http://95.163.230.65:8761/eureka
+      defaultZone: http://localhost:8761/eureka
   instance:
     prefer-ip-address: true
-    hostname: 95.163.230.65
+    hostname: localhost
 server:
   port: 8761
 spring:
