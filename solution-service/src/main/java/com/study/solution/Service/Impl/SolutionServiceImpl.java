@@ -175,6 +175,7 @@ public class SolutionServiceImpl implements SolutionService {
                         }
 
                         if (result != null) {
+                            log.info(result);
                             testEntity.setTestOutput(result);
 
                             if (result.equals(test.getExpectedOutput())) {
