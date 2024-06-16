@@ -116,109 +116,101 @@ public class SolutionServiceImpl implements SolutionService {
 
     @Transactional
     public SolutionDto testSolution(Jwt user, UUID taskId, SendTestSolutionRequest request) throws IOException {
-        try {
-            dockerClient.createContainerCmd(DOCKER_IMAGE).exec();
+        List<TestCaseDto> tests = getTestCases(taskId).block();
+
+        if (tests != null && !tests.isEmpty()) {
+            Solution solution = new Solution();
+            String code = request.getCode().replaceAll("(?m)^package\\s+.*?;", "").trim();
+
+            solution.setSolutionCode(code);
+            solution.setId(UUID.randomUUID());
+            solution.setStatus(Status.PENDING);
+            solution.setTaskId(taskId);
+            solution.setTestIndex(0L);
+            solution.setUsername(user.getClaim(USERNAME_CLAIM));
+            solutionRepository.saveAndFlush(solution);
+
+            long timeLimit = tests.get(0).getTimeLimit();
+
+            if (containsMaliciousWords(code, maliciousWords)) {
+                solution.setStatus(Status.MALICIOUS_CODE);
+                solutionRepository.save(solution);
+            }
+            else {
+                CompletableFuture.runAsync(() -> {
+                    String result = null;
+                    for (TestCaseDto test : tests) {
+                        Long testIndex = test.getIndex();
+                        String input = test.getExpectedInput();
+
+                        Test testEntity = new Test();
+                        testEntity.setId(UUID.randomUUID());
+                        testEntity.setSolution(solution);
+                        testEntity.setTestInput(input);
+                        testEntity.setStatus(Status.PENDING);
+                        testEntity.setTestIndex(testIndex);
+
+                        try {
+                            result = runCode(code, input, timeLimit)
+                                    .replaceAll("\n\n", "\n")
+                                    .replaceAll(" \n", "\n").trim();
+                        } catch (TimeLimitException e) {
+                            solution.setStatus(Status.TIME_LIMIT);
+                            solution.setTestIndex(testIndex);
+                            testEntity.setStatus(Status.TIME_LIMIT);
+                        } catch (CodeRuntimeException e) {
+                            solution.setStatus(Status.RUNTIME_ERROR);
+                            solution.setTestIndex(testIndex);
+
+                            testEntity.setStatus(Status.RUNTIME_ERROR);
+                            testEntity.setTestOutput(e.getMessage());
+                        } catch (CodeCompilationException e) {
+                            solution.setStatus(Status.COMPILATION_ERROR);
+                            solution.setTestIndex(testIndex);
+
+                            testEntity.setStatus(Status.COMPILATION_ERROR);
+                            testEntity.setTestOutput(e.getMessage().replaceAll("^[A-Za-z]:\\\\(?:[^\\\\\\n]+\\\\)*compile[^:\\n]+:", ""));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        if (result != null) {
+                            testEntity.setTestOutput(result);
+
+                            if (result.equals(test.getExpectedOutput())) {
+                                testEntity.setStatus(Status.OK);
+                                if (test.getIndex() == tests.size()) {
+                                    solution.setStatus(Status.OK);
+                                    solution.setTestIndex(test.getIndex());
+                                }
+                            } else {
+                                testEntity.setStatus(Status.WRONG_ANSWER);
+                                solution.setStatus(Status.WRONG_ANSWER);
+                                solution.setTestIndex(test.getIndex());
+                                break;
+                            }
+                        }
+
+                        testRepository.save(testEntity);
+
+                        sendWebSocketMessage(user, testMapper.toDTO(testEntity), solution.getId());
+                    }
+
+                    solutionRepository.save(solution);
+
+                    kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),
+                            "Решение завершило проверку",
+                            String.format("Статус решения: %s", solution.getStatus()),
+                            true);
+                });
+            }
+
+            return solutionMapper.toDTO(solution);
+
         }
-        catch (Exception e){
-            log.error(e.getMessage());
-            e.printStackTrace();
+        else{
+            throw new TaskNotFoundException(taskId);
         }
-        return new SolutionDto();
-//        List<TestCaseDto> tests = getTestCases(taskId).block();
-//
-//        if (tests != null && !tests.isEmpty()) {
-//            Solution solution = new Solution();
-//            String code = request.getCode().replaceAll("(?m)^package\\s+.*?;", "").trim();
-//
-//            solution.setSolutionCode(code);
-//            solution.setId(UUID.randomUUID());
-//            solution.setStatus(Status.PENDING);
-//            solution.setTaskId(taskId);
-//            solution.setTestIndex(0L);
-//            solution.setUsername(user.getClaim(USERNAME_CLAIM));
-//            solutionRepository.saveAndFlush(solution);
-//
-//            long timeLimit = tests.get(0).getTimeLimit();
-//
-//            if (containsMaliciousWords(code, maliciousWords)) {
-//                solution.setStatus(Status.MALICIOUS_CODE);
-//                solutionRepository.save(solution);
-//            }
-//            else {
-//                CompletableFuture.runAsync(() -> {
-//                    String result = null;
-//                    for (TestCaseDto test : tests) {
-//                        Long testIndex = test.getIndex();
-//                        String input = test.getExpectedInput();
-//
-//                        Test testEntity = new Test();
-//                        testEntity.setId(UUID.randomUUID());
-//                        testEntity.setSolution(solution);
-//                        testEntity.setTestInput(input);
-//                        testEntity.setStatus(Status.PENDING);
-//                        testEntity.setTestIndex(testIndex);
-//
-//                        try {
-//                            result = runCode(code, input, timeLimit)
-//                                    .replaceAll("\n\n", "\n")
-//                                    .replaceAll(" \n", "\n").trim();
-//                        } catch (TimeLimitException e) {
-//                            solution.setStatus(Status.TIME_LIMIT);
-//                            solution.setTestIndex(testIndex);
-//                            testEntity.setStatus(Status.TIME_LIMIT);
-//                        } catch (CodeRuntimeException e) {
-//                            solution.setStatus(Status.RUNTIME_ERROR);
-//                            solution.setTestIndex(testIndex);
-//
-//                            testEntity.setStatus(Status.RUNTIME_ERROR);
-//                            testEntity.setTestOutput(e.getMessage());
-//                        } catch (CodeCompilationException e) {
-//                            solution.setStatus(Status.COMPILATION_ERROR);
-//                            solution.setTestIndex(testIndex);
-//
-//                            testEntity.setStatus(Status.COMPILATION_ERROR);
-//                            testEntity.setTestOutput(e.getMessage().replaceAll("^[A-Za-z]:\\\\(?:[^\\\\\\n]+\\\\)*compile[^:\\n]+:", ""));
-//                        } catch (IOException e) {
-//                            throw new RuntimeException(e);
-//                        }
-//
-//                        if (result != null) {
-//                            testEntity.setTestOutput(result);
-//
-//                            if (result.equals(test.getExpectedOutput())) {
-//                                testEntity.setStatus(Status.OK);
-//                                if (test.getIndex() == tests.size()) {
-//                                    solution.setStatus(Status.OK);
-//                                    solution.setTestIndex(test.getIndex());
-//                                }
-//                            } else {
-//                                testEntity.setStatus(Status.WRONG_ANSWER);
-//                                solution.setStatus(Status.WRONG_ANSWER);
-//                                solution.setTestIndex(test.getIndex());
-//                                break;
-//                            }
-//                        }
-//
-//                        testRepository.save(testEntity);
-//
-//                        sendWebSocketMessage(user, testMapper.toDTO(testEntity), solution.getId());
-//                    }
-//
-//                    solutionRepository.save(solution);
-//
-//                    kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),
-//                            "Решение завершило проверку",
-//                            String.format("Статус решения: %s", solution.getStatus()),
-//                            true);
-//                });
-//            }
-//
-//            return solutionMapper.toDTO(solution);
-//
-//        }
-//        else{
-//            throw new TaskNotFoundException(taskId);
-//        }
     }
 
     private static boolean containsMaliciousWords(String code, Set<String> maliciousWords) throws IOException {
