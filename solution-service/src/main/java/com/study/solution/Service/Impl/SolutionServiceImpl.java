@@ -38,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.parameters.P;
@@ -70,6 +71,7 @@ public class SolutionServiceImpl implements SolutionService {
     private final HashSet<String> maliciousWords;
     private final KafkaProducer kafkaProducer;
     private final TestExecutorService testExecutorService;
+    private final JdbcTemplate jdbcTemplate;
 
 
     @Value("${services.api-key}")
@@ -81,13 +83,15 @@ public class SolutionServiceImpl implements SolutionService {
                                SolutionListMapper solutionListMapper,
                                SolutionMapper solutionMapper,
                                KafkaProducer kafkaProducer,
-                               TestExecutorService testExecutorService){
+                               TestExecutorService testExecutorService,
+                               JdbcTemplate jdbcTemplate){
         this.webClient = webClient;
         this.solutionRepository = solutionRepository;
         this.solutionListMapper = solutionListMapper;
         this.solutionMapper = solutionMapper;
         this.kafkaProducer = kafkaProducer;
         this.testExecutorService = testExecutorService;
+        this.jdbcTemplate = jdbcTemplate;
         this.maliciousWords = new HashSet<>();
 
         maliciousWords.add("shutdown");
@@ -106,9 +110,14 @@ public class SolutionServiceImpl implements SolutionService {
         maliciousWords.add("powershell");
     }
 
-    @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public CompletableFuture<Solution> saveSolution(Jwt user, UUID taskId, SendTestSolutionRequest request) {
+    @Transactional
+    public SolutionDto testSolution(Jwt user, UUID taskId, SendTestSolutionRequest request) throws IOException {
+        List<TestCaseDto> tests = getTestCases(taskId).block();
+
+        if (tests == null || tests.isEmpty()){
+            throw new TaskNotFoundException(taskId);
+        }
+
         Solution solution = new Solution();
         String code = request.getCode().replaceAll("(?m)^package\\s+.*?;", "").trim();
 
@@ -118,59 +127,45 @@ public class SolutionServiceImpl implements SolutionService {
         solution.setTaskId(taskId);
         solution.setTestIndex(0L);
         solution.setUsername(user.getClaim(USERNAME_CLAIM));
-        solutionRepository.saveAndFlush(solution);
-        log.info("saveSolutionID: " + solution.getId());
 
-        return CompletableFuture.completedFuture(solution);
-    }
-
-    @Async
-    @Transactional
-    public CompletableFuture<SolutionDto> testSolution(Jwt user, UUID taskId, SendTestSolutionRequest request) throws IOException {
-        Solution solution = saveSolution(user, taskId, request).join();
-
-        solutionRepository.flush();
-
-        log.info("testSolutionID: " + solution.getId());
-        List<TestCaseDto> tests = getTestCases(taskId).block();
-
-        if (tests == null || tests.isEmpty()){
-            throw new TaskNotFoundException(taskId);
-        }
+        jdbcTemplate.update(
+                "INSERT INTO solutions (id, create_time, solution_code, status, task_id, test_index, username) " +
+                        "VALUES (?, current_timestamp, ?, ?, ?, ?, ?)",
+                solution.getId(), solution.getSolutionCode(), solution.getStatus().toString(),
+                solution.getTaskId(), solution.getTestIndex(), solution.getUsername()
+        );
 
         long timeLimit = tests.get(0).getTimeLimit();
 
-        try {
-            if (containsMaliciousWords(solution.getSolutionCode(), maliciousWords)) {
-                solution.setStatus(Status.MALICIOUS_CODE);
-                solutionRepository.save(solution);
-            } else {
-                try {
-                    testExecutorService.runCode(tests, solution.getSolutionCode(), timeLimit, solution, user);
-                } catch (TimeLimitException e) {
-                    log.info("Тайм лимит");
-                    solution.setStatus(Status.TIME_LIMIT);
-                } catch (CodeRuntimeException | IOException e) {
-                    log.info("Ошибка в рантайме кода");
-                    solution.setStatus(Status.RUNTIME_ERROR);
-                } catch (CodeCompilationException e) {
-                    log.info("Код не был скомпилирован");
-                    solution.setStatus(Status.COMPILATION_ERROR);
-                }
-
-                solutionRepository.save(solution);
-
-//                    kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),
-//                            "Решение завершило проверку",
-//                            String.format("Статус решения: %s", solution.getStatus()),
-//                            true);
+        if (containsMaliciousWords(code, maliciousWords)) {
+            solution.setStatus(Status.MALICIOUS_CODE);
+            solutionRepository.save(solution);
+        }
+        else {
+            try {
+               testExecutorService.runCode(tests, code, timeLimit, solution, user);
+            } catch (TimeLimitException e) {
+                log.info("Тайм лимит");
+                solution.setStatus(Status.TIME_LIMIT);
+            } catch (CodeRuntimeException | IOException e) {
+                log.info("Ошибка в рантайме кода");
+                solution.setStatus(Status.RUNTIME_ERROR);
+            } catch (CodeCompilationException e) {
+                log.info("Код не был скомпилирован");
+                solution.setStatus(Status.COMPILATION_ERROR);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+
+            solutionRepository.save(solution);
+
+//            kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),
+//                    "Решение завершило проверку",
+//                    String.format("Статус решения: %s", solution.getStatus()),
+//                    true);
         }
 
-        return CompletableFuture.completedFuture(solutionMapper.toDTO(solution));
+        return solutionMapper.toDTO(solution);
     }
+
 
     private static boolean containsMaliciousWords(String code, Set<String> maliciousWords) throws IOException {
         try (BufferedReader reader = new BufferedReader(new StringReader(code))) {
