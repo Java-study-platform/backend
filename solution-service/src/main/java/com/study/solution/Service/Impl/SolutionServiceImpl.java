@@ -373,8 +373,9 @@ public class SolutionServiceImpl implements SolutionService {
         dockerClient.startContainerCmd(containerId).exec();
 
         ExecCreateCmdResponse compileCmd = dockerClient.execCreateCmd(containerId)
-                .withCmd("sh", "-c", "javac Main.java")
+                .withCmd("sh", "-c", "javac Main.java && ls -l && cat Main.java")
                 .exec();
+
 
         try {
             dockerClient.execStartCmd(compileCmd.getId())
@@ -382,6 +383,7 @@ public class SolutionServiceImpl implements SolutionService {
                     @Override
                     public void onNext(Frame item) {
                         String payload = new String(item.getPayload(), StandardCharsets.UTF_8);
+                        log.info("Compilation result: " + payload);
 
                         if (payload.toLowerCase().contains("error")
                                 || payload.toLowerCase().contains("caused by")
@@ -418,7 +420,7 @@ public class SolutionServiceImpl implements SolutionService {
         result.setLength(0);
 
         ExecCreateCmdResponse runCmd = dockerClient.execCreateCmd(containerId)
-                .withCmd("sh", "-c", "echo \"" + input + "\" | java -cp . Main")
+                .withCmd("sh", "-c", "ls -l && echo \"" + input + "\" | java -cp . Main")
                 .withAttachStdin(true)
                 .withAttachStdout(true)
                 .withAttachStderr(true)
