@@ -381,6 +381,11 @@ public class SolutionServiceImpl implements SolutionService {
                     public void onNext(Frame item) {
                         String payload = new String(item.getPayload(), StandardCharsets.UTF_8);
                         log.info("Payload: " + payload);
+
+                        if (payload.toLowerCase().contains("error") || payload.toLowerCase().contains("caused by")) {
+                            errorResult.append(payload).append("\n");
+                        }
+
                         result.append(payload).append("\n");
                     }
 
