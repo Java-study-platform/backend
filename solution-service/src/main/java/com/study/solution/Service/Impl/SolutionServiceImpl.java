@@ -127,7 +127,7 @@ public class SolutionServiceImpl implements SolutionService {
     @Async
     @Transactional
     public CompletableFuture<SolutionDto> testSolution(Jwt user, UUID taskId, SendTestSolutionRequest request) throws IOException {
-        return saveSolution(user, taskId, request).thenCompose(solution -> {
+        return saveSolution(user, taskId, request).thenComposeAsync(solution -> {
             log.info("testSolutionID: " + solution.getId());
             List<TestCaseDto> tests = getTestCases(taskId).block();
 
