@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -18,11 +20,14 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static com.study.common.Constants.Consts.SOLUTIONS;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Решения", description = "Отвечает за обработку решений")
 public class SolutionController {
     private final SolutionService solutionService;
@@ -37,9 +42,19 @@ public class SolutionController {
             @AuthenticationPrincipal Jwt user,
             @RequestParam(name = "taskId") UUID taskId,
             @RequestBody SendTestSolutionRequest code) throws IOException {
-        return ResponseEntity.ok(DefaultResponseBuilder.success(
-                "Решение успешно отправлено",
-                solutionService.testSolution(user, taskId, code)));
+        CompletableFuture<SolutionDto> futureSolutionDto = solutionService.testSolution(user, taskId, code);
+
+        try {
+            SolutionDto solutionDto = futureSolutionDto.get();
+
+            return ResponseEntity.ok(DefaultResponseBuilder.success(
+                    "Решение успешно отправлено",
+                    solutionDto));
+        } catch (InterruptedException | ExecutionException e) {
+            log.error("Ошибка при выполнении тестирования решения", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(DefaultResponseBuilder.error("Ошибка при выполнении тестирования решения", null));
+        }
     }
 
     @GetMapping(SOLUTIONS + "/{taskId}")
