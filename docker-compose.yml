@@ -193,6 +193,7 @@ services:
 
   auth:
     image: quay.io/keycloak/keycloak:24.0.4
+    hostname: auth
     restart: always
     ports:
       - "8080:8080"
