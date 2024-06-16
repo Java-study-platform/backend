@@ -129,7 +129,6 @@ public class SolutionServiceImpl implements SolutionService {
             solution.setTaskId(taskId);
             solution.setTestIndex(0L);
             solution.setUsername(user.getClaim(USERNAME_CLAIM));
-            solutionRepository.saveAndFlush(solution);
 
             long timeLimit = tests.get(0).getTimeLimit();
 
@@ -308,6 +307,8 @@ public class SolutionServiceImpl implements SolutionService {
     protected void runCode(List<TestCaseDto> tests, String code, long timeLimit, Solution solution, Jwt user) throws IOException, CodeCompilationException, CodeRuntimeException, TimeLimitException {
         Path path = Files.createTempDirectory("compile");
         File tempFile = new File(path.toAbsolutePath() + "/Main.java");
+
+        solutionRepository.save(solution);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
             writer.write(code);
