@@ -47,10 +47,7 @@ import reactor.core.publisher.Mono;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -154,6 +151,7 @@ public class SolutionServiceImpl implements SolutionService {
                             result = runCode(code, input, timeLimit)
                                     .replaceAll("\n\n", "\n")
                                     .replaceAll(" \n", "\n").trim();
+                            log.info("Результат: " + result);
                         } catch (TimeLimitException e) {
                             solution.setStatus(Status.TIME_LIMIT);
                             solution.setTestIndex(testIndex);
@@ -403,14 +401,14 @@ public class SolutionServiceImpl implements SolutionService {
                 throw new RuntimeException(e);
             } catch (InterruptedException e) {
                 log.error(e.getMessage());
-                dockerClient.stopContainerCmd(containerId).exec();
-                dockerClient.removeContainerCmd(containerId).exec();
+//                dockerClient.stopContainerCmd(containerId).exec();
+//                dockerClient.removeContainerCmd(containerId).exec();
                 throw new TimeLimitException();
             }
 
             if (!errorResult.toString().isEmpty()) {
-                dockerClient.stopContainerCmd(containerId).exec();
-                dockerClient.removeContainerCmd(containerId).exec();
+//                dockerClient.stopContainerCmd(containerId).exec();
+//                dockerClient.removeContainerCmd(containerId).exec();
                 throw new CodeCompilationException(errorResult.toString());
             }
 
@@ -428,7 +426,9 @@ public class SolutionServiceImpl implements SolutionService {
                         .exec(new ResultCallback.Adapter<Frame>() {
                             @Override
                             public void onNext(Frame item) {
-                                result.append(new String(item.getPayload())).append("\n");
+                                String payload = Arrays.toString(item.getPayload());
+                                log.info(payload);
+                                result.append(payload).append("\n");
                             }
 
                             @Override
@@ -439,19 +439,19 @@ public class SolutionServiceImpl implements SolutionService {
             } catch (DockerException e) {
                 throw new RuntimeException(e);
             } catch (InterruptedException e) {
-                dockerClient.stopContainerCmd(containerId).exec();
-                dockerClient.removeContainerCmd(containerId).exec();
+//                dockerClient.stopContainerCmd(containerId).exec();
+//                dockerClient.removeContainerCmd(containerId).exec();
                 throw new TimeLimitException();
             }
 
             if (!errorResult.toString().isEmpty()) {
-                dockerClient.stopContainerCmd(containerId).exec();
-                dockerClient.removeContainerCmd(containerId).exec();
+//                dockerClient.stopContainerCmd(containerId).exec();
+//                dockerClient.removeContainerCmd(containerId).exec();
                 throw new CodeRuntimeException(errorResult.toString());
             }
 
-            dockerClient.stopContainerCmd(containerId).exec();
-            dockerClient.removeContainerCmd(containerId).exec();
+//            dockerClient.stopContainerCmd(containerId).exec();
+//            dockerClient.removeContainerCmd(containerId).exec();
 
             Files.delete(tempFile.toPath());
             Files.delete(path);
