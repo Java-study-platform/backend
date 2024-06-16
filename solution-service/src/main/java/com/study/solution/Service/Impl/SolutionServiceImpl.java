@@ -127,47 +127,49 @@ public class SolutionServiceImpl implements SolutionService {
     @Async
     @Transactional
     public CompletableFuture<SolutionDto> testSolution(Jwt user, UUID taskId, SendTestSolutionRequest request) throws IOException {
-        return saveSolution(user, taskId, request).thenComposeAsync(solution -> {
-            log.info("testSolutionID: " + solution.getId());
-            List<TestCaseDto> tests = getTestCases(taskId).block();
+        Solution solution = saveSolution(user, taskId, request).join();
 
-            if (tests == null || tests.isEmpty()){
-                throw new TaskNotFoundException(taskId);
-            }
+        solutionRepository.flush();
 
-            long timeLimit = tests.get(0).getTimeLimit();
+        log.info("testSolutionID: " + solution.getId());
+        List<TestCaseDto> tests = getTestCases(taskId).block();
 
-            try {
-                if (containsMaliciousWords(solution.getSolutionCode(), maliciousWords)) {
-                    solution.setStatus(Status.MALICIOUS_CODE);
-                    solutionRepository.save(solution);
-                } else {
-                    try {
-                        testExecutorService.runCode(tests, solution.getSolutionCode(), timeLimit, solution, user);
-                    } catch (TimeLimitException e) {
-                        log.info("Тайм лимит");
-                        solution.setStatus(Status.TIME_LIMIT);
-                    } catch (CodeRuntimeException | IOException e) {
-                        log.info("Ошибка в рантайме кода");
-                        solution.setStatus(Status.RUNTIME_ERROR);
-                    } catch (CodeCompilationException e) {
-                        log.info("Код не был скомпилирован");
-                        solution.setStatus(Status.COMPILATION_ERROR);
-                    }
+        if (tests == null || tests.isEmpty()){
+            throw new TaskNotFoundException(taskId);
+        }
 
-                    solutionRepository.save(solution);
+        long timeLimit = tests.get(0).getTimeLimit();
+
+        try {
+            if (containsMaliciousWords(solution.getSolutionCode(), maliciousWords)) {
+                solution.setStatus(Status.MALICIOUS_CODE);
+                solutionRepository.save(solution);
+            } else {
+                try {
+                    testExecutorService.runCode(tests, solution.getSolutionCode(), timeLimit, solution, user);
+                } catch (TimeLimitException e) {
+                    log.info("Тайм лимит");
+                    solution.setStatus(Status.TIME_LIMIT);
+                } catch (CodeRuntimeException | IOException e) {
+                    log.info("Ошибка в рантайме кода");
+                    solution.setStatus(Status.RUNTIME_ERROR);
+                } catch (CodeCompilationException e) {
+                    log.info("Код не был скомпилирован");
+                    solution.setStatus(Status.COMPILATION_ERROR);
+                }
+
+                solutionRepository.save(solution);
 
 //                    kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),
 //                            "Решение завершило проверку",
 //                            String.format("Статус решения: %s", solution.getStatus()),
 //                            true);
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-            return CompletableFuture.completedFuture(solutionMapper.toDTO(solution));
-        });
+        return CompletableFuture.completedFuture(solutionMapper.toDTO(solution));
     }
 
     private static boolean containsMaliciousWords(String code, Set<String> maliciousWords) throws IOException {
