@@ -357,116 +357,103 @@ public class SolutionServiceImpl implements SolutionService {
             writer.write(code);
         }
 
+        Volume volume = new Volume("/code");
+        HostConfig hostConfig = HostConfig.newHostConfig()
+                .withBinds(new Bind(path.toAbsolutePath().toString(), volume));
+
+        CreateContainerResponse container = dockerClient.createContainerCmd(DOCKER_IMAGE)
+                .withHostConfig(hostConfig)
+                .withWorkingDir("/code")
+                .exec();;
+
+        String containerId = container.getId();
+        dockerClient.startContainerCmd(containerId).exec();
+
+        ExecCreateCmdResponse compileCmd = dockerClient.execCreateCmd(containerId)
+                .withCmd("sh", "-c", "javac Main.java && ls -l /code && ls && cat Main.java && cat /code/Main.java")
+                .exec();
+
+        log.info(compileCmd.toString());
+
         try {
-            Volume volume = new Volume("/code");
-            HostConfig hostConfig = HostConfig.newHostConfig()
-                    .withBinds(new Bind(path.toAbsolutePath().toString(), volume));
+            dockerClient.execStartCmd(compileCmd.getId())
+                .exec(new ResultCallback.Adapter<Frame>() {
+                    @Override
+                    public void onNext(Frame item) {
+                        String payload = Arrays.toString(item.getPayload());
+                        log.info("Payload: " + payload);
+                        result.append(payload).append("\n");
+                    }
 
-            CreateContainerResponse container;
-
-            try {
-                container = dockerClient.createContainerCmd(DOCKER_IMAGE)
-                        .withHostConfig(hostConfig)
-                        .withWorkingDir("/code")
-                        .exec();
-                log.info("Контейнер создан");
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.err.println("Ошибка при создании контейнера Docker: " + e.getMessage());
-                throw new RuntimeException("Ошибка при создании контейнера Docker", e);
-            }
-
-            String containerId = container.getId();
-            dockerClient.startContainerCmd(containerId).exec();
-
-            ExecCreateCmdResponse compileCmd = dockerClient.execCreateCmd(containerId)
-                    .withCmd("sh", "-c", "javac Main.java && ls -l /code && ls && cat Main.java && cat /code/Main.java")
-                    .exec();
-
-            try {
-                dockerClient.execStartCmd(compileCmd.getId())
-                        .exec(new ResultCallback.Adapter<Frame>() {
-                            @Override
-                            public void onNext(Frame item) {
-                                String payload = Arrays.toString(item.getPayload());
-                                log.info("Payload: " + payload);
-                                result.append(payload).append("\n");
-                            }
-
-                            @Override
-                            public void onError(Throwable throwable) {
-                                errorResult.append(throwable.getMessage()).append("\n");
-                            }
-                        }).awaitCompletion(timeLimit, TimeUnit.MILLISECONDS);
-            } catch (DockerException e) {
-                log.error(e.getMessage());
-                throw new RuntimeException(e);
-            } catch (InterruptedException e) {
-                log.error(e.getMessage());
-//                dockerClient.stopContainerCmd(containerId).exec();
-//                dockerClient.removeContainerCmd(containerId).exec();
-                throw new TimeLimitException();
-            }
-            log.info("Код скомпилирован");
-
-            if (!errorResult.toString().isEmpty()) {
-//                dockerClient.stopContainerCmd(containerId).exec();
-//                dockerClient.removeContainerCmd(containerId).exec();
-                throw new CodeCompilationException(errorResult.toString());
-            }
-
-            errorResult.setLength(0);
-            result.setLength(0);
-
-            ExecCreateCmdResponse runCmd = dockerClient.execCreateCmd(containerId)
-                    .withCmd("sh", "-c", "echo \"" + input + "\" | java -cp /code Main")
-                    .withAttachStdin(true)
-                    .withAttachStdout(true)
-                    .withAttachStderr(true)
-                    .exec();
-            log.info("runCmd запущен");
-
-            try {
-                dockerClient.execStartCmd(runCmd.getId())
-                        .exec(new ResultCallback.Adapter<Frame>() {
-                            @Override
-                            public void onNext(Frame item) {
-                                String payload = Arrays.toString(item.getPayload());
-                                log.info("Payload: " + payload);
-                                result.append(payload).append("\n");
-                            }
-
-                            @Override
-                            public void onError(Throwable throwable) {
-                                errorResult.append(throwable.getMessage()).append("\n");
-                            }
-                        }).awaitCompletion(timeLimit, TimeUnit.MILLISECONDS);
-            } catch (DockerException e) {
-                log.error(e.getMessage());
-                throw new RuntimeException(e);
-            } catch (InterruptedException e) {
-//                dockerClient.stopContainerCmd(containerId).exec();
-//                dockerClient.removeContainerCmd(containerId).exec();
-                throw new TimeLimitException();
-            }
-
-            if (!errorResult.toString().isEmpty()) {
-                log.error(errorResult.toString());
-//                dockerClient.stopContainerCmd(containerId).exec();
-//                dockerClient.removeContainerCmd(containerId).exec();
-                throw new CodeRuntimeException(errorResult.toString());
-            }
-
-//            dockerClient.stopContainerCmd(containerId).exec();
-//            dockerClient.removeContainerCmd(containerId).exec();
-
-            Files.delete(tempFile.toPath());
-            Files.delete(path);
-        }
-        catch (Exception e){
-            e.printStackTrace();
+                    @Override
+                    public void onError(Throwable throwable) {
+                        errorResult.append(throwable.getMessage()).append("\n");
+                    }
+                }).awaitCompletion(timeLimit, TimeUnit.MILLISECONDS);
+        } catch (DockerException e) {
             log.error(e.getMessage());
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            log.error(e.getMessage());
+            dockerClient.stopContainerCmd(containerId).exec();
+            dockerClient.removeContainerCmd(containerId).exec();
+            throw new TimeLimitException();
         }
+        log.info("Код скомпилирован");
+
+        if (!errorResult.toString().isEmpty()) {
+            dockerClient.stopContainerCmd(containerId).exec();
+            dockerClient.removeContainerCmd(containerId).exec();
+            throw new CodeCompilationException(errorResult.toString());
+        }
+
+        errorResult.setLength(0);
+        result.setLength(0);
+
+        ExecCreateCmdResponse runCmd = dockerClient.execCreateCmd(containerId)
+                .withCmd("sh", "-c", "echo \"" + input + "\" | java -cp /code Main")
+                .withAttachStdin(true)
+                .withAttachStdout(true)
+                .withAttachStderr(true)
+                .exec();
+        log.info("runCmd запущен");
+
+        try {
+            dockerClient.execStartCmd(runCmd.getId())
+                    .exec(new ResultCallback.Adapter<Frame>() {
+                        @Override
+                        public void onNext(Frame item) {
+                            String payload = Arrays.toString(item.getPayload());
+                            log.info("Payload: " + payload);
+                            result.append(payload).append("\n");
+                        }
+
+                        @Override
+                        public void onError(Throwable throwable) {
+                            errorResult.append(throwable.getMessage()).append("\n");
+                        }
+                    }).awaitCompletion(timeLimit, TimeUnit.MILLISECONDS);
+        } catch (DockerException e) {
+            log.error(e.getMessage());
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            dockerClient.stopContainerCmd(containerId).exec();
+            dockerClient.removeContainerCmd(containerId).exec();
+            throw new TimeLimitException();
+        }
+
+        if (!errorResult.toString().isEmpty()) {
+            log.error(errorResult.toString());
+            dockerClient.stopContainerCmd(containerId).exec();
+            dockerClient.removeContainerCmd(containerId).exec();
+            throw new CodeRuntimeException(errorResult.toString());
+        }
+
+        dockerClient.stopContainerCmd(containerId).exec();
+        dockerClient.removeContainerCmd(containerId).exec();
+
+        Files.delete(tempFile.toPath());
+        Files.delete(path);
 
         return result.toString();
     }
