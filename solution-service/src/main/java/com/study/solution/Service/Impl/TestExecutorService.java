@@ -45,7 +45,7 @@ public class TestExecutorService {
 
     private static final String DOCKER_IMAGE = "openjdk:17-oracle";
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     protected void runCode(List<TestCaseDto> tests, String code, long timeLimit, Solution solution, Jwt user) throws IOException, CodeCompilationException, CodeRuntimeException, TimeLimitException {
         Path path = Files.createTempDirectory("compile");
         File tempFile = new File(path.toAbsolutePath() + "/Main.java");

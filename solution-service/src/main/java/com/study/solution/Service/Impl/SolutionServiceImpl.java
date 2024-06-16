@@ -109,52 +109,50 @@ public class SolutionServiceImpl implements SolutionService {
     public SolutionDto testSolution(Jwt user, UUID taskId, SendTestSolutionRequest request) throws IOException {
         List<TestCaseDto> tests = getTestCases(taskId).block();
 
-        if (tests != null && !tests.isEmpty()) {
-            Solution solution = new Solution();
-            String code = request.getCode().replaceAll("(?m)^package\\s+.*?;", "").trim();
-
-            solution.setSolutionCode(code);
-            solution.setId(UUID.randomUUID());
-            solution.setStatus(Status.PENDING);
-            solution.setTaskId(taskId);
-            solution.setTestIndex(0L);
-            solution.setUsername(user.getClaim(USERNAME_CLAIM));
-
-            long timeLimit = tests.get(0).getTimeLimit();
-
-            if (containsMaliciousWords(code, maliciousWords)) {
-                solution.setStatus(Status.MALICIOUS_CODE);
-                solutionRepository.save(solution);
-            }
-            else {
-                try {
-                   testExecutorService.runCode(tests, code, timeLimit, solution, user);
-                } catch (TimeLimitException e) {
-                    log.info("Тайм лимит");
-                    solution.setStatus(Status.TIME_LIMIT);
-                } catch (CodeRuntimeException | IOException e) {
-                    log.info("Ошибка в рантайме кода");
-                    solution.setStatus(Status.RUNTIME_ERROR);
-
-                } catch (CodeCompilationException e) {
-                    log.info("Код не был скомпилирован");
-                    solution.setStatus(Status.COMPILATION_ERROR);
-                }
-
-                solutionRepository.save(solution);
-
-                kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),
-                        "Решение завершило проверку",
-                        String.format("Статус решения: %s", solution.getStatus()),
-                        true);
-            }
-
-            return solutionMapper.toDTO(solution);
-
-        }
-        else{
+        if (tests == null || tests.isEmpty()){
             throw new TaskNotFoundException(taskId);
         }
+
+        Solution solution = new Solution();
+        String code = request.getCode().replaceAll("(?m)^package\\s+.*?;", "").trim();
+
+        solution.setSolutionCode(code);
+        solution.setId(UUID.randomUUID());
+        solution.setStatus(Status.PENDING);
+        solution.setTaskId(taskId);
+        solution.setTestIndex(0L);
+        solution.setUsername(user.getClaim(USERNAME_CLAIM));
+
+        long timeLimit = tests.get(0).getTimeLimit();
+
+        if (containsMaliciousWords(code, maliciousWords)) {
+            solution.setStatus(Status.MALICIOUS_CODE);
+            solutionRepository.save(solution);
+        }
+        else {
+            try {
+               testExecutorService.runCode(tests, code, timeLimit, solution, user);
+            } catch (TimeLimitException e) {
+                log.info("Тайм лимит");
+                solution.setStatus(Status.TIME_LIMIT);
+            } catch (CodeRuntimeException | IOException e) {
+                log.info("Ошибка в рантайме кода");
+                solution.setStatus(Status.RUNTIME_ERROR);
+
+            } catch (CodeCompilationException e) {
+                log.info("Код не был скомпилирован");
+                solution.setStatus(Status.COMPILATION_ERROR);
+            }
+
+            solutionRepository.save(solution);
+
+            kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),
+                    "Решение завершило проверку",
+                    String.format("Статус решения: %s", solution.getStatus()),
+                    true);
+        }
+
+        return solutionMapper.toDTO(solution);
     }
 
     private static boolean containsMaliciousWords(String code, Set<String> maliciousWords) throws IOException {
