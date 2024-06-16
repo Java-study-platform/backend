@@ -363,7 +363,7 @@ public class SolutionServiceImpl implements SolutionService {
         Volume volume = new Volume("/code");
         HostConfig hostConfig = HostConfig.newHostConfig()
                 .withBinds(new Bind(path.toAbsolutePath().toString(), volume));
-
+        log.info("Путь: " + path.toAbsolutePath());
         CreateContainerResponse container = dockerClient.createContainerCmd(DOCKER_IMAGE)
                 .withHostConfig(hostConfig)
                 .withWorkingDir("/code")
@@ -373,7 +373,7 @@ public class SolutionServiceImpl implements SolutionService {
         dockerClient.startContainerCmd(containerId).exec();
 
         ExecCreateCmdResponse compileCmd = dockerClient.execCreateCmd(containerId)
-                .withCmd("sh", "-c", "javac Main.java && ls -l && cat Main.java")
+                .withCmd("sh", "-c", "ls -l && cat Main.java && javac Main.java")
                 .exec();
 
 
