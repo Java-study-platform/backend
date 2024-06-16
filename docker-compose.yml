@@ -209,9 +209,9 @@ services:
       KC_HOSTNAME_STRICT_HTTPS: 'false'
     volumes:
       - ./realm-export.json:/opt/keycloak/data/import/realm.json:ro
+    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm", "/opt/keycloak/data/import/realm.json" ]
     depends_on:
       - postgres_keycloak
-    command: [ "start-dev" ]
     networks:
       - backend
 
