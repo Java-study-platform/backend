@@ -4,6 +4,7 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.ExecCreateCmdResponse;
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.exception.DockerException;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Frame;
@@ -409,6 +410,8 @@ public class SolutionServiceImpl implements SolutionService {
             dockerClient.removeContainerCmd(containerId).exec();
             throw new TimeLimitException();
         }
+        InspectContainerResponse inspectContainerResponse = dockerClient.inspectContainerCmd(containerId).exec();
+        log.info("exit code: " + inspectContainerResponse.getState().getExitCodeLong());
 
         log.info("Код скомпилирован");
 
