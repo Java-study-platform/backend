@@ -194,7 +194,7 @@ services:
       KEYCLOAK_FRONTEND_URL: http://localhost:8080
       KC_HTTP_ENABLED: 'true'
       KC_HOSTNAME_DEBUG: 'true'
-      KC_HOSTNAME: localhost:8080
+      KC_HOSTNAME: auth:8080
       KC_HOSTNAME_STRICT_BACKCHANNEL: 'true'
       KC_METRICS_ENABLED: 'true'
       KC_HEALTH_ENABLED: 'true'
@@ -209,7 +209,7 @@ services:
       KC_HOSTNAME_STRICT_HTTPS: 'false'
     volumes:
       - ./realm-export.json:/opt/keycloak/data/import/realm.json:ro
-    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm", "/opt/keycloak/data/import/realm.json" ]
+    entrypoint: [ "/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm"]
     depends_on:
       - postgres_keycloak
     networks:

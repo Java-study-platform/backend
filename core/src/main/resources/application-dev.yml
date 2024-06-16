@@ -30,14 +30,14 @@ spring:
               - openid
         provider:
           keycloak:
-            issuer-uri:  http://localhost:8080/realms/Study-platform
+            issuer-uri:  http://auth:8080/realms/Study-platform
             user-name-attribute: preferred_username
 
 
       resourceserver:
         jwt:
           issuer-uri: http://auth:8080/realms/Study-platform
-          jwk-set-uri: http://auth:8080/protocol/openid-connect/certs
+          jwk-set-uri: http://auth:8080/realms/Study-platform/protocol/openid-connect/certs
 
 eureka:
   client:
