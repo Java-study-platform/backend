@@ -303,7 +303,8 @@ public class SolutionServiceImpl implements SolutionService {
 //        return result.toString();
 //    }
 
-    private void runCode(List<TestCaseDto> tests, String code, long timeLimit, Solution solution, Jwt user) throws IOException, CodeCompilationException, CodeRuntimeException, TimeLimitException {
+    @Transactional
+    protected void runCode(List<TestCaseDto> tests, String code, long timeLimit, Solution solution, Jwt user) throws IOException, CodeCompilationException, CodeRuntimeException, TimeLimitException {
         Path path = Files.createTempDirectory("compile");
         File tempFile = new File(path.toAbsolutePath() + "/Main.java");
 
@@ -350,6 +351,7 @@ public class SolutionServiceImpl implements SolutionService {
 
             String input = test.getExpectedInput();
             Long testIndex = test.getIndex();
+            log.info("Тест номер: " + testIndex);
 
             Test testEntity = new Test();
             testEntity.setId(UUID.randomUUID());
@@ -379,7 +381,6 @@ public class SolutionServiceImpl implements SolutionService {
                                     log.warn("Записываю payload в ошибку: " + payload);
                                     errorResult.append(payload).append("\n");
                                 } else {
-                                    log.info("Payload в результат: " + payload);
                                     result.append(payload).append("\n");
                                 }
                             }
@@ -409,6 +410,8 @@ public class SolutionServiceImpl implements SolutionService {
             String strResult = result.toString()
                     .replaceAll("\n\n", "\n")
                     .replaceAll(" \n", "\n").trim();
+
+            log.info("Результат теста: " + strResult);
             if (!strResult.isEmpty()) {
                 log.info(strResult);
                 testEntity.setTestOutput(strResult);
