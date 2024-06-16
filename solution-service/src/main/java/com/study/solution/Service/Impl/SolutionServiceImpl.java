@@ -366,14 +366,14 @@ public class SolutionServiceImpl implements SolutionService {
 
         CreateContainerResponse container = dockerClient.createContainerCmd(DOCKER_IMAGE)
                 .withHostConfig(hostConfig)
-                .withWorkingDir("/code")
+                .withWorkingDir("/")
                 .exec();;
 
         String containerId = container.getId();
         dockerClient.startContainerCmd(containerId).exec();
 
         ExecCreateCmdResponse compileCmd = dockerClient.execCreateCmd(containerId)
-                .withCmd("sh", "-c", "javac Main.java && ls -l /code && ls && cat Main.java && cat /code/Main.java")
+                .withCmd("sh", "-c", "javac Main.java")
                 .exec();
 
         try {
@@ -418,7 +418,7 @@ public class SolutionServiceImpl implements SolutionService {
         result.setLength(0);
 
         ExecCreateCmdResponse runCmd = dockerClient.execCreateCmd(containerId)
-                .withCmd("sh", "-c", "echo \"" + input + "\" | java -cp /code Main.java")
+                .withCmd("sh", "-c", "echo \"" + input + "\" | java -cp . Main")
                 .withAttachStdin(true)
                 .withAttachStdout(true)
                 .withAttachStderr(true)
