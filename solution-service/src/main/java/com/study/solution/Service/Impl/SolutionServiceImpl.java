@@ -418,7 +418,7 @@ public class SolutionServiceImpl implements SolutionService {
         result.setLength(0);
 
         ExecCreateCmdResponse runCmd = dockerClient.execCreateCmd(containerId)
-                .withCmd("sh", "-c", "echo \"" + input + "\" | java -cp /code Main")
+                .withCmd("sh", "-c", "echo \"" + input + "\" | java -cp /code Main.java")
                 .withAttachStdin(true)
                 .withAttachStdout(true)
                 .withAttachStderr(true)
