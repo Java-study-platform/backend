@@ -356,11 +356,16 @@ public class SolutionServiceImpl implements SolutionService {
             log.info("Тест номер: " + testIndex);
 
             Test testEntity = new Test();
-            testEntity.setId(UUID.randomUUID());
             testEntity.setSolution(solution);
             testEntity.setTestInput(input);
             testEntity.setStatus(Status.PENDING);
             testEntity.setTestIndex(testIndex);
+
+            log.info("solutionId: " + solution.getId());
+            log.info("testSolId: " + testEntity.getSolution().getId());
+
+
+            sendWebSocketMessage(user, testMapper.toDTO(testEntity), solution.getId());
 
             ExecCreateCmdResponse runCmd = dockerClient.execCreateCmd(containerId)
                     .withCmd("sh", "-c", "echo \"" + input + "\" | java -cp . Main")
