@@ -67,6 +67,8 @@ services:
       context: ./gateway
       dockerfile: Dockerfile
       network: host
+    depends_on:
+      - auth
     ports:
       - "9090:9090"
     networks:
@@ -83,6 +85,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: postgressergtosp
     depends_on:
       - postgres_core
+      - auth
     ports:
       - "8082:8082"
     networks:
@@ -99,6 +102,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: postgressergtosp
     depends_on:
       - postgres_user
+      - auth
     ports:
       - "8081:8081"
     networks:
@@ -115,6 +119,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: postgressergtosp
     depends_on:
       - postgres_notifications
+      - auth
     ports:
       - "8083:8083"
     networks:
@@ -125,12 +130,15 @@ services:
       context: ./solution-service
       dockerfile: Dockerfile
       network: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_solutions/solutions
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgressergtosp
     depends_on:
       - postgres_solutions
+      - auth
     ports:
       - "8084:8084"
     networks:
