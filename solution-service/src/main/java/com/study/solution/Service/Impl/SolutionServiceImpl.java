@@ -396,7 +396,7 @@ public class SolutionServiceImpl implements SolutionService {
         dockerClient.startContainerCmd(containerId).exec();
 
         ExecCreateCmdResponse runCmd = dockerClient.execCreateCmd(containerId)
-                .withCmd("sh", "-c", "ls -l && echo \"" + input + "\" | java -cp . Main")
+                .withCmd("sh", "-c", "echo \"" + input + "\" | java -cp . Main")
                 .withAttachStdin(true)
                 .withAttachStdout(true)
                 .withAttachStderr(true)
