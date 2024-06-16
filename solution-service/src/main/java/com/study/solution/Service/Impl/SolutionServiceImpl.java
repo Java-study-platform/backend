@@ -137,28 +137,26 @@ public class SolutionServiceImpl implements SolutionService {
                 solutionRepository.save(solution);
             }
             else {
-                CompletableFuture.runAsync(() -> {
-                    try {
-                        runCode(tests, code, timeLimit, solution, user);
-                    } catch (TimeLimitException e) {
-                        log.info("Тайм лимит");
-                        solution.setStatus(Status.TIME_LIMIT);
-                    } catch (CodeRuntimeException | IOException e) {
-                        log.info("Ошибка в рантайме кода");
-                        solution.setStatus(Status.RUNTIME_ERROR);
+                try {
+                    runCode(tests, code, timeLimit, solution, user);
+                } catch (TimeLimitException e) {
+                    log.info("Тайм лимит");
+                    solution.setStatus(Status.TIME_LIMIT);
+                } catch (CodeRuntimeException | IOException e) {
+                    log.info("Ошибка в рантайме кода");
+                    solution.setStatus(Status.RUNTIME_ERROR);
 
-                    } catch (CodeCompilationException e) {
-                        log.info("Код не был скомпилирован");
-                        solution.setStatus(Status.COMPILATION_ERROR);
-                    }
+                } catch (CodeCompilationException e) {
+                    log.info("Код не был скомпилирован");
+                    solution.setStatus(Status.COMPILATION_ERROR);
+                }
 
-                    solutionRepository.save(solution);
+                solutionRepository.save(solution);
 
-                    kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),
-                            "Решение завершило проверку",
-                            String.format("Статус решения: %s", solution.getStatus()),
-                            true);
-                });
+                kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),
+                        "Решение завершило проверку",
+                        String.format("Статус решения: %s", solution.getStatus()),
+                        true);
             }
 
             return solutionMapper.toDTO(solution);
@@ -308,7 +306,7 @@ public class SolutionServiceImpl implements SolutionService {
         Path path = Files.createTempDirectory("compile");
         File tempFile = new File(path.toAbsolutePath() + "/Main.java");
 
-        solutionRepository.save(solution);
+        solutionRepository.saveAndFlush(solution);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
             writer.write(code);
