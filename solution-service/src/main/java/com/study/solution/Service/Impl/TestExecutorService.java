@@ -238,8 +238,10 @@ public class TestExecutorService {
         if (errorBuilder == null || errorBuilder.isEmpty()){
             testEntity.setTestOutput("Compilation error");
         }
+        else {
+            testEntity.setTestOutput(errorBuilder.toString());
+        }
 
-        testEntity.setTestOutput(errorBuilder.toString());
         testEntity.setStatus(Status.COMPILATION_ERROR);
         testEntity.setTestIndex(testCase.getIndex());
 
