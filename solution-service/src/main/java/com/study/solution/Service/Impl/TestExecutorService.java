@@ -61,6 +61,7 @@ public class TestExecutorService {
         Process compileProcess = Runtime.getRuntime().exec("javac " + tempFile.getAbsolutePath());
         try {
             int compileResult = compileProcess.waitFor();
+            log.info("Компилируем код");
             if (compileResult != 0) {
                 BufferedReader errorReader = new BufferedReader(new InputStreamReader(compileProcess.getErrorStream()));
 
@@ -81,14 +82,12 @@ public class TestExecutorService {
                 testEntity.setStatus(Status.COMPILATION_ERROR);
                 testEntity.setTestIndex(testCase.getIndex());
 
-//                jdbcTemplate.update(
-//                        "INSERT INTO tests (id, test_index, test_input, test_output, test_time, status, solution) " +
-//                                "VALUES (?, ?, ?, ?, current_timestamp , ?, ?)",
-//                        testEntity.getId(), testEntity.getTestIndex(), testEntity.getTestInput(),
-//                        testEntity.getTestOutput(), testEntity.getStatus(), solution
-//                );
-
-                testRepository.saveAndFlush(testEntity);
+                jdbcTemplate.update(
+                        "INSERT INTO tests (id, test_index, test_input, test_output, test_time, status, solution) " +
+                                "VALUES (?, ?, ?, ?, current_timestamp , ?, ?)",
+                        testEntity.getId(), testEntity.getTestIndex(), testEntity.getTestInput(),
+                        testEntity.getTestOutput(), testEntity.getStatus(), solution
+                );
 
                 throw new CodeCompilationException(errorBuilder.toString());
             }

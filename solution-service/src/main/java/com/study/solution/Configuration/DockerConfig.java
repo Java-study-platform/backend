@@ -36,4 +36,18 @@ public class DockerConfig {
                 .withDockerHttpClient(httpClient)
                 .build();
     }
+
+    @Bean
+    public boolean isDockerConnected(DockerClient dockerClient) {
+        try {
+            dockerClient.pingCmd().exec();
+            System.out.println("Successfully connected to Docker.");
+            return true;
+        }  catch (DockerException e) {
+            System.err.println("Docker exception: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Unknown error: " + e.getMessage());
+        }
+        return false;
+    }
 }
