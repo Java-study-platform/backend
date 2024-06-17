@@ -19,6 +19,7 @@ import com.study.solution.Repository.SolutionRepository;
 import com.study.solution.Repository.TestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -174,7 +175,7 @@ public class TestExecutorService {
                 throw new TimeLimitException();
             }
 
-            if (!errorResult.toString().isEmpty()) {
+            if (!errorResult.toString().equals("null") && !errorResult.toString().isEmpty()) {
                 log.error(errorResult.toString());
                 dockerClient.stopContainerCmd(containerId).exec();
                 dockerClient.removeContainerCmd(containerId).exec();
@@ -243,15 +244,21 @@ public class TestExecutorService {
 
         testEntity.setStatus(Status.COMPILATION_ERROR);
         testEntity.setTestIndex(testCase.getIndex());
-        log.info("Попытка сохранить хибернейтом");
-        testRepository.save(testEntity);
+        log.info("Попытка сохранить тест");
+//        testRepository.save(testEntity);
 
-//        jdbcTemplate.update(
-//                "INSERT INTO tests (id, test_index, test_input, test_output, test_time, status, solution) " +
-//                        "VALUES (?, ?, ?, ?, current_timestamp , ?, ?)",
-//                testEntity.getId(), testEntity.getTestIndex(), testEntity.getTestInput(),
-//                testEntity.getTestOutput(), testEntity.getStatus(), solution
-//        );
+        try {
+            int rowsAffected = jdbcTemplate.update(
+                    "INSERT INTO tests (id, test_index, test_input, test_output, test_time, status, solution_id) " +
+                            "VALUES (?, ?, ?, ?, current_timestamp, ?, ?)",
+                    testEntity.getId(), testEntity.getTestIndex(), testEntity.getTestInput(),
+                    testEntity.getTestOutput(), testEntity.getStatus().toString(), solution.getId()
+            );
+            log.info("Inserted " + rowsAffected + " row(s).");
+        } catch (DataAccessException e) {
+            log.error("Failed to save test on compilation error: " + e.getMessage());
+            throw new RuntimeException("Failed to save test on compilation error", e);
+        }
     }
 
     private void sendWebSocketMessage(Jwt user, TestDto testDto, UUID solutionId) {
