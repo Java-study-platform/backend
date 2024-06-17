@@ -85,7 +85,13 @@ public class TestExecutorService {
 
         CreateContainerResponse container = dockerClient.createContainerCmd(DOCKER_IMAGE)
                 .withWorkingDir("/code")
-                .exec();
+                .exec();;
+        try {
+             container.wait(5000);
+        } catch (InterruptedException e) {
+            saveTestOnCompilationError(tests, solution, null);
+            throw new CodeCompilationException("Ошибка компиляции");
+        }
 
         String containerId = container.getId();
         String classFilePath = tempFile.getParent() + "/Main.class";
