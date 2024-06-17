@@ -81,12 +81,14 @@ public class TestExecutorService {
                 testEntity.setStatus(Status.COMPILATION_ERROR);
                 testEntity.setTestIndex(testCase.getIndex());
 
-                jdbcTemplate.update(
-                        "INSERT INTO tests (id, test_index, test_input, test_output, test_time, status, solution) " +
-                                "VALUES (?, ?, ?, ?, current_timestamp , ?, ?)",
-                        testEntity.getId(), testEntity.getTestIndex(), testEntity.getTestInput(),
-                        testEntity.getTestOutput(), testEntity.getStatus(), solution
-                );
+//                jdbcTemplate.update(
+//                        "INSERT INTO tests (id, test_index, test_input, test_output, test_time, status, solution) " +
+//                                "VALUES (?, ?, ?, ?, current_timestamp , ?, ?)",
+//                        testEntity.getId(), testEntity.getTestIndex(), testEntity.getTestInput(),
+//                        testEntity.getTestOutput(), testEntity.getStatus(), solution
+//                );
+
+                testRepository.saveAndFlush(testEntity);
 
                 throw new CodeCompilationException(errorBuilder.toString());
             }

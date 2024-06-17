@@ -154,6 +154,7 @@ public class SolutionServiceImpl implements SolutionService {
                     solution.setStatus(Status.RUNTIME_ERROR);
                 } catch (CodeCompilationException e) {
                     log.info("Код не был скомпилирован");
+                    log.error(e.getMessage());
                     solution.setStatus(Status.COMPILATION_ERROR);
                 }
 
