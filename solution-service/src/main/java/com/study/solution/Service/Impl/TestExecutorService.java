@@ -232,11 +232,10 @@ public class TestExecutorService {
          TestCaseDto testCase = tests.get(0);
 
         Test testEntity = new Test();
-        testEntity.setId(UUID.randomUUID());
         testEntity.setSolution(solution);
         testEntity.setTestInput(testCase.getExpectedInput());
         if (errorBuilder == null || errorBuilder.isEmpty()){
-            testEntity.setTestOutput("Compilation error");
+            testEntity.setTestOutput("Ошибка компиляции");
         }
         else {
             testEntity.setTestOutput(errorBuilder.toString());
@@ -244,13 +243,15 @@ public class TestExecutorService {
 
         testEntity.setStatus(Status.COMPILATION_ERROR);
         testEntity.setTestIndex(testCase.getIndex());
+        log.info("Попытка сохранить хибернейтом");
+        testRepository.save(testEntity);
 
-        jdbcTemplate.update(
-                "INSERT INTO tests (id, test_index, test_input, test_output, test_time, status, solution) " +
-                        "VALUES (?, ?, ?, ?, current_timestamp , ?, ?)",
-                testEntity.getId(), testEntity.getTestIndex(), testEntity.getTestInput(),
-                testEntity.getTestOutput(), testEntity.getStatus(), solution
-        );
+//        jdbcTemplate.update(
+//                "INSERT INTO tests (id, test_index, test_input, test_output, test_time, status, solution) " +
+//                        "VALUES (?, ?, ?, ?, current_timestamp , ?, ?)",
+//                testEntity.getId(), testEntity.getTestIndex(), testEntity.getTestInput(),
+//                testEntity.getTestOutput(), testEntity.getStatus(), solution
+//        );
     }
 
     private void sendWebSocketMessage(Jwt user, TestDto testDto, UUID solutionId) {
