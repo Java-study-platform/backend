@@ -76,7 +76,7 @@ public class TestExecutorService {
 
                 log.error("Ошибка во время компиляции: " + errorBuilder.toString());
 
-                saveTestOnCompilationError(tests, solution, errorBuilder);
+                saveTest(tests, solution, errorBuilder, Status.TIME_LIMIT);
 
                 throw new CodeCompilationException(errorBuilder.toString());
             }
@@ -91,17 +91,17 @@ public class TestExecutorService {
 
             if (!errorBuilder.isEmpty()) {
                 log.error("Ошибка во время компиляции: " + errorBuilder.toString());
-                saveTestOnCompilationError(tests, solution, errorBuilder);
+                saveTest(tests, solution, errorBuilder, Status.COMPILATION_ERROR);
                 log.error("Выкидываю ошибку");
                 throw new CodeCompilationException(errorBuilder.toString());
             }
         } catch (IOException e) {
             log.error("Ошибка ввода-вывода во время компиляции", e);
-            saveTestOnCompilationError(tests, solution, null);
+            saveTest(tests, solution, null, Status.COMPILATION_ERROR);
             throw new CodeCompilationException("Ошибка ввода-вывода во время компиляции");
         }
             catch (InterruptedException e){
-            saveTestOnCompilationError(tests, solution, null);
+            saveTest(tests, solution, null, Status.COMPILATION_ERROR);
 
             throw new CodeCompilationException(e.getMessage());
         } finally {
@@ -172,6 +172,7 @@ public class TestExecutorService {
                     log.info("Время выполнения превышено");
                     dockerClient.stopContainerCmd(containerId).exec();
                     dockerClient.removeContainerCmd(containerId).exec();
+                    saveTest(tests, solution, null, Status.TIME_LIMIT);
                     throw new TimeLimitException();
                 }
             } catch (DockerException e) {
@@ -180,6 +181,7 @@ public class TestExecutorService {
             } catch (InterruptedException e) {
                 dockerClient.stopContainerCmd(containerId).exec();
                 dockerClient.removeContainerCmd(containerId).exec();
+                saveTest(tests, solution, null, Status.TIME_LIMIT);
                 throw new TimeLimitException();
             }
 
@@ -237,24 +239,26 @@ public class TestExecutorService {
         }
     }
 
-    private void saveTestOnCompilationError(List<TestCaseDto> tests, Solution solution, StringBuilder errorBuilder){
+    private void saveTest(List<TestCaseDto> tests, Solution solution, StringBuilder errorBuilder, Status status){
          TestCaseDto testCase = tests.get(0);
 
         Test testEntity = new Test();
         testEntity.setId(UUID.randomUUID());
         testEntity.setSolution(solution);
         testEntity.setTestInput(testCase.getExpectedInput());
-        if (errorBuilder == null || errorBuilder.isEmpty()){
+        if (status == Status.TIME_LIMIT) {
+            testEntity.setTestOutput("Time limit");
+        }
+        else if (errorBuilder == null || errorBuilder.isEmpty()){
             testEntity.setTestOutput("Ошибка компиляции");
         }
         else {
             testEntity.setTestOutput(errorBuilder.toString());
         }
 
-        testEntity.setStatus(Status.COMPILATION_ERROR);
+        testEntity.setStatus(status);
         testEntity.setTestIndex(testCase.getIndex());
         log.info("Попытка сохранить тест");
-//        testRepository.save(testEntity);
 
         try {
             int rowsAffected = jdbcTemplate.update(
