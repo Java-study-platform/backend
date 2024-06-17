@@ -91,6 +91,7 @@ public class TestExecutorService {
             if (!errorBuilder.isEmpty()) {
                 log.error("Ошибка во время компиляции: " + errorBuilder.toString());
                 saveTestOnCompilationError(tests, solution, errorBuilder);
+                log.error("Выкидываю ошибку");
                 throw new CodeCompilationException(errorBuilder.toString());
             }
         } catch (InterruptedException e){
@@ -242,6 +243,7 @@ public class TestExecutorService {
                 testEntity.getId(), testEntity.getTestIndex(), testEntity.getTestInput(),
                 testEntity.getTestOutput(), testEntity.getStatus(), solution
         );
+        log.info("Сохранил тест");
     }
 
     private void sendWebSocketMessage(Jwt user, TestDto testDto, UUID solutionId) {
