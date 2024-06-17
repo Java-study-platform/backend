@@ -190,6 +190,8 @@ public class TestExecutorService {
             if (!errorText.equals("null") && !errorText.isEmpty()) {
                 dockerClient.stopContainerCmd(containerId).exec();
                 dockerClient.removeContainerCmd(containerId).exec();
+
+                testEntity.setStatus(Status.RUNTIME_ERROR);
                 saveTest(testEntity, solution);
                 throw new CodeRuntimeException(errorResult.toString());
             }
