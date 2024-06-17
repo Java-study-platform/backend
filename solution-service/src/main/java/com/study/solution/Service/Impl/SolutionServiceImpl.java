@@ -150,7 +150,6 @@ public class SolutionServiceImpl implements SolutionService {
                     solution.setStatus(Status.TIME_LIMIT);
                 } catch (CodeRuntimeException | IOException e) {
                     log.info("Ошибка в рантайме кода: " + e.getMessage());
-                    e.printStackTrace();
                     solution.setStatus(Status.RUNTIME_ERROR);
                 } catch (CodeCompilationException e) {
                     log.info("Код не был скомпилирован");

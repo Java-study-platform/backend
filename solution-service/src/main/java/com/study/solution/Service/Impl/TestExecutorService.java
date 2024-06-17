@@ -149,11 +149,12 @@ public class TestExecutorService {
                         .exec(new ResultCallback.Adapter<Frame>() {
                             @Override
                             public void onNext(Frame item) {
-                                String payload = new String(item.getPayload(), StandardCharsets.UTF_8);
+                                String payload = new String(item.getPayload(), StandardCharsets.UTF_8)
+                                        .toLowerCase();
 
-                                if (payload.toLowerCase().contains("error")
-                                        || payload.toLowerCase().contains("caused by")
-                                        || payload.toLowerCase().contains("exception")) {
+                                if (payload.contains("error")
+                                        || payload.contains("caused by")
+                                        || payload.contains("exception")) {
                                     log.warn("Записываю payload в ошибку: " + payload);
                                     errorResult.append(payload).append("\n");
                                 } else {
@@ -175,8 +176,9 @@ public class TestExecutorService {
                 throw new TimeLimitException();
             }
 
-            if (!errorResult.toString().equals("null") && !errorResult.toString().isEmpty()) {
-                log.error(errorResult.toString());
+            String errorText = errorResult.toString();
+            if (!errorText.equals("null") && !errorText.isEmpty()) {
+                log.error("errorText: " + errorText);
                 dockerClient.stopContainerCmd(containerId).exec();
                 dockerClient.removeContainerCmd(containerId).exec();
                 throw new CodeRuntimeException(errorResult.toString());
