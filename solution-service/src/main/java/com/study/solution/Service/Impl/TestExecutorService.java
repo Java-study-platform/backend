@@ -73,6 +73,8 @@ public class TestExecutorService {
                 }
                 errorReader.close();
 
+                log.error("Ошибка во время компиляции: " + errorBuilder.toString());
+
                 saveTestOnCompilationError(tests, solution, errorBuilder);
 
                 throw new CodeCompilationException(errorBuilder.toString());
@@ -85,13 +87,7 @@ public class TestExecutorService {
 
         CreateContainerResponse container = dockerClient.createContainerCmd(DOCKER_IMAGE)
                 .withWorkingDir("/code")
-                .exec();;
-        try {
-             container.wait(5000);
-        } catch (InterruptedException e) {
-            saveTestOnCompilationError(tests, solution, null);
-            throw new CodeCompilationException("Ошибка компиляции");
-        }
+                .exec();
 
         String containerId = container.getId();
         String classFilePath = tempFile.getParent() + "/Main.class";
@@ -219,9 +215,8 @@ public class TestExecutorService {
         if (errorBuilder == null || errorBuilder.isEmpty()){
             testEntity.setTestOutput("Compilation error");
         }
-        else {
-            testEntity.setTestOutput(errorBuilder.toString());
-        }
+
+        testEntity.setTestOutput(errorBuilder.toString());
         testEntity.setStatus(Status.COMPILATION_ERROR);
         testEntity.setTestIndex(testCase.getIndex());
 
