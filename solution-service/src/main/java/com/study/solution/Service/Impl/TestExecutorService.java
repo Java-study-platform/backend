@@ -19,6 +19,7 @@ import com.study.solution.Repository.SolutionRepository;
 import com.study.solution.Repository.TestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,7 @@ public class TestExecutorService {
     private final DockerClient dockerClient;
     private final TestMapper testMapper;
     private final SimpMessagingTemplate messagingTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     private static final String DOCKER_IMAGE = "openjdk:17-oracle";
 
@@ -76,10 +78,15 @@ public class TestExecutorService {
                 testEntity.setSolution(solution);
                 testEntity.setTestInput(testCase.getExpectedInput());
                 testEntity.setTestOutput(errorBuilder.toString());
-                testEntity.setStatus(Status.PENDING);
+                testEntity.setStatus(Status.COMPILATION_ERROR);
                 testEntity.setTestIndex(testCase.getIndex());
 
-                testRepository.save(testEntity);
+                jdbcTemplate.update(
+                        "INSERT INTO tests (id, test_index, test_input, test_output, test_time, status, solution) " +
+                                "VALUES (?, ?, ?, ?, current_timestamp , ?, ?)",
+                        testEntity.getId(), testEntity.getTestIndex(), testEntity.getTestInput(),
+                        testEntity.getTestOutput(), testEntity.getStatus(), solution
+                );
 
                 throw new CodeCompilationException(errorBuilder.toString());
             }
