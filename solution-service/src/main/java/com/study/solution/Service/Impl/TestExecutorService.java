@@ -190,6 +190,7 @@ public class TestExecutorService {
             if (!errorText.equals("null") && !errorText.isEmpty()) {
                 dockerClient.stopContainerCmd(containerId).exec();
                 dockerClient.removeContainerCmd(containerId).exec();
+                saveTest(testEntity, solution);
                 throw new CodeRuntimeException(errorResult.toString());
             }
 
@@ -215,18 +216,7 @@ public class TestExecutorService {
                 }
             }
 
-            try {
-                int rowsAffected = jdbcTemplate.update(
-                        "INSERT INTO tests (id, test_index, test_input, test_output, test_time, status, solution_id) " +
-                                "VALUES (?, ?, ?, ?, current_timestamp, ?, ?)",
-                        testEntity.getId(), testEntity.getTestIndex(), testEntity.getTestInput(),
-                        testEntity.getTestOutput(), testEntity.getStatus().toString(), solution.getId()
-                );
-                log.info("Inserted " + rowsAffected + " row(s).");
-            } catch (DataAccessException e) {
-                log.error("Failed to save test on compilation error: " + e.getMessage());
-                throw new RuntimeException("Failed to save test on compilation error", e);
-            }
+            saveTest(testEntity, solution);
 
             sendWebSocketMessage(user, testMapper.toDTO(testEntity), solution.getId());
         }
@@ -271,18 +261,7 @@ public class TestExecutorService {
         testEntity.setTestIndex(testCase.getIndex());
         log.info("Попытка сохранить тест");
 
-        try {
-            int rowsAffected = jdbcTemplate.update(
-                    "INSERT INTO tests (id, test_index, test_input, test_output, test_time, status, solution_id) " +
-                            "VALUES (?, ?, ?, ?, current_timestamp, ?, ?)",
-                    testEntity.getId(), testEntity.getTestIndex(), testEntity.getTestInput(),
-                    testEntity.getTestOutput(), testEntity.getStatus().toString(), solution.getId()
-            );
-            log.info("Inserted " + rowsAffected + " row(s).");
-        } catch (DataAccessException e) {
-            log.error("Failed to save test on compilation error: " + e.getMessage());
-            throw new RuntimeException("Failed to save test on compilation error", e);
-        }
+        saveTest(testEntity, solution);
     }
 
     private void saveTestOnTimeLimit(Test testEntity, Solution solution){
@@ -290,6 +269,10 @@ public class TestExecutorService {
         testEntity.setStatus(Status.TIME_LIMIT);
         log.info("Попытка сохранить тест");
 
+        saveTest(testEntity, solution);
+    }
+
+    private void saveTest(Test testEntity, Solution solution){
         try {
             int rowsAffected = jdbcTemplate.update(
                     "INSERT INTO tests (id, test_index, test_input, test_output, test_time, status, solution_id) " +
