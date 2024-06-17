@@ -233,6 +233,7 @@ public class TestExecutorService {
          TestCaseDto testCase = tests.get(0);
 
         Test testEntity = new Test();
+        testEntity.setId(UUID.randomUUID());
         testEntity.setSolution(solution);
         testEntity.setTestInput(testCase.getExpectedInput());
         if (errorBuilder == null || errorBuilder.isEmpty()){
