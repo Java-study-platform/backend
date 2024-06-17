@@ -61,7 +61,7 @@ public class TestExecutorService {
         Process compileProcess = Runtime.getRuntime().exec("javac " + tempFile.getAbsolutePath());
         try {
             boolean compileResult = compileProcess.waitFor(5000, TimeUnit.MILLISECONDS);
-            log.info("Компилируем код");
+            log.info("compileResult равен: " + compileResult);
             if (!compileResult) {
                 BufferedReader errorReader = new BufferedReader(new InputStreamReader(compileProcess.getErrorStream()));
 
@@ -79,10 +79,26 @@ public class TestExecutorService {
 
                 throw new CodeCompilationException(errorBuilder.toString());
             }
+
+            BufferedReader stdError = new BufferedReader(new InputStreamReader(compileProcess.getErrorStream()));
+            StringBuilder errorBuilder = new StringBuilder();
+            String line;
+            while ((line = stdError.readLine()) != null) {
+                errorBuilder.append(line).append("\n");
+            }
+            stdError.close();
+
+            if (!errorBuilder.isEmpty()) {
+                log.error("Ошибка во время компиляции: " + errorBuilder.toString());
+                saveTestOnCompilationError(tests, solution, errorBuilder);
+                throw new CodeCompilationException(errorBuilder.toString());
+            }
         } catch (InterruptedException e){
             saveTestOnCompilationError(tests, solution, null);
 
             throw new CodeCompilationException(e.getMessage());
+        } finally {
+            compileProcess.destroy();
         }
 
         CreateContainerResponse container = dockerClient.createContainerCmd(DOCKER_IMAGE)
