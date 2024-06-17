@@ -10,11 +10,13 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@Slf4j
 public class DockerConfig {
     @Value("${docker.host}")
     private String host;
@@ -31,23 +33,18 @@ public class DockerConfig {
                 .sslConfig(config.getSSLConfig())
                 .build();
 
-        return DockerClientBuilder
+        DockerClient dockerClient = DockerClientBuilder
                 .getInstance(config)
                 .withDockerHttpClient(httpClient)
                 .build();
-    }
 
-    @Bean
-    public boolean isDockerConnected(DockerClient dockerClient) {
         try {
             dockerClient.pingCmd().exec();
-            System.out.println("Successfully connected to Docker.");
-            return true;
-        }  catch (DockerException e) {
-            System.err.println("Docker exception: " + e.getMessage());
-        } catch (Exception e) {
-            System.err.println("Unknown error: " + e.getMessage());
+            log.info("Законнектился к докеру");
+        } catch (DockerException e) {
+            throw new RuntimeException("Не смог законнектиться к докеру", e);
         }
-        return false;
+
+        return dockerClient;
     }
 }
