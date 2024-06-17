@@ -154,6 +154,7 @@ public class SolutionServiceImpl implements SolutionService {
                 } catch (CodeCompilationException e) {
                     log.info("Код не был скомпилирован");
                     log.error(e.getMessage());
+                    solution.setTestIndex(1L);
                     solution.setStatus(Status.COMPILATION_ERROR);
                 }
 

@@ -129,6 +129,7 @@ public class TestExecutorService {
             log.info("Тест номер: " + testIndex);
 
             Test testEntity = new Test();
+            testEntity.setId(UUID.randomUUID());
             testEntity.setSolution(solution);
             testEntity.setTestInput(input);
             testEntity.setStatus(Status.PENDING);
