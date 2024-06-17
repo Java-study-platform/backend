@@ -177,20 +177,19 @@ public class TestExecutorService {
             }
 
             String errorText = errorResult.toString();
+            log.error("errorText: " + errorText);
             if (!errorText.equals("null") && !errorText.isEmpty()) {
-                log.error("errorText: " + errorText);
                 dockerClient.stopContainerCmd(containerId).exec();
                 dockerClient.removeContainerCmd(containerId).exec();
                 throw new CodeRuntimeException(errorResult.toString());
             }
 
-
             String strResult = result.toString()
                     .replaceAll("\n\n", "\n")
                     .replaceAll(" \n", "\n").trim();
 
-            log.info("Результат теста: " + strResult);
             if (!strResult.isEmpty()) {
+                log.info("Результат теста: " + strResult);
                 testEntity.setTestOutput(strResult);
 
                 if (strResult.equals(test.getExpectedOutput())) {
