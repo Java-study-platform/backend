@@ -76,7 +76,7 @@ public class TestExecutorService {
 
                 log.error("Ошибка во время компиляции: " + errorBuilder.toString());
 
-                saveTest(tests, solution, errorBuilder, Status.TIME_LIMIT);
+                saveTestOnCompilationError(tests, solution, errorBuilder, Status.TIME_LIMIT);
 
                 throw new CodeCompilationException(errorBuilder.toString());
             }
@@ -91,17 +91,17 @@ public class TestExecutorService {
 
             if (!errorBuilder.isEmpty()) {
                 log.error("Ошибка во время компиляции: " + errorBuilder.toString());
-                saveTest(tests, solution, errorBuilder, Status.COMPILATION_ERROR);
+                saveTestOnCompilationError(tests, solution, errorBuilder, Status.COMPILATION_ERROR);
                 log.error("Выкидываю ошибку");
                 throw new CodeCompilationException(errorBuilder.toString());
             }
         } catch (IOException e) {
             log.error("Ошибка ввода-вывода во время компиляции", e);
-            saveTest(tests, solution, null, Status.COMPILATION_ERROR);
+            saveTestOnCompilationError(tests, solution, null, Status.COMPILATION_ERROR);
             throw new CodeCompilationException("Ошибка ввода-вывода во время компиляции");
         }
             catch (InterruptedException e){
-            saveTest(tests, solution, null, Status.COMPILATION_ERROR);
+            saveTestOnCompilationError(tests, solution, null, Status.COMPILATION_ERROR);
 
             throw new CodeCompilationException(e.getMessage());
         } finally {
@@ -173,7 +173,7 @@ public class TestExecutorService {
                     log.info("Время выполнения превышено");
                     dockerClient.stopContainerCmd(containerId).exec();
                     dockerClient.removeContainerCmd(containerId).exec();
-                    saveTest(tests, solution, null, Status.TIME_LIMIT);
+                    saveTestOnTimeLimit(testEntity);
                     throw new TimeLimitException();
                 }
             } catch (DockerException e) {
@@ -182,7 +182,7 @@ public class TestExecutorService {
             } catch (InterruptedException e) {
                 dockerClient.stopContainerCmd(containerId).exec();
                 dockerClient.removeContainerCmd(containerId).exec();
-                saveTest(tests, solution, null, Status.TIME_LIMIT);
+                saveTestOnTimeLimit(testEntity);
                 throw new TimeLimitException();
             }
 
@@ -240,7 +240,7 @@ public class TestExecutorService {
         }
     }
 
-    private void saveTest(List<TestCaseDto> tests, Solution solution, StringBuilder errorBuilder, Status status){
+    private void saveTestOnCompilationError(List<TestCaseDto> tests, Solution solution, StringBuilder errorBuilder, Status status){
          TestCaseDto testCase = tests.get(0);
 
         Test testEntity = new Test();
@@ -259,6 +259,25 @@ public class TestExecutorService {
 
         testEntity.setStatus(status);
         testEntity.setTestIndex(testCase.getIndex());
+        log.info("Попытка сохранить тест");
+
+        try {
+            int rowsAffected = jdbcTemplate.update(
+                    "INSERT INTO tests (id, test_index, test_input, test_output, test_time, status, solution_id) " +
+                            "VALUES (?, ?, ?, ?, current_timestamp, ?, ?)",
+                    testEntity.getId(), testEntity.getTestIndex(), testEntity.getTestInput(),
+                    testEntity.getTestOutput(), testEntity.getStatus().toString(), solution.getId()
+            );
+            log.info("Inserted " + rowsAffected + " row(s).");
+        } catch (DataAccessException e) {
+            log.error("Failed to save test on compilation error: " + e.getMessage());
+            throw new RuntimeException("Failed to save test on compilation error", e);
+        }
+    }
+
+    private void saveTestOnTimeLimit(Test testEntity){
+        testEntity.setTestOutput("Time limit");
+        testEntity.setStatus(Status.TIME_LIMIT);
         log.info("Попытка сохранить тест");
         testRepository.saveAndFlush(testEntity);
 
