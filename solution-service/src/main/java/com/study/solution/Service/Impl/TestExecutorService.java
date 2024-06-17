@@ -95,9 +95,18 @@ public class TestExecutorService {
             throw new RuntimeException();
         }
 
-        CreateContainerResponse container = dockerClient.createContainerCmd(DOCKER_IMAGE)
-                .withWorkingDir("/code")
-                .exec();
+        log.info("Попытка создать контейнер");
+        CreateContainerResponse container = null;
+        try {
+             container = dockerClient.createContainerCmd(DOCKER_IMAGE)
+                    .withWorkingDir("/code")
+                    .exec();
+        }
+        catch (Exception e){
+            log.error(e.getMessage());
+            e.printStackTrace();
+        }
+        log.info("Контейнер создан");
 
         String containerId = container.getId();
         String classFilePath = tempFile.getParent() + "/Main.class";
