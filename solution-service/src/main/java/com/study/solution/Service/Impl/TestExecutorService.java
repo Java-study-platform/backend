@@ -60,9 +60,9 @@ public class TestExecutorService {
 
         Process compileProcess = Runtime.getRuntime().exec("javac " + tempFile.getAbsolutePath());
         try {
-            int compileResult = compileProcess.waitFor();
+            boolean compileResult = compileProcess.waitFor(5000, TimeUnit.MILLISECONDS);
             log.info("Компилируем код");
-            if (compileResult != 0) {
+            if (!compileResult) {
                 BufferedReader errorReader = new BufferedReader(new InputStreamReader(compileProcess.getErrorStream()));
 
                 StringBuilder errorBuilder = new StringBuilder();
@@ -73,40 +73,19 @@ public class TestExecutorService {
                 }
                 errorReader.close();
 
-                TestCaseDto testCase = tests.get(0);
-
-                Test testEntity = new Test();
-                testEntity.setSolution(solution);
-                testEntity.setTestInput(testCase.getExpectedInput());
-                testEntity.setTestOutput(errorBuilder.toString());
-                testEntity.setStatus(Status.COMPILATION_ERROR);
-                testEntity.setTestIndex(testCase.getIndex());
-
-                jdbcTemplate.update(
-                        "INSERT INTO tests (id, test_index, test_input, test_output, test_time, status, solution) " +
-                                "VALUES (?, ?, ?, ?, current_timestamp , ?, ?)",
-                        testEntity.getId(), testEntity.getTestIndex(), testEntity.getTestInput(),
-                        testEntity.getTestOutput(), testEntity.getStatus(), solution
-                );
+                saveTestOnCompilationError(tests, solution, errorBuilder);
 
                 throw new CodeCompilationException(errorBuilder.toString());
             }
         } catch (InterruptedException e){
-            throw new RuntimeException();
+            saveTestOnCompilationError(tests, solution, null);
+
+            throw new CodeCompilationException(e.getMessage());
         }
 
-        log.info("Попытка создать контейнер");
-        CreateContainerResponse container = null;
-        try {
-             container = dockerClient.createContainerCmd(DOCKER_IMAGE)
-                    .withWorkingDir("/code")
-                    .exec();
-        }
-        catch (Exception e){
-            log.error(e.getMessage());
-            e.printStackTrace();
-        }
-        log.info("Контейнер создан");
+        CreateContainerResponse container = dockerClient.createContainerCmd(DOCKER_IMAGE)
+                .withWorkingDir("/code")
+                .exec();
 
         String containerId = container.getId();
         String classFilePath = tempFile.getParent() + "/Main.class";
@@ -223,6 +202,29 @@ public class TestExecutorService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void saveTestOnCompilationError(List<TestCaseDto> tests, Solution solution, StringBuilder errorBuilder){
+        TestCaseDto testCase = tests.get(0);
+
+        Test testEntity = new Test();
+        testEntity.setSolution(solution);
+        testEntity.setTestInput(testCase.getExpectedInput());
+        if (errorBuilder == null || errorBuilder.isEmpty()){
+            testEntity.setTestOutput("Compilation error");
+        }
+        else {
+            testEntity.setTestOutput(errorBuilder.toString());
+        }
+        testEntity.setStatus(Status.COMPILATION_ERROR);
+        testEntity.setTestIndex(testCase.getIndex());
+
+        jdbcTemplate.update(
+                "INSERT INTO tests (id, test_index, test_input, test_output, test_time, status, solution) " +
+                        "VALUES (?, ?, ?, ?, current_timestamp , ?, ?)",
+                testEntity.getId(), testEntity.getTestIndex(), testEntity.getTestInput(),
+                testEntity.getTestOutput(), testEntity.getStatus(), solution
+        );
     }
 
     private void sendWebSocketMessage(Jwt user, TestDto testDto, UUID solutionId) {
