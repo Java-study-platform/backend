@@ -145,7 +145,7 @@ public class TestExecutorService {
                     .exec();
 
             try {
-                dockerClient.execStartCmd(runCmd.getId())
+                boolean timeFlag = dockerClient.execStartCmd(runCmd.getId())
                         .exec(new ResultCallback.Adapter<Frame>() {
                             @Override
                             public void onNext(Frame item) {
@@ -167,6 +167,13 @@ public class TestExecutorService {
                                 errorResult.append(throwable.getMessage()).append("\n");
                             }
                         }).awaitCompletion(timeLimit, TimeUnit.MILLISECONDS);
+
+                if (!timeFlag){
+                    log.info("Время выполнения превышено");
+                    dockerClient.stopContainerCmd(containerId).exec();
+                    dockerClient.removeContainerCmd(containerId).exec();
+                    throw new TimeLimitException();
+                }
             } catch (DockerException e) {
                 log.error(e.getMessage());
                 throw new RuntimeException(e);
