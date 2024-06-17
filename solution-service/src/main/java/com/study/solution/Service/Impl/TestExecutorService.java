@@ -186,7 +186,6 @@ public class TestExecutorService {
             }
 
             String errorText = errorResult.toString();
-            log.error("errorText: " + errorText);
             if (!errorText.equals("null") && !errorText.isEmpty()) {
                 dockerClient.stopContainerCmd(containerId).exec();
                 dockerClient.removeContainerCmd(containerId).exec();
@@ -214,6 +213,7 @@ public class TestExecutorService {
                     testEntity.setStatus(Status.WRONG_ANSWER);
                     solution.setStatus(Status.WRONG_ANSWER);
                     solution.setTestIndex(test.getIndex());
+                    saveTest(testEntity, solution);
                     break;
                 }
             }
