@@ -70,6 +70,17 @@ public class TestExecutorService {
                 }
                 errorReader.close();
 
+                TestCaseDto testCase = tests.get(0);
+
+                Test testEntity = new Test();
+                testEntity.setSolution(solution);
+                testEntity.setTestInput(testCase.getExpectedInput());
+                testEntity.setTestOutput(errorBuilder.toString());
+                testEntity.setStatus(Status.PENDING);
+                testEntity.setTestIndex(testCase.getIndex());
+
+                testRepository.save(testEntity);
+
                 throw new CodeCompilationException(errorBuilder.toString());
             }
         } catch (InterruptedException e){
