@@ -173,7 +173,7 @@ public class TestExecutorService {
                     log.info("Время выполнения превышено");
                     dockerClient.stopContainerCmd(containerId).exec();
                     dockerClient.removeContainerCmd(containerId).exec();
-                    saveTestOnTimeLimit(testEntity);
+                    saveTestOnTimeLimit(testEntity, solution);
                     throw new TimeLimitException();
                 }
             } catch (DockerException e) {
@@ -182,7 +182,7 @@ public class TestExecutorService {
             } catch (InterruptedException e) {
                 dockerClient.stopContainerCmd(containerId).exec();
                 dockerClient.removeContainerCmd(containerId).exec();
-                saveTestOnTimeLimit(testEntity);
+                saveTestOnTimeLimit(testEntity, solution);
                 throw new TimeLimitException();
             }
 
@@ -275,24 +275,23 @@ public class TestExecutorService {
         }
     }
 
-    private void saveTestOnTimeLimit(Test testEntity){
+    private void saveTestOnTimeLimit(Test testEntity, Solution solution){
         testEntity.setTestOutput("Time limit");
         testEntity.setStatus(Status.TIME_LIMIT);
         log.info("Попытка сохранить тест");
-        testRepository.saveAndFlush(testEntity);
 
-//        try {
-//            int rowsAffected = jdbcTemplate.update(
-//                    "INSERT INTO tests (id, test_index, test_input, test_output, test_time, status, solution_id) " +
-//                            "VALUES (?, ?, ?, ?, current_timestamp, ?, ?)",
-//                    testEntity.getId(), testEntity.getTestIndex(), testEntity.getTestInput(),
-//                    testEntity.getTestOutput(), testEntity.getStatus().toString(), solution.getId()
-//            );
-//            log.info("Inserted " + rowsAffected + " row(s).");
-//        } catch (DataAccessException e) {
-//            log.error("Failed to save test on compilation error: " + e.getMessage());
-//            throw new RuntimeException("Failed to save test on compilation error", e);
-//        }
+        try {
+            int rowsAffected = jdbcTemplate.update(
+                    "INSERT INTO tests (id, test_index, test_input, test_output, test_time, status, solution_id) " +
+                            "VALUES (?, ?, ?, ?, current_timestamp, ?, ?)",
+                    testEntity.getId(), testEntity.getTestIndex(), testEntity.getTestInput(),
+                    testEntity.getTestOutput(), testEntity.getStatus().toString(), solution.getId()
+            );
+            log.info("Inserted " + rowsAffected + " row(s).");
+        } catch (DataAccessException e) {
+            log.error("Failed to save test on compilation error: " + e.getMessage());
+            throw new RuntimeException("Failed to save test on compilation error", e);
+        }
     }
 
     private void sendWebSocketMessage(Jwt user, TestDto testDto, UUID solutionId) {
