@@ -94,7 +94,12 @@ public class TestExecutorService {
                 log.error("Выкидываю ошибку");
                 throw new CodeCompilationException(errorBuilder.toString());
             }
-        } catch (InterruptedException e){
+        } catch (IOException e) {
+            log.error("Ошибка ввода-вывода во время компиляции", e);
+            saveTestOnCompilationError(tests, solution, null);
+            throw new CodeCompilationException("Ошибка ввода-вывода во время компиляции");
+        }
+            catch (InterruptedException e){
             saveTestOnCompilationError(tests, solution, null);
 
             throw new CodeCompilationException(e.getMessage());
@@ -224,6 +229,8 @@ public class TestExecutorService {
     }
 
     private void saveTestOnCompilationError(List<TestCaseDto> tests, Solution solution, StringBuilder errorBuilder){
+        log.info("Попытка сохранить тест");
+
         TestCaseDto testCase = tests.get(0);
 
         Test testEntity = new Test();
@@ -243,7 +250,6 @@ public class TestExecutorService {
                 testEntity.getId(), testEntity.getTestIndex(), testEntity.getTestInput(),
                 testEntity.getTestOutput(), testEntity.getStatus(), solution
         );
-        log.info("Сохранил тест");
     }
 
     private void sendWebSocketMessage(Jwt user, TestDto testDto, UUID solutionId) {
