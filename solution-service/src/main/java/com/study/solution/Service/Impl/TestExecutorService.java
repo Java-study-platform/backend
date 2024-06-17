@@ -150,12 +150,11 @@ public class TestExecutorService {
                         .exec(new ResultCallback.Adapter<Frame>() {
                             @Override
                             public void onNext(Frame item) {
-                                String payload = new String(item.getPayload(), StandardCharsets.UTF_8)
-                                        .toLowerCase();
-
-                                if (payload.contains("error")
-                                        || payload.contains("caused by")
-                                        || payload.contains("exception")) {
+                                String payload = new String(item.getPayload(), StandardCharsets.UTF_8);
+                                String lowerCasePayload = payload.toLowerCase();
+                                if (lowerCasePayload.contains("error")
+                                        || lowerCasePayload.contains("caused by")
+                                        || lowerCasePayload.contains("exception")) {
                                     log.warn("Записываю payload в ошибку: " + payload);
                                     errorResult.append(payload).append("\n");
                                 } else {
@@ -216,7 +215,18 @@ public class TestExecutorService {
                 }
             }
 
-            testRepository.save(testEntity);
+            try {
+                int rowsAffected = jdbcTemplate.update(
+                        "INSERT INTO tests (id, test_index, test_input, test_output, test_time, status, solution_id) " +
+                                "VALUES (?, ?, ?, ?, current_timestamp, ?, ?)",
+                        testEntity.getId(), testEntity.getTestIndex(), testEntity.getTestInput(),
+                        testEntity.getTestOutput(), testEntity.getStatus().toString(), solution.getId()
+                );
+                log.info("Inserted " + rowsAffected + " row(s).");
+            } catch (DataAccessException e) {
+                log.error("Failed to save test on compilation error: " + e.getMessage());
+                throw new RuntimeException("Failed to save test on compilation error", e);
+            }
 
             sendWebSocketMessage(user, testMapper.toDTO(testEntity), solution.getId());
         }
