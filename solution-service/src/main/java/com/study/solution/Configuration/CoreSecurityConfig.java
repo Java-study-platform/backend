@@ -33,8 +33,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.study.common.Constants.Consts.GET_TEST_INFO;
-import static com.study.common.Constants.Consts.USERNAME_CLAIM;
+import static com.study.common.Constants.Consts.*;
 
 @EnableWebSecurity
 @Configuration
@@ -60,7 +59,7 @@ public class CoreSecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers(GET_TEST_INFO).hasAnyRole("MENTOR", "ADMIN")
+                        .requestMatchers(GET_TEST_INFO, GET_USER_SOLUTIONS).hasAnyRole("MENTOR", "ADMIN")
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))

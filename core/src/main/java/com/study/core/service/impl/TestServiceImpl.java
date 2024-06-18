@@ -47,6 +47,14 @@ public class TestServiceImpl implements TestService {
     }
 
     @Override
+    public List<TestCaseDto> getTaskTestCasesForAdmin(UUID taskId) {
+        Task task = taskRepository.findTaskById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException(taskId));
+
+        return testCaseListMapper.toModelList(testRepository.findTestCasesByTask(task));
+    }
+
+    @Override
     @Transactional
     public TestCaseDto createTestCase(Jwt user, UUID taskId, CreateTestModel createTestModel) throws TaskNotFoundException {
         Task task = taskRepository.findTaskById(taskId)

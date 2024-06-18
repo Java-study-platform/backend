@@ -17,6 +17,8 @@ public final class Consts {
     public static final String TEST_CASES = "/api/learning/tests";
     public static final String CHANGE_TEST_CASE = "/api/learning/test";
     public static final String SOLUTIONS = "/api/solution";
+    public static final String GET_USER_SOLUTIONS = "/api/solution/task";
+    public static final String GET_TESTS_FOR_SERVICE = "/api/learning/service/tests";
     public static final String GET_TESTS = "/api/solution/tests";
     public static final String GET_TEST_INFO = "/api/solution/tests/info";
     public static final String USERNAME_CLAIM = "preferred_username";

@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+import static com.study.common.Constants.Consts.GET_USER_SOLUTIONS;
 import static com.study.common.Constants.Consts.SOLUTIONS;
 
 @Controller
@@ -45,7 +46,7 @@ public class SolutionController {
     @GetMapping(SOLUTIONS + "/{taskId}")
     @Operation(
             summary = "Получение решений конкретной задачи",
-            description = "Позволяет получить список решения, отправленных на указанную задачу"
+            description = "Позволяет получить список решений, отправленных на указанную задачу"
     )
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<DefaultResponse<List<SolutionDto>>> getSolutions(
@@ -54,7 +55,24 @@ public class SolutionController {
     ){
         return ResponseEntity.ok(DefaultResponseBuilder.success(
                 "Решения успешно получены",
-                solutionService.getUserSolutions(user, taskId)
+                solutionService.getSolutions(user, taskId)
+        ));
+    }
+
+    @GetMapping(GET_USER_SOLUTIONS + "/{taskId}")
+    @Operation(
+            summary = "Получение решений конкретной задачи",
+            description = "Позволяет ментору или админу получить список решений пользователя, отправленных на указанную задачу"
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<DefaultResponse<List<SolutionDto>>> getUserSolutions(
+            @AuthenticationPrincipal Jwt user,
+            @PathVariable(name = "taskId") UUID taskId,
+            @RequestParam(name = "username") String username
+    ){
+        return ResponseEntity.ok(DefaultResponseBuilder.success(
+                "Решения успешно получены",
+                solutionService.getUserSolutions(taskId, username)
         ));
     }
 
