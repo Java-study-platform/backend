@@ -205,116 +205,11 @@ public class SolutionServiceImpl implements SolutionService {
 
     @Override
     public SolutionDto getSolution(Jwt user, UUID solutionId){
-        String username = user.getClaim(USERNAME_CLAIM);
         Solution solution = solutionRepository.findSolutionById(solutionId)
                 .orElseThrow(() -> new SolutionNotFoundException(solutionId));
 
-        if (!username.equals(solution.getUsername())){
-            throw new ForbiddenException();
-        }
-
         return solutionMapper.toDTO(solution);
     }
-
-//    private static String runCode(String code, String input, long timeLimit) throws IOException {
-//        StringBuilder result = new StringBuilder();
-//
-//        Path path = Files.createTempDirectory("compile");
-//
-//        File tempFile = new File(path.toAbsolutePath() + "\\Main.java");
-//
-//        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));;
-//        writer.write(code);
-//        writer.close();
-//
-//        Process compileProcess = Runtime.getRuntime().exec("javac " + tempFile.getAbsolutePath());
-//        try {
-//            int compileResult = compileProcess.waitFor();
-//            if (compileResult != 0 ){
-//                BufferedReader errorReader = new BufferedReader(new InputStreamReader(compileProcess.getErrorStream()));
-//
-//                StringBuilder errorBuilder = new StringBuilder();
-//                String line;
-//
-//                while ((line = errorReader.readLine()) != null) {
-//                    errorBuilder.append(line).append("\n");
-//                }
-//                errorReader.close();
-//
-//                throw new CodeCompilationException(errorBuilder.toString());
-//            }
-//            else {
-//                String command = String.format("java -cp %s Main", tempFile.getParent());
-//
-//                Process process = Runtime.getRuntime().exec(command);
-//                try (BufferedWriter inputWriter = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()))) {
-//                    inputWriter.write(input);
-//                    inputWriter.flush();
-//                }
-//
-//                ExecutorService executor = Executors.newSingleThreadExecutor();
-//
-//                Callable<String> outputTask = () -> {
-//                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-//                        return reader.lines().collect(Collectors.joining("\n"));
-//                    }
-//                };
-//
-//                Callable<String> errorTask = () -> {
-//                    try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-//                        return errorReader.lines().collect(Collectors.joining("\n"));
-//                    }
-//                };
-//
-//                try{
-//                    Future<String> outputFuture = executor.submit(outputTask);
-//                    Future<String> errorFuture = executor.submit(errorTask);
-//
-//    //                boolean finished = process.waitFor(timeLimit, TimeUnit.MILLISECONDS);
-//    //                if (!finished) {
-//    //                    process.destroy();
-//    //                    executor.shutdownNow();
-//    //                    throw new TimeLimitException();
-//    //                }
-//
-//                    result.append(outputFuture.get(timeLimit, TimeUnit.MILLISECONDS)).append("\n");
-//
-//                    String errors = errorFuture.get();
-//                    if (!errors.isEmpty()) {
-//                        result.append(errors).append("\n");
-//
-//                        throw new CodeRuntimeException(result.toString());
-//                    }
-//
-//                    if (process.exitValue() != 0) {
-//                        throw new CodeRuntimeException(result.toString());
-//                    }
-//                }
-//                catch (InterruptedException | ExecutionException e){
-//                    throw new CodeRuntimeException(e.getMessage());
-//                } catch (TimeoutException e) {
-//                    process.destroy();
-//                    executor.shutdownNow();
-//
-//                    throw new TimeLimitException();
-//                }
-//                finally {
-//                    executor.shutdown();
-//                }
-//            }
-//        }
-//        catch (InterruptedException e){
-//            throw new CodeRuntimeException(e.getMessage());
-//        } finally {
-//            File classFile = new File(tempFile.getParent(), "Main.class");
-//
-//            tempFile.delete();
-//            classFile.delete();
-//            Files.delete(path);
-//        }
-//
-//        return result.toString();
-//    }
 
     private Mono<List<TestCaseDto>> getTestCases(UUID taskId){
         return webClient.get()
