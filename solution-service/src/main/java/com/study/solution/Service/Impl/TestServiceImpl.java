@@ -33,11 +33,6 @@ public class TestServiceImpl implements TestService {
         Solution solution = solutionRepository.findSolutionById(solutionId)
                 .orElseThrow(() -> new SolutionNotFoundException(solutionId));
 
-        String username = user.getClaim(USERNAME_CLAIM);
-
-        if (!solution.getUsername().equals(username)){
-            throw new ForbiddenException();
-        }
 
         return testListMapper.toModelList(testRepository.findAllBySolution(solution));
     }

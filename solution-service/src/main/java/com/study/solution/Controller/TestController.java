@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +35,7 @@ public class TestController {
             description = "Позволяет пользователю получить вердикты по тестам для конкретного решения"
     )
     @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("@acsi.canAccessSolution(user.getClaim('preferred_username'), solutionId) or hasAnyRole('ADMIN', 'MENTOR')")
     public ResponseEntity<DefaultResponse<List<TestDto>>> getTests(
             @AuthenticationPrincipal Jwt user,
             @RequestParam(name = "solutionId") UUID solutionId
@@ -50,6 +52,7 @@ public class TestController {
             description = "Позволяет ментору получить подробную информацию о тесте"
     )
     @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
     public ResponseEntity<DefaultResponse<MentorTestDto>> getInfoAboutTest(
             @AuthenticationPrincipal Jwt user,
             @RequestParam(name = "testId") UUID testId

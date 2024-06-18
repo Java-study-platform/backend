@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
@@ -50,6 +51,7 @@ public class TestController {
             description = "Позволяет администратору создать тест-кейс для конкретного задания"
     )
     @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DefaultResponse<TestCaseDto>> createTestCase(
             @AuthenticationPrincipal Jwt user,
             @PathVariable UUID taskId,
@@ -67,6 +69,7 @@ public class TestController {
             description = "Позволяет администратору удалить тест-кейс"
     )
     @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DefaultResponse<?>> deleteTestCase(
             @AuthenticationPrincipal Jwt user,
             @RequestParam(name = "testId") UUID testId
@@ -86,6 +89,7 @@ public class TestController {
             description = "Позволяет администратору изменить тест-кейс"
     )
     @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DefaultResponse<TestCaseDto>> editTestCase(
             @AuthenticationPrincipal Jwt user,
             @RequestParam(name = "testId") UUID testId,

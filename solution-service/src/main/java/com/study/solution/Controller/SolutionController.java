@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Controller;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.study.common.Constants.Consts.SOLUTIONS;
-
+import static com.study.common.Constants.Consts.USERNAME_CLAIM;
 @Controller
 @RequiredArgsConstructor
 @Tag(name = "Решения", description = "Отвечает за обработку решений")
@@ -64,6 +65,7 @@ public class SolutionController {
             description = "Позволяет пользователю получить конкретное решение по UUID"
     )
     @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("@acsi.canAccessSolution(#user.getClaim('preferred_username'), #solutionId) or hasAnyRole('ADMIN', 'MENTOR')")
     public ResponseEntity<DefaultResponse<SolutionDto>> getSolution(
             @AuthenticationPrincipal Jwt user,
             @RequestParam(name = "solutionId") UUID solutionId
