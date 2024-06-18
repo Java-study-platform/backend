@@ -1,6 +1,8 @@
 package com.study.solution.Kafka;
 
 import com.study.common.DTO.NotificationDTO;
+import com.study.common.DTO.SolutionPassedDto;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +17,8 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.study.common.Constants.Consts.SOLUTION_TOPIC;
+
 @Configuration
 public class KafkaProducerConfig {
 
@@ -22,7 +26,7 @@ public class KafkaProducerConfig {
     private String bootstrapAddress;
 
     @Bean
-    public ProducerFactory<String, NotificationDTO> producerFactory() {
+    public ProducerFactory<String, SolutionPassedDto> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -38,10 +42,19 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, NotificationDTO> kafkaTemplate() {
-        KafkaTemplate<String, NotificationDTO> template = new KafkaTemplate<>(producerFactory());
+    public KafkaTemplate<String, SolutionPassedDto> kafkaTemplate() {
+        KafkaTemplate<String, SolutionPassedDto> template = new KafkaTemplate<>(producerFactory());
         template.setMessageConverter(new StringJsonMessageConverter());
 
         return template;
+    }
+
+    @Bean
+    public NewTopic newTopic(){
+        return new NewTopic(
+                SOLUTION_TOPIC,
+                1,
+                (short) 1
+        );
     }
 }

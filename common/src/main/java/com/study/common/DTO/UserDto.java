@@ -13,6 +13,7 @@ public class UserDto {
     private String keyCloakId;
     private String username;
     private String email;
+    private Long experience;
     private String firstName;
     private String lastName;
     private List<String> roles;

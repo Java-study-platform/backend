@@ -33,6 +33,10 @@ public class User {
     @NotNull
     private String username;
 
+    @Column(name = "experience")
+    @NotNull
+    private Long experience = 0L;
+
     @Column(name = "first_name")
     @NotNull
     private String firstName;

@@ -160,6 +160,10 @@ public class SolutionServiceImpl implements SolutionService {
                     solution.setStatus(Status.COMPILATION_ERROR);
                 }
 
+                if (solution.getStatus() == Status.OK){
+                    kafkaProducer.sendMessage(solution.getTaskId(), solution.getUsername());
+                }
+
                 solutionRepository.save(solution);
 
 //            kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),

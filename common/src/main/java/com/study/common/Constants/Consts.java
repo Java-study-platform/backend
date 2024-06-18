@@ -5,6 +5,7 @@ public final class Consts {
     public static final String MENTOR = "MENTOR";
     public static final String USER = "USER";
     public static final String GET_USER = "/api/user/profile";
+    public static final String GET_RATING = "/api/user/top";
     public static final String REGISTER_USER = "/api/user/register";
     public static final String ASSIGN_ROLES = "/api/user/{userId}";
     public static final String LOGIN_USER = "/api/user/login";
@@ -27,4 +28,5 @@ public final class Consts {
     public static final String TOPIC = "notification-topic";
     public static final String MESSAGE_TOPIC = "message-topic";
     public static final String NOTIFICATION_GROUP = "notifications_group";
+    public static final String SOLUTION_TOPIC = "solution-topic";
 }
