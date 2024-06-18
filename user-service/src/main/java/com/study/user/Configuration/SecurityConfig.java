@@ -64,6 +64,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin-panel").hasRole(ADMIN)
                         .requestMatchers(REGISTER_USER).anonymous()
                         .requestMatchers(LOGIN_USER).anonymous()
+                        .requestMatchers(GET_RATING).permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
@@ -132,6 +133,6 @@ public class SecurityConfig {
                 .requestMatchers("/v3/api-docs/**","/configuration/**",
                         "/swagger-ui/**", "/swagger-resources/**",
                         "/swagger-ui.html", "/api-docs/**")
-                .requestMatchers(LOGIN_USER, REGISTER_USER);
+                .requestMatchers(LOGIN_USER, REGISTER_USER, GET_RATING);
     }
 }
