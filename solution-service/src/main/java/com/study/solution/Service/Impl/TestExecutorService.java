@@ -205,6 +205,8 @@ public class TestExecutorService {
 
                 if (strResult.equals(test.getExpectedOutput())) {
                     testEntity.setStatus(Status.OK);
+                    log.info("testIndex: " + testIndex);
+                    log.info("testsSize: " + tests.size());
                     if (test.getIndex() == tests.size()) {
                         solution.setStatus(Status.OK);
                         solution.setTestIndex(test.getIndex());

@@ -95,6 +95,8 @@ public class SolutionServiceImpl implements SolutionService {
         this.maliciousWords = new HashSet<>();
 
         maliciousWords.add("shutdown");
+        maliciousWords.add("docker");
+        maliciousWords.add("docker.sock");
         maliciousWords.add("File");
         maliciousWords.add("exec");
         maliciousWords.add("Runtime.getRuntime");
