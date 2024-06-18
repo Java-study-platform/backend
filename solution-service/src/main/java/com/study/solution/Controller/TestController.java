@@ -14,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -46,7 +47,7 @@ public class TestController {
         ));
     }
 
-    @GetMapping(GET_TEST_INFO)
+    @GetMapping(GET_TEST_INFO + "/{testId}")
     @Operation(
             summary = "Получение подробной информации о тесте",
             description = "Позволяет ментору получить подробную информацию о тесте"
@@ -55,7 +56,7 @@ public class TestController {
     @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
     public ResponseEntity<DefaultResponse<MentorTestDto>> getInfoAboutTest(
             @AuthenticationPrincipal Jwt user,
-            @RequestParam(name = "testId") UUID testId
+            @PathVariable(name = "testId") UUID testId
     ){
         return ResponseEntity.ok(DefaultResponseBuilder.success(
                 "Информация о тесте успешно получена",

@@ -7,6 +7,7 @@ import com.study.common.util.DefaultResponseBuilder;
 import com.study.core.dto.Test.CreateTestModel;
 import com.study.core.dto.Test.EditTestModel;
 import com.study.core.service.TestService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,8 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static com.study.common.Constants.Consts.CHANGE_TEST_CASE;
-import static com.study.common.Constants.Consts.TEST_CASES;
+import static com.study.common.Constants.Consts.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,18 +31,31 @@ import static com.study.common.Constants.Consts.TEST_CASES;
 public class TestController {
     private final TestService testService;
 
-    @GetMapping(TEST_CASES + "/{taskId}")
+    @GetMapping(GET_TESTS_FOR_SERVICE + "/{taskId}")
     @Operation(
             summary = "Получение тестов для задачи",
             description = "Позволяет получить тесты, относящиеся к конкретной задаче"
     )
-    public List<TestCaseDto> getTaskTestCases(
+    @Hidden
+    public List<TestCaseDto> getTaskTestCasesForService(
             HttpServletRequest request,
             @AuthenticationPrincipal Jwt user,
             @PathVariable UUID taskId){
         String apiKey = request.getHeader("X-API-KEY");
 
         return testService.getTaskTestCases(apiKey, taskId);
+    }
+
+    @GetMapping(TEST_CASES + "/{taskId}")
+    @Operation(
+            summary = "Получение тестов для задачи",
+            description = "Позволяет администратору получить тесты, относящиеся к конкретной задаче"
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    public List<TestCaseDto> getTaskTestCases(
+            @AuthenticationPrincipal Jwt user,
+            @PathVariable UUID taskId){
+        return testService.getTaskTestCasesForAdmin(taskId);
     }
 
     @PostMapping(TEST_CASES + "/{taskId}")

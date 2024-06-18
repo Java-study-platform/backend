@@ -192,9 +192,14 @@ public class SolutionServiceImpl implements SolutionService {
     }
 
     @Override
-    public List<SolutionDto> getUserSolutions(Jwt user, UUID taskId){
+    public List<SolutionDto> getSolutions(Jwt user, UUID taskId){
         String username = user.getClaim(USERNAME_CLAIM);
 
+        return solutionListMapper.toModelList(solutionRepository.findAllByUsernameAndTaskId(username, taskId));
+    }
+
+    @Override
+    public List<SolutionDto> getUserSolutions(UUID taskId, String username){
         return solutionListMapper.toModelList(solutionRepository.findAllByUsernameAndTaskId(username, taskId));
     }
 
