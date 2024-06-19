@@ -7,10 +7,14 @@ import com.study.common.Exceptions.InternalServerException;
 import com.study.user.DTO.TokenResponse;
 import com.study.user.DTO.UserLoginModel;
 import com.study.user.DTO.UserRegistrationModel;
+import com.study.user.Entity.Achievement;
+import com.study.user.Entity.AchievementProgress;
 import com.study.user.Entity.User;
 import com.study.user.Exceptions.UserAlreadyExistsException;
 import com.study.user.Exceptions.UserNotFoundException;
 import com.study.user.Kafka.KafkaProducer;
+import com.study.user.Repository.AchievementProgressRepository;
+import com.study.user.Repository.AchievementRepository;
 import com.study.user.Repository.UserRepository;
 import com.study.user.Service.AdminService;
 import com.study.user.Service.AuthService;
@@ -38,6 +42,8 @@ public class AuthServiceImpl implements AuthService {
     private final AuthzClient authzClient;
     private final AdminService adminService;
     private final KafkaProducer kafkaProducer;
+    private final AchievementProgressRepository achievementProgressRepository;
+    private final AchievementRepository achievementRepository;
 
     @Override
     public void logoutUser(String username) {
@@ -100,7 +106,17 @@ public class AuthServiceImpl implements AuthService {
 
                 User entityUser = getUser(registeredUser);
 
-                userRepository.save(entityUser);
+                userRepository.saveAndFlush(entityUser);
+
+                List<Achievement> achievements = achievementRepository.findAll();
+
+                for (Achievement achievement : achievements){
+                    AchievementProgress achievementProgress = new AchievementProgress();
+                    achievementProgress.setUser(entityUser);
+                    achievementProgress.setAchievement(achievement);
+
+                    achievementProgressRepository.save(achievementProgress);
+                }
 
                 kafkaProducer.sendMessage(email,
                         "Регистрация",

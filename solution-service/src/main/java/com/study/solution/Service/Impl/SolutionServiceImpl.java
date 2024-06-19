@@ -4,6 +4,7 @@ import com.study.common.DTO.TestCaseDto;
 import com.study.common.Enum.Status;
 import com.study.solution.DTO.Solution.SendTestSolutionRequest;
 import com.study.solution.DTO.Solution.SolutionDto;
+import com.study.solution.DTO.Test.TestDto;
 import com.study.solution.Entity.Solution;
 import com.study.solution.Exceptions.Code.CodeCompilationException;
 import com.study.solution.Exceptions.Code.CodeRuntimeException;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,6 +53,7 @@ public class SolutionServiceImpl implements SolutionService {
     private final KafkaProducer kafkaProducer;
     private final TestExecutorService testExecutorService;
     private final JdbcTemplate jdbcTemplate;
+    private final SimpMessagingTemplate messagingTemplate;
 
 
     @Value("${services.api-key}")
@@ -63,7 +66,8 @@ public class SolutionServiceImpl implements SolutionService {
                                SolutionMapper solutionMapper,
                                KafkaProducer kafkaProducer,
                                TestExecutorService testExecutorService,
-                               JdbcTemplate jdbcTemplate) {
+                               JdbcTemplate jdbcTemplate,
+                               SimpMessagingTemplate messagingTemplate) {
         this.webClient = webClient;
         this.solutionRepository = solutionRepository;
         this.solutionListMapper = solutionListMapper;
@@ -71,6 +75,7 @@ public class SolutionServiceImpl implements SolutionService {
         this.kafkaProducer = kafkaProducer;
         this.testExecutorService = testExecutorService;
         this.jdbcTemplate = jdbcTemplate;
+        this.messagingTemplate = messagingTemplate;
         this.maliciousWords = new HashSet<>();
 
         maliciousWords.add("shutdown");
@@ -144,6 +149,7 @@ public class SolutionServiceImpl implements SolutionService {
                     }
                 }
 
+                sendWebSocketMessage(user, solutionMapper.toDTO(solution));
                 solutionRepository.save(solution);
 
 //            kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),
@@ -203,5 +209,14 @@ public class SolutionServiceImpl implements SolutionService {
                 .bodyToMono(new ParameterizedTypeReference<List<TestCaseDto>>() {
                 })
                 .doOnError(e -> log.error("Error retrieving test cases", e));
+    }
+
+    private void sendWebSocketMessage(Jwt user, SolutionDto solutionDto) {
+        try {
+            messagingTemplate.convertAndSendToUser(user.getClaim(USERNAME_CLAIM), String.format("/solution/%s", solutionDto.getId().toString()), solutionDto);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

@@ -45,6 +45,10 @@ public class User {
     @NotNull
     private String lastName;
 
+    @Column(name = "amount_of_solved_tasks")
+    @NotNull
+    private Long amountOfSolvedTasks = 0L;
+
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @ElementCollection
     private List<String> roles;

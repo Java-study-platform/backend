@@ -22,8 +22,6 @@ public class KafkaConsumer {
     @KafkaListener(topics = EXPERIENCE_TOPIC, groupId = EXPERIENCE_GROUP, containerFactory = "singleFactory")
     public void listenMessage(ExperienceDto experienceDto)
             throws MessagingException, UnsupportedEncodingException {
-
-
         userService.creditExperience(experienceDto);
     }
 }

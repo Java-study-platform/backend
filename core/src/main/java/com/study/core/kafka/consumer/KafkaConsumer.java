@@ -23,7 +23,6 @@ public class KafkaConsumer {
     public void listenMessage(SolutionPassedDto solutionPassedDto)
             throws MessagingException, UnsupportedEncodingException {
 
-
         taskService.handleSuccessfulSolution(solutionPassedDto);
     }
 }

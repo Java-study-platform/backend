@@ -39,7 +39,6 @@ import static com.study.common.Constants.Consts.USERNAME_CLAIM;
 @RequiredArgsConstructor
 @Slf4j
 public class TestExecutorService {
-    private final TestRepository testRepository;
     private final DockerClient dockerClient;
     private final TestMapper testMapper;
     private final SimpMessagingTemplate messagingTemplate;
@@ -284,7 +283,7 @@ public class TestExecutorService {
 
     private void sendWebSocketMessage(Jwt user, TestDto testDto, UUID solutionId) {
         try {
-            messagingTemplate.convertAndSendToUser(user.getClaim(USERNAME_CLAIM), String.format("/solution/%s", solutionId.toString()), testDto);
+            messagingTemplate.convertAndSendToUser(user.getClaim(USERNAME_CLAIM), String.format("/solution/%s/test", solutionId.toString()), testDto);
         } catch (Exception e) {
             log.error(e.getMessage());
             e.printStackTrace();
