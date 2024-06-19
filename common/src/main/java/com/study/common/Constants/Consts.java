@@ -34,4 +34,5 @@ public final class Consts {
     public static final String SOLUTION_TOPIC = "solution-topic";
     public static final String EXPERIENCE_TOPIC = "experience-topic";
     public static final String EXPERIENCE_GROUP = "experience_group";
+    public static final String GET_ACHIEVEMENTS = "/api/user/achievements";
 }
