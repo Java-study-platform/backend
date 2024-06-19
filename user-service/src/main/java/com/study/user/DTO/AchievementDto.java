@@ -15,4 +15,5 @@ public class AchievementDto {
     private String description;
     private Long amountToObtain;
     private Long progress;
+    private Boolean isObtained;
 }
