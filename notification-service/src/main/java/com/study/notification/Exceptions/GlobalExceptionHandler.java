@@ -101,7 +101,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ForbiddenException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public DefaultResponse<?> handleForbiddenException(ForbiddenException exception){
+    public DefaultResponse<?> handleForbiddenException(ForbiddenException exception) {
         return DefaultResponseBuilder.error(
                 exception.getMessage(),
                 HttpStatus.FORBIDDEN

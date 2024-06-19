@@ -41,7 +41,7 @@ public class GatewaySecurityConfig {
         http.csrf(ServerHttpSecurity.CsrfSpec::disable);
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
         http.authorizeExchange(exchange -> exchange
-                .anyExchange().permitAll())
+                        .anyExchange().permitAll())
                 .oauth2Login(Customizer.withDefaults())
                 .logout(logoutSpec -> logoutSpec.logoutSuccessHandler(oidcLogoutHandler()));
 
@@ -49,7 +49,7 @@ public class GatewaySecurityConfig {
     }
 
     @Bean
-    public ServerLogoutSuccessHandler oidcLogoutHandler(){
+    public ServerLogoutSuccessHandler oidcLogoutHandler() {
         OidcClientInitiatedServerLogoutSuccessHandler successHandler = new OidcClientInitiatedServerLogoutSuccessHandler(registrationRepository);
         successHandler.setPostLogoutRedirectUri("http://localhost:9090/");
         return successHandler;

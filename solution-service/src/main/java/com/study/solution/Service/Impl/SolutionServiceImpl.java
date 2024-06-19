@@ -1,25 +1,10 @@
 package com.study.solution.Service.Impl;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.async.ResultCallback;
-import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.api.command.ExecCreateCmdResponse;
-import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerjava.api.exception.DockerException;
-import com.github.dockerjava.api.model.Bind;
-import com.github.dockerjava.api.model.Frame;
-import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.api.model.Volume;
-import com.github.dockerjava.core.DockerClientBuilder;
-import com.github.dockerjava.core.command.ExecStartResultCallback;
 import com.study.common.DTO.TestCaseDto;
 import com.study.common.Enum.Status;
-import com.study.common.Exceptions.ForbiddenException;
 import com.study.solution.DTO.Solution.SendTestSolutionRequest;
 import com.study.solution.DTO.Solution.SolutionDto;
-import com.study.solution.DTO.Test.TestDto;
 import com.study.solution.Entity.Solution;
-import com.study.solution.Entity.Test;
 import com.study.solution.Exceptions.Code.CodeCompilationException;
 import com.study.solution.Exceptions.Code.CodeRuntimeException;
 import com.study.solution.Exceptions.Code.TimeLimitException;
@@ -28,9 +13,7 @@ import com.study.solution.Exceptions.NotFound.TaskNotFoundException;
 import com.study.solution.Kafka.KafkaProducer;
 import com.study.solution.Mapper.SolutionListMapper;
 import com.study.solution.Mapper.SolutionMapper;
-import com.study.solution.Mapper.TestMapper;
 import com.study.solution.Repository.SolutionRepository;
-import com.study.solution.Repository.TestRepository;
 import com.study.solution.Service.SolutionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,25 +22,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.stream.Collectors;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
-import static com.study.common.Constants.Consts.EMAIL_CLAIM;
 import static com.study.common.Constants.Consts.USERNAME_CLAIM;
 
 @Service
@@ -84,7 +63,7 @@ public class SolutionServiceImpl implements SolutionService {
                                SolutionMapper solutionMapper,
                                KafkaProducer kafkaProducer,
                                TestExecutorService testExecutorService,
-                               JdbcTemplate jdbcTemplate){
+                               JdbcTemplate jdbcTemplate) {
         this.webClient = webClient;
         this.solutionRepository = solutionRepository;
         this.solutionListMapper = solutionListMapper;
@@ -116,7 +95,7 @@ public class SolutionServiceImpl implements SolutionService {
     public SolutionDto testSolution(Jwt user, UUID taskId, SendTestSolutionRequest request) throws IOException {
         List<TestCaseDto> tests = getTestCases(taskId).block();
 
-        if (tests == null || tests.isEmpty()){
+        if (tests == null || tests.isEmpty()) {
             throw new TaskNotFoundException(taskId);
         }
 
@@ -142,8 +121,7 @@ public class SolutionServiceImpl implements SolutionService {
         if (containsMaliciousWords(code, maliciousWords)) {
             solution.setStatus(Status.MALICIOUS_CODE);
             solutionRepository.save(solution);
-        }
-        else {
+        } else {
             CompletableFuture.runAsync(() -> {
                 try {
                     testExecutorService.runCode(tests, code, timeLimit, solution, user);
@@ -160,8 +138,11 @@ public class SolutionServiceImpl implements SolutionService {
                     solution.setStatus(Status.COMPILATION_ERROR);
                 }
 
-                if (solution.getStatus() == Status.OK){
-                    kafkaProducer.sendMessage(solution.getTaskId(), solution.getUsername());
+                if (solution.getStatus() == Status.OK) {
+                    long count = solutionRepository.countByUsernameAndTaskIdAndStatus(solution.getUsername(), solution.getTaskId(), Status.OK);
+                    if (count == 0) {
+                        kafkaProducer.sendMessage(solution.getTaskId(), solution.getUsername());
+                    }
                 }
 
                 solutionRepository.save(solution);
@@ -192,26 +173,26 @@ public class SolutionServiceImpl implements SolutionService {
     }
 
     @Override
-    public List<SolutionDto> getSolutions(Jwt user, UUID taskId){
+    public List<SolutionDto> getSolutions(Jwt user, UUID taskId) {
         String username = user.getClaim(USERNAME_CLAIM);
 
         return solutionListMapper.toModelList(solutionRepository.findAllByUsernameAndTaskId(username, taskId));
     }
 
     @Override
-    public List<SolutionDto> getUserSolutions(UUID taskId, String username){
+    public List<SolutionDto> getUserSolutions(UUID taskId, String username) {
         return solutionListMapper.toModelList(solutionRepository.findAllByUsernameAndTaskId(username, taskId));
     }
 
     @Override
-    public SolutionDto getSolution(Jwt user, UUID solutionId){
+    public SolutionDto getSolution(Jwt user, UUID solutionId) {
         Solution solution = solutionRepository.findSolutionById(solutionId)
                 .orElseThrow(() -> new SolutionNotFoundException(solutionId));
 
         return solutionMapper.toDTO(solution);
     }
 
-    private Mono<List<TestCaseDto>> getTestCases(UUID taskId){
+    private Mono<List<TestCaseDto>> getTestCases(UUID taskId) {
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/api/learning/tests/" + taskId)
@@ -220,7 +201,8 @@ public class SolutionServiceImpl implements SolutionService {
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response -> Mono.error(new RuntimeException("Client error: " + response.statusCode())))
                 .onStatus(HttpStatusCode::is5xxServerError, response -> Mono.error(new RuntimeException("Server error: " + response.statusCode())))
-                .bodyToMono(new ParameterizedTypeReference<List<TestCaseDto>>() {})
+                .bodyToMono(new ParameterizedTypeReference<List<TestCaseDto>>() {
+                })
                 .doOnError(e -> log.error("Error retrieving test cases", e));
     }
 }

@@ -9,7 +9,7 @@ bootJar {
     mainClassName = 'com.study.notification.NotificationApplication'
 }
 
-jar{
+jar {
     enabled = false
 }
 
@@ -44,7 +44,7 @@ dependencies {
     implementation 'org.mapstruct:mapstruct:1.5.5.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
     //implementation 'org.springframework.cloud:spring-cloud-starter-zookeeper-config'
-   // implementation 'org.springframework.kafka:spring-kafka'
+    // implementation 'org.springframework.kafka:spring-kafka'
     //testImplementation 'org.springframework.kafka:spring-kafka-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

@@ -10,7 +10,10 @@ import java.util.UUID;
 
 public interface NotificationService {
     Integer getAmountOfUnreadNotifications(Jwt user);
+
     Page<NotificationForUserModel> getNotifications(Pageable pageable, Jwt user, String search);
+
     void readNotification(Jwt user, UUID notificationId);
+
     void readAllNotifications(Jwt user);
 }

@@ -12,8 +12,12 @@ import java.util.UUID;
 
 public interface TestService {
     List<TestCaseDto> getTaskTestCases(String apiKey, UUID taskId);
+
     List<TestCaseDto> getTaskTestCasesForAdmin(UUID taskId);
+
     TestCaseDto createTestCase(Jwt user, UUID taskId, CreateTestModel createTestModel) throws TaskNotFoundException;
+
     void deleteTestCase(Jwt user, UUID testId) throws TestNotFoundException;
+
     TestCaseDto editTestCase(Jwt user, UUID testId, EditTestModel editTestModel) throws TestNotFoundException;
 }

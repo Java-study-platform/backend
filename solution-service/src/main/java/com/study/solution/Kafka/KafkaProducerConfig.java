@@ -1,6 +1,5 @@
 package com.study.solution.Kafka;
 
-import com.study.common.DTO.NotificationDTO;
 import com.study.common.DTO.SolutionPassedDto;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -50,7 +49,7 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public NewTopic newTopic(){
+    public NewTopic newTopic() {
         return new NewTopic(
                 SOLUTION_TOPIC,
                 1,

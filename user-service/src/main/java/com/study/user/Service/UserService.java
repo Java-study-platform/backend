@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface UserService {
     UserDto getUserProfile(String username);
+
     List<UserTopDto> getTop();
 }

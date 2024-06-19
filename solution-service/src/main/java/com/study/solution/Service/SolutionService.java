@@ -9,8 +9,11 @@ import java.util.List;
 import java.util.UUID;
 
 public interface SolutionService {
-    SolutionDto testSolution(Jwt user, UUID taskId, SendTestSolutionRequest code)  throws IOException;
+    SolutionDto testSolution(Jwt user, UUID taskId, SendTestSolutionRequest code) throws IOException;
+
     List<SolutionDto> getSolutions(Jwt user, UUID taskId);
+
     List<SolutionDto> getUserSolutions(UUID taskId, String username);
+
     SolutionDto getSolution(Jwt user, UUID solutionId);
 }

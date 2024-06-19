@@ -81,7 +81,7 @@ public class TopicController {
     @GetMapping(TOPICS)
     @Operation(summary = "Получить список тем с пагинацией и запросом поиска")
     public ResponseEntity<DefaultResponse<Page<TopicDTO>>> getTopics(@RequestParam(required = false) String queryText,
-                                                                     @ParameterObject @PageableDefault(sort="name", direction = Sort.Direction.ASC) Pageable pageable) {
+                                                                     @ParameterObject @PageableDefault(sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(DefaultResponseBuilder.success(
                 "Список тем",
                 topicService.getTopics(queryText, pageable).map(topicMapper::toDTO)

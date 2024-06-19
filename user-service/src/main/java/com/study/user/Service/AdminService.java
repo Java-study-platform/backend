@@ -7,5 +7,6 @@ import java.util.UUID;
 
 public interface AdminService {
     void assignRoles(UUID id, AssignUserRoleModel assignUserRoleModel);
+
     UsersResource getUsersResourse();
 }

@@ -9,7 +9,7 @@ bootJar {
     mainClassName = 'com.study.solution.SolutionApplication'
 }
 
-jar{
+jar {
     enabled = false
 }
 

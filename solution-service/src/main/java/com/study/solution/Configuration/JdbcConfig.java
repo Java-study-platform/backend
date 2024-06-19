@@ -11,7 +11,7 @@ import javax.sql.DataSource;
 @Configuration
 public class JdbcConfig {
     @Value("${spring.datasource.url}")
-    private String  dataUrl;
+    private String dataUrl;
 
     @Value("${spring.datasource.username}")
     private String user;

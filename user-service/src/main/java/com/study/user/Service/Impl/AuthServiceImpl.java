@@ -40,7 +40,7 @@ public class AuthServiceImpl implements AuthService {
     private final KafkaProducer kafkaProducer;
 
     @Override
-    public void logoutUser(String username){
+    public void logoutUser(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Пользователь с данным никнеймом не найден"));
 
@@ -81,7 +81,6 @@ public class AuthServiceImpl implements AuthService {
         user.setLastName(userRegistrationModel.getLastName());
 
 
-
         CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
         credentialRepresentation.setValue(userRegistrationModel.getPassword());
         credentialRepresentation.setTemporary(false);
@@ -94,8 +93,8 @@ public class AuthServiceImpl implements AuthService {
 
         UsersResource usersResource = adminService.getUsersResourse();
 
-        try(jakarta.ws.rs.core.Response resp = usersResource.create(user)){
-            if (Objects.equals(201, resp.getStatus())){
+        try (jakarta.ws.rs.core.Response resp = usersResource.create(user)) {
+            if (Objects.equals(201, resp.getStatus())) {
                 String userId = resp.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
                 UserRepresentation registeredUser = usersResource.get(userId).toRepresentation();
 
@@ -107,8 +106,7 @@ public class AuthServiceImpl implements AuthService {
                         "Регистрация",
                         "Поздравляем, вы успешно зарегистрировали",
                         false);
-            }
-            else if (Objects.equals(409, resp.getStatus())){
+            } else if (Objects.equals(409, resp.getStatus())) {
                 String errorMessage = "Пользователь с указанными данными уже существует";
                 if (resp.hasEntity()) {
                     try {
@@ -123,8 +121,7 @@ public class AuthServiceImpl implements AuthService {
                     }
                 }
                 throw new UserAlreadyExistsException(errorMessage);
-            }
-            else{
+            } else {
                 log.info(String.valueOf(resp.getStatus()));
                 log.info(resp.readEntity(String.class));
                 throw new RuntimeException();

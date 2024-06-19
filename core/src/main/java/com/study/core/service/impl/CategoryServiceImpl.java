@@ -66,8 +66,7 @@ public class CategoryServiceImpl implements CategoryService {
     public Page<Category> getCategories(String queryText, Pageable pageable) {
         if (queryText == null || queryText.isBlank()) {
             return categoryRepository.findAll(pageable);
-        }
-        else {
+        } else {
             return categoryRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(queryText, queryText, pageable);
         }
     }

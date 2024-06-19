@@ -20,13 +20,13 @@ public class DefaultResponseBuilder {
 
     public static <T> DefaultResponse<T> error(String message, HttpStatus status, Map<String, List<String>> errors) {
         return DefaultResponse.<T>builder()
-               .status(status)
-               .statusCode(status.value())
-               .message(message)
-               .timestamp(new Date())
-               .data(null)
-               .errors(errors)
-               .build();
+                .status(status)
+                .statusCode(status.value())
+                .message(message)
+                .timestamp(new Date())
+                .data(null)
+                .errors(errors)
+                .build();
     }
 
     public static <T> DefaultResponse<T> error(String message, HttpStatus status) {

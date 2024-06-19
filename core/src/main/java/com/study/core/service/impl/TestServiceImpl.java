@@ -40,8 +40,7 @@ public class TestServiceImpl implements TestService {
                     .orElseThrow(() -> new TaskNotFoundException(taskId));
 
             return testCaseListMapper.toModelList(testRepository.findTestCasesByTask(task));
-        }
-        else{
+        } else {
             throw new ForbiddenException();
         }
     }
@@ -81,7 +80,7 @@ public class TestServiceImpl implements TestService {
 
         testRepository.delete(testCase);
 
-        for (TestCase test : testCaseList){
+        for (TestCase test : testCaseList) {
             test.setIndex(test.getIndex() - 1);
         }
     }
@@ -90,7 +89,7 @@ public class TestServiceImpl implements TestService {
     @Transactional
     public TestCaseDto editTestCase(Jwt user, UUID testId, EditTestModel editTestModel) throws TestNotFoundException {
         TestCase testCase = testRepository.findById(testId)
-                        .orElseThrow(() -> new TestNotFoundException(testId));
+                .orElseThrow(() -> new TestNotFoundException(testId));
 
         testCase.setExpectedInput(editTestModel.getExpectedInput());
         testCase.setExpectedOutput(editTestModel.getExpectedOutput());

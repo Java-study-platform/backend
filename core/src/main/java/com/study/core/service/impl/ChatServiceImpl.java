@@ -65,7 +65,7 @@ public class ChatServiceImpl implements ChatService {
 
         return chat.getMessages().stream().map(message -> {
             Reaction reaction = reactionRepository.findByAuthorLoginAndMessage(user.getClaim("preferred_username"), message)
-                   .orElse(new Reaction());
+                    .orElse(new Reaction());
 
             return messageMapper.toDTO(message, reaction.getReactions());
         }).toList();
@@ -84,7 +84,7 @@ public class ChatServiceImpl implements ChatService {
         }
 
         Reaction reaction = reactionRepository.findByAuthorLoginAndMessage(authorLogin, message)
-               .orElse(new Reaction());
+                .orElse(new Reaction());
 
         reaction.setMessage(message);
         reaction.setAuthorLogin(authorLogin);

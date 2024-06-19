@@ -1,6 +1,5 @@
 package com.study.solution.Service.Impl;
 
-import com.study.common.Exceptions.ForbiddenException;
 import com.study.solution.DTO.Test.MentorTestDto;
 import com.study.solution.DTO.Test.TestDto;
 import com.study.solution.Entity.Solution;
@@ -18,8 +17,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
-import static com.study.common.Constants.Consts.USERNAME_CLAIM;
-
 @Service
 @RequiredArgsConstructor
 public class TestServiceImpl implements TestService {
@@ -29,7 +26,7 @@ public class TestServiceImpl implements TestService {
     private final TestMapper testMapper;
 
     @Override
-    public List<TestDto> getTests(Jwt user, UUID solutionId){
+    public List<TestDto> getTests(Jwt user, UUID solutionId) {
         Solution solution = solutionRepository.findSolutionById(solutionId)
                 .orElseThrow(() -> new SolutionNotFoundException(solutionId));
 
@@ -38,7 +35,7 @@ public class TestServiceImpl implements TestService {
     }
 
     @Override
-    public MentorTestDto getInfoAboutTest(UUID testId){
+    public MentorTestDto getInfoAboutTest(UUID testId) {
         return testMapper.toMentorDTO(testRepository.findTestById(testId)
                 .orElseThrow(() -> new TestNotFoundException(testId)));
     }

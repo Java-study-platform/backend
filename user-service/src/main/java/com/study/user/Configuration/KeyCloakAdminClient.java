@@ -41,7 +41,7 @@ public class KeyCloakAdminClient {
                 serverUrl,
                 realm,
                 clientId,
-                Map.of("secret", clientSecret,"provider", "secret"),
+                Map.of("secret", clientSecret, "provider", "secret"),
                 null
         ));
     }

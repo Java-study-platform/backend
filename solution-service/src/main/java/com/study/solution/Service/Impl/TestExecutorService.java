@@ -15,7 +15,6 @@ import com.study.solution.Exceptions.Code.CodeCompilationException;
 import com.study.solution.Exceptions.Code.CodeRuntimeException;
 import com.study.solution.Exceptions.Code.TimeLimitException;
 import com.study.solution.Mapper.TestMapper;
-import com.study.solution.Repository.SolutionRepository;
 import com.study.solution.Repository.TestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +23,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -33,8 +30,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Stream;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import static com.study.common.Constants.Consts.USERNAME_CLAIM;
 
@@ -98,8 +95,7 @@ public class TestExecutorService {
             log.error("Ошибка ввода-вывода во время компиляции", e);
             saveTestOnCompilationError(tests, solution, null, Status.COMPILATION_ERROR);
             throw new CodeCompilationException("Ошибка ввода-вывода во время компиляции");
-        }
-            catch (InterruptedException e){
+        } catch (InterruptedException e) {
             saveTestOnCompilationError(tests, solution, null, Status.COMPILATION_ERROR);
 
             throw new CodeCompilationException(e.getMessage());
@@ -168,7 +164,7 @@ public class TestExecutorService {
                             }
                         }).awaitCompletion(timeLimit, TimeUnit.MILLISECONDS);
 
-                if (!timeFlag){
+                if (!timeFlag) {
                     log.info("Время выполнения превышено");
                     dockerClient.stopContainerCmd(containerId).exec();
                     dockerClient.removeContainerCmd(containerId).exec();
@@ -230,8 +226,7 @@ public class TestExecutorService {
             paths.filter(Files::isRegularFile)
                     .map(Path::toFile)
                     .forEach(File::delete);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -242,8 +237,8 @@ public class TestExecutorService {
         }
     }
 
-    private void saveTestOnCompilationError(List<TestCaseDto> tests, Solution solution, StringBuilder errorBuilder, Status status){
-         TestCaseDto testCase = tests.get(0);
+    private void saveTestOnCompilationError(List<TestCaseDto> tests, Solution solution, StringBuilder errorBuilder, Status status) {
+        TestCaseDto testCase = tests.get(0);
 
         Test testEntity = new Test();
         testEntity.setId(UUID.randomUUID());
@@ -251,11 +246,9 @@ public class TestExecutorService {
         testEntity.setTestInput(testCase.getExpectedInput());
         if (status == Status.TIME_LIMIT) {
             testEntity.setTestOutput("Time limit");
-        }
-        else if (errorBuilder == null || errorBuilder.isEmpty()){
+        } else if (errorBuilder == null || errorBuilder.isEmpty()) {
             testEntity.setTestOutput("Ошибка компиляции");
-        }
-        else {
+        } else {
             testEntity.setTestOutput(errorBuilder.toString());
         }
 
@@ -266,7 +259,7 @@ public class TestExecutorService {
         saveTest(testEntity, solution);
     }
 
-    private void saveTestOnTimeLimit(Test testEntity, Solution solution){
+    private void saveTestOnTimeLimit(Test testEntity, Solution solution) {
         testEntity.setTestOutput("Time limit");
         testEntity.setStatus(Status.TIME_LIMIT);
         log.info("Попытка сохранить тест");
@@ -274,7 +267,7 @@ public class TestExecutorService {
         saveTest(testEntity, solution);
     }
 
-    private void saveTest(Test testEntity, Solution solution){
+    private void saveTest(Test testEntity, Solution solution) {
         try {
             int rowsAffected = jdbcTemplate.update(
                     "INSERT INTO tests (id, test_index, test_input, test_output, test_time, status, solution_id) " +

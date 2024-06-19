@@ -53,7 +53,7 @@ public class KafkaConsumerConfiguration {
 
     @Bean
     public KafkaListenerContainerFactory<?> singleFactory() {
-        ConcurrentKafkaListenerContainerFactory<String , NotificationDTO> factory =
+        ConcurrentKafkaListenerContainerFactory<String, NotificationDTO> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.setBatchListener(false);
@@ -76,7 +76,7 @@ public class KafkaConsumerConfiguration {
     }
 
     @Bean
-    public NewTopic newTopic(){
+    public NewTopic newTopic() {
         return new NewTopic(
                 TOPIC,
                 1,
@@ -85,7 +85,7 @@ public class KafkaConsumerConfiguration {
     }
 
     @Bean
-    public NewTopic newMessageTopic(){
+    public NewTopic newMessageTopic() {
         return new NewTopic(
                 MESSAGE_TOPIC,
                 1,

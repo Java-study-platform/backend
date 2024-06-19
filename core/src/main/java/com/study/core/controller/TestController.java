@@ -40,7 +40,7 @@ public class TestController {
     public List<TestCaseDto> getTaskTestCasesForService(
             HttpServletRequest request,
             @AuthenticationPrincipal Jwt user,
-            @PathVariable UUID taskId){
+            @PathVariable UUID taskId) {
         String apiKey = request.getHeader("X-API-KEY");
 
         return testService.getTaskTestCases(apiKey, taskId);
@@ -54,7 +54,7 @@ public class TestController {
     @SecurityRequirement(name = "bearerAuth")
     public List<TestCaseDto> getTaskTestCases(
             @AuthenticationPrincipal Jwt user,
-            @PathVariable UUID taskId){
+            @PathVariable UUID taskId) {
         return testService.getTaskTestCasesForAdmin(taskId);
     }
 
@@ -69,7 +69,7 @@ public class TestController {
             @AuthenticationPrincipal Jwt user,
             @PathVariable UUID taskId,
             @Validated @RequestBody CreateTestModel createTestModel
-            ) {
+    ) {
         return ResponseEntity.ok(DefaultResponseBuilder.success(
                 "Тест кейс успешно добавлен",
                 testService.createTestCase(user, taskId, createTestModel)
@@ -107,7 +107,7 @@ public class TestController {
             @AuthenticationPrincipal Jwt user,
             @RequestParam(name = "testId") UUID testId,
             @RequestBody EditTestModel editTestModel
-            ){
+    ) {
         return ResponseEntity.ok(DefaultResponseBuilder.success(
                 "Тест кейс успешно изменен",
                 testService.editTestCase(user, testId, editTestModel)

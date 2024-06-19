@@ -40,7 +40,7 @@ public class TestController {
     public ResponseEntity<DefaultResponse<List<TestDto>>> getTests(
             @AuthenticationPrincipal Jwt user,
             @RequestParam(name = "solutionId") UUID solutionId
-            ){
+    ) {
         return ResponseEntity.ok(DefaultResponseBuilder.success(
                 "Информация о тестах успешно получена",
                 testService.getTests(user, solutionId)
@@ -57,7 +57,7 @@ public class TestController {
     public ResponseEntity<DefaultResponse<MentorTestDto>> getInfoAboutTest(
             @AuthenticationPrincipal Jwt user,
             @PathVariable(name = "testId") UUID testId
-    ){
+    ) {
         return ResponseEntity.ok(DefaultResponseBuilder.success(
                 "Информация о тесте успешно получена",
                 testService.getInfoAboutTest(testId)

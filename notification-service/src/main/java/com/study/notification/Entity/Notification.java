@@ -13,7 +13,7 @@ import java.util.UUID;
 @Setter
 @Getter
 @Entity
-@Table(name="notifications")
+@Table(name = "notifications")
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "Сущность уведомлений")

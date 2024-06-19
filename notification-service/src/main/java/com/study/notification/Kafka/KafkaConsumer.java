@@ -35,7 +35,7 @@ public class KafkaConsumer {
 
         log.info("Получено сообщение с title: " + notification.getTitle());
 
-        if (notificationDTO.getNeedInHistory()){
+        if (notificationDTO.getNeedInHistory()) {
             notificationRepository.save(notification);
         }
 

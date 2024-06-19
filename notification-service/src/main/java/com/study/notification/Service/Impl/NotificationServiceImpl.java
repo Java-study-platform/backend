@@ -25,13 +25,13 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationListMapper notificationListMapper;
 
-    public Integer getAmountOfUnreadNotifications(Jwt user){
+    public Integer getAmountOfUnreadNotifications(Jwt user) {
         String email = user.getClaim(EMAIL_CLAIM);
 
         return notificationRepository.countByIsReadFalse(email);
     }
 
-    public Page<NotificationForUserModel> getNotifications(Pageable pageable, Jwt user, String search){
+    public Page<NotificationForUserModel> getNotifications(Pageable pageable, Jwt user, String search) {
         String email = user.getClaim(EMAIL_CLAIM);
         Page<Notification> page = notificationRepository.findAllByUserEmailOrderByIsReadAsc(pageable, email);
 

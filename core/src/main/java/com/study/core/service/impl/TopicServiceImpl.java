@@ -78,8 +78,7 @@ public class TopicServiceImpl implements TopicService {
     public Page<Topic> getTopics(String queryText, Pageable pageable) {
         if (queryText == null || queryText.isBlank()) {
             return topicRepository.findAll(pageable);
-        }
-        else {
+        } else {
             return topicRepository.findByNameContainingIgnoreCase(queryText, pageable);
         }
     }

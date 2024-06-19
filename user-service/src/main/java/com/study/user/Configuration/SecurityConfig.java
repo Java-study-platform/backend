@@ -75,7 +75,8 @@ public class SecurityConfig {
                             response.setContentType("application/json;charset=UTF-8");
                             response.setCharacterEncoding("UTF-8");
                             response.getWriter().write(jsonResponse);
-                        })));;
+                        })));
+        ;
 
         http
                 .oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(Customizer.withDefaults()));
@@ -128,9 +129,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer(){
+    public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring().requestMatchers(HttpMethod.OPTIONS, "/**")
-                .requestMatchers("/v3/api-docs/**","/configuration/**",
+                .requestMatchers("/v3/api-docs/**", "/configuration/**",
                         "/swagger-ui/**", "/swagger-resources/**",
                         "/swagger-ui.html", "/api-docs/**")
                 .requestMatchers(LOGIN_USER, REGISTER_USER, GET_RATING);

@@ -22,7 +22,7 @@ import java.util.UUID;
 
 import static com.study.common.Constants.Consts.GET_USER_SOLUTIONS;
 import static com.study.common.Constants.Consts.SOLUTIONS;
-import static com.study.common.Constants.Consts.USERNAME_CLAIM;
+
 @Controller
 @RequiredArgsConstructor
 @Tag(name = "Решения", description = "Отвечает за обработку решений")
@@ -53,7 +53,7 @@ public class SolutionController {
     public ResponseEntity<DefaultResponse<List<SolutionDto>>> getSolutions(
             @AuthenticationPrincipal Jwt user,
             @PathVariable(name = "taskId") UUID taskId
-    ){
+    ) {
         return ResponseEntity.ok(DefaultResponseBuilder.success(
                 "Решения успешно получены",
                 solutionService.getSolutions(user, taskId)
@@ -70,7 +70,7 @@ public class SolutionController {
             @AuthenticationPrincipal Jwt user,
             @PathVariable(name = "taskId") UUID taskId,
             @RequestParam(name = "username") String username
-    ){
+    ) {
         return ResponseEntity.ok(DefaultResponseBuilder.success(
                 "Решения успешно получены",
                 solutionService.getUserSolutions(taskId, username)

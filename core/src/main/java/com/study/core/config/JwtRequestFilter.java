@@ -88,8 +88,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
         } catch (JWTVerificationException e) {
             log.info(e.getMessage());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new InternalServerException();
         }
 

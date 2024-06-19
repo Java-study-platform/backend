@@ -11,6 +11,8 @@ import java.util.UUID;
 @Repository
 public interface TestRepository extends JpaRepository<TestCase, UUID> {
     List<TestCase> findTestCasesByTask(Task task);
+
     Long countAllByTask(Task task);
+
     List<TestCase> findTestCaseByIndexGreaterThan(Long index);
 }

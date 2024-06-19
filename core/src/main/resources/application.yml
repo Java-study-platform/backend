@@ -32,7 +32,14 @@ spring:
           keycloak:
             issuer-uri: http://auth:8080/realms/Study-platform
             user-name-attribute: preferred_username
-
+  kafka:
+    bootstrap-servers: broker:29092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
 
       resourceserver:
         jwt:

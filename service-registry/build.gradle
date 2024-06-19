@@ -9,7 +9,7 @@ bootJar {
     mainClassName = 'com.study.registry.RegistryApplication'
 }
 
-jar{
+jar {
     enabled = false
 }
 

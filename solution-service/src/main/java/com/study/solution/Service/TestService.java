@@ -9,5 +9,6 @@ import java.util.UUID;
 
 public interface TestService {
     List<TestDto> getTests(Jwt user, UUID solutionId);
+
     MentorTestDto getInfoAboutTest(UUID testId);
 }

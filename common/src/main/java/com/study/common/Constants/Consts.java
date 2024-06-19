@@ -30,5 +30,8 @@ public final class Consts {
     public static final String TOPIC = "notification-topic";
     public static final String MESSAGE_TOPIC = "message-topic";
     public static final String NOTIFICATION_GROUP = "notifications_group";
+    public static final String SOLUTION_GROUP = "solutions_group";
     public static final String SOLUTION_TOPIC = "solution-topic";
+    public static final String EXPERIENCE_TOPIC = "experience-topic";
+    public static final String EXPERIENCE_GROUP = "experience_group";
 }

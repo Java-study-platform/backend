@@ -19,7 +19,7 @@ public class KafkaProducer {
             String email,
             String title,
             String content,
-            Boolean needInHistory){
+            Boolean needInHistory) {
 
 
         NotificationDTO notificationDTO = NotificationDTO.builder()

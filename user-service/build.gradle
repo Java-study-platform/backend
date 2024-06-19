@@ -9,7 +9,7 @@ bootJar {
     mainClassName = 'com.study.user.UserApplication'
 }
 
-jar{
+jar {
     enabled = false
 }
 

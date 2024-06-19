@@ -1,10 +1,7 @@
 package com.study.solution.Configuration;
 
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.PingCmd;
-import com.github.dockerjava.api.command.VersionCmd;
 import com.github.dockerjava.api.exception.DockerException;
-import com.github.dockerjava.api.model.Version;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;

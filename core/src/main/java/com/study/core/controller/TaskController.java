@@ -41,8 +41,8 @@ public class TaskController {
     @Operation(summary = "Создать задачу в конкретной теме")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DefaultResponse<TaskDTO>> createTask(@AuthenticationPrincipal Jwt user,
-                                                                @Validated @RequestBody CreateTaskModel createTaskModel,
-                                                                @PathVariable UUID topicId) {
+                                                               @Validated @RequestBody CreateTaskModel createTaskModel,
+                                                               @PathVariable UUID topicId) {
         Task createdTask = taskService.createTask(user, topicId, createTaskModel);
 
         return ResponseEntity.ok(DefaultResponseBuilder.success(
@@ -55,8 +55,8 @@ public class TaskController {
     @Operation(summary = "Редактировать задачу")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DefaultResponse<TaskDTO>> editTask(@AuthenticationPrincipal Jwt user,
-                                                               @Validated @RequestBody EditTaskModel editTaskModel,
-                                                               @PathVariable UUID id) {
+                                                             @Validated @RequestBody EditTaskModel editTaskModel,
+                                                             @PathVariable UUID id) {
         Task editedTask = taskService.editTask(editTaskModel, id);
 
         return ResponseEntity.ok(DefaultResponseBuilder.success(
@@ -69,7 +69,7 @@ public class TaskController {
     @Operation(summary = "Удалить задачу")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DefaultResponse<?>> deleteTask(@AuthenticationPrincipal Jwt user,
-                                                          @PathVariable UUID id) {
+                                                         @PathVariable UUID id) {
         taskService.deleteTask(id);
 
         return ResponseEntity.ok(DefaultResponseBuilder.success(
@@ -82,7 +82,7 @@ public class TaskController {
     @GetMapping(TASKS)
     @Operation(summary = "Получить список задач с фильтром и пагинацией")
     public ResponseEntity<DefaultResponse<Page<TaskDTO>>> getTasks(TaskFilter taskFilter,
-                                                                   @ParameterObject @PageableDefault(sort="name", direction = Sort.Direction.ASC) Pageable pageable) {
+                                                                   @ParameterObject @PageableDefault(sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(DefaultResponseBuilder.success(
                 "Список задач",
                 taskService.getTasks(taskFilter, pageable).map(taskMapper::toDTO)

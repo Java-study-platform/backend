@@ -140,7 +140,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ApiResponse(responseCode = "500", description = "Что-то пошло не так")
-    public DefaultResponse<?> handleException(Exception e){
+    public DefaultResponse<?> handleException(Exception e) {
         log.error(e.getMessage(), e);
 
         return DefaultResponseBuilder.error(

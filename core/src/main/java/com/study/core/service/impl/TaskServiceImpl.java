@@ -1,12 +1,14 @@
 package com.study.core.service.impl;
 
 import com.querydsl.core.types.Predicate;
+import com.study.common.DTO.SolutionPassedDto;
 import com.study.core.dto.Task.CreateTaskModel;
 import com.study.core.dto.Task.EditTaskModel;
 import com.study.core.dto.Task.TaskFilter;
 import com.study.core.exceptions.Task.TaskAlreadyExistsException;
 import com.study.core.exceptions.Task.TaskNotFoundException;
 import com.study.core.exceptions.Topic.TopicNotFoundException;
+import com.study.core.kafka.producer.KafkaProducer;
 import com.study.core.models.QTask;
 import com.study.core.models.Task;
 import com.study.core.models.Topic;
@@ -29,6 +31,7 @@ public class TaskServiceImpl implements TaskService {
 
     private final TopicRepository topicRepository;
     private final TaskRepository taskRepository;
+    private final KafkaProducer kafkaProducer;
 
     @Override
     @Transactional
@@ -99,6 +102,14 @@ public class TaskServiceImpl implements TaskService {
     public Task getTask(UUID id) {
         return taskRepository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException(id));
+    }
+
+    public void handleSuccessfulSolution(SolutionPassedDto solutionPassedDto) {
+        UUID taskId = solutionPassedDto.getTaskId();
+        Task task = taskRepository.findTaskById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException(taskId));
+
+        kafkaProducer.sendMessage(task.getExperienceAmount(), solutionPassedDto.getUsername());
     }
 }
 

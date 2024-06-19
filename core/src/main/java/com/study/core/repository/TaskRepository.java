@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, UUID>,
-                                        QuerydslPredicateExecutor<Task> {
+        QuerydslPredicateExecutor<Task> {
     boolean existsByNameAndIdNot(String name, UUID id);
 
     boolean existsByName(String name);

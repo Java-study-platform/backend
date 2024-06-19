@@ -8,5 +8,6 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface TestMapper {
     TestDto toDTO(Test test);
+
     MentorTestDto toMentorDTO(Test test);
 }

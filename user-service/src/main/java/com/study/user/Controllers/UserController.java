@@ -16,9 +16,9 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.study.common.Constants.Consts.*;
-
 import java.util.List;
+
+import static com.study.common.Constants.Consts.*;
 
 @Slf4j
 @RestController
@@ -35,7 +35,7 @@ public class UserController {
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<DefaultResponse<UserDto>> getProfile(
             @AuthenticationPrincipal Jwt user
-            ) {
+    ) {
 
         return ResponseEntity.ok(DefaultResponseBuilder.success(
                 "Профиль пользователя получен",

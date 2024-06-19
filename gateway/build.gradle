@@ -9,7 +9,7 @@ bootJar {
     mainClassName = 'com.study.gateway.GatewayApplication'
 }
 
-jar{
+jar {
     enabled = false
 }
 

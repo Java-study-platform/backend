@@ -34,7 +34,7 @@ public class WebSocketChatController {
             @Validated @Payload SendMessageModel sendMessageModel,
             @DestinationVariable UUID id,
             @AuthenticationPrincipal Jwt user
-            ) {
+    ) {
         Message sendedMessage = chatService.sendMessage(sendMessageModel, id, user);
 
         return messageMapper.toDTO(sendedMessage);
@@ -46,7 +46,7 @@ public class WebSocketChatController {
             @Validated @Payload ReactMessageModel reactMessageModel,
             @DestinationVariable UUID id,
             @AuthenticationPrincipal Jwt user
-            ) {
+    ) {
 
 
         return chatService.reactMessage(reactMessageModel, id, user);

@@ -30,7 +30,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.study.common.Constants.Consts.*;
+import static com.study.common.Constants.Consts.GET_TESTS_FOR_SERVICE;
+import static com.study.common.Constants.Consts.TEST_CASES;
 
 
 @Configuration
@@ -73,9 +74,9 @@ public class CoreSecurityConfig {
 
         return http
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class).build();
-                //.addFilterBefore(createPolicyEnforcerFilter(), BearerTokenAuthenticationFilter.class).build();
-                // Оказалось, что лучше делать авторизацию (проверку ролей) через Oauth2, потому что на запрос к KeyCloak
-                // уходит ~1,5-2 секунды
+        //.addFilterBefore(createPolicyEnforcerFilter(), BearerTokenAuthenticationFilter.class).build();
+        // Оказалось, что лучше делать авторизацию (проверку ролей) через Oauth2, потому что на запрос к KeyCloak
+        // уходит ~1,5-2 секунды
     }
 
 
@@ -117,9 +118,9 @@ public class CoreSecurityConfig {
     }
 
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer(){
+    public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring().requestMatchers(HttpMethod.OPTIONS, "/**")
-                .requestMatchers("/v3/api-docs/**","/configuration/**",
+                .requestMatchers("/v3/api-docs/**", "/configuration/**",
                         "/swagger-ui/**", "/swagger-resources/**",
                         "/swagger-ui.html", "/api-docs/**")
                 .requestMatchers(HttpMethod.GET, TEST_CASES + "/**");

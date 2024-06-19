@@ -41,15 +41,14 @@ public class AdminServiceImpl implements AdminService {
         List<RoleRepresentation> keycloakRoles = new ArrayList<>();
         assignUserRoleModel.getRoles().forEach(role -> {
             try {
-                keycloakRoles.add(keycloak.realm(realm).roles().get("ROLE_"+role.toUpperCase()).toRepresentation());
-            }
-            catch (Exception e) {
+                keycloakRoles.add(keycloak.realm(realm).roles().get("ROLE_" + role.toUpperCase()).toRepresentation());
+            } catch (Exception e) {
                 throw new RoleNotFoundException(role);
             }
         });
 
         getUsersResourse().get(user.getKeyCloakId()).roles().realmLevel().remove(
-                user.getRoles().stream().map(role -> keycloak.realm(realm).roles().get("ROLE_"+role).toRepresentation()).collect(Collectors.toList())
+                user.getRoles().stream().map(role -> keycloak.realm(realm).roles().get("ROLE_" + role).toRepresentation()).collect(Collectors.toList())
         );
         getUsersResourse().get(user.getKeyCloakId()).roles().realmLevel().add(keycloakRoles);
 
@@ -58,7 +57,7 @@ public class AdminServiceImpl implements AdminService {
         userRepository.save(user);
     }
 
-    public UsersResource getUsersResourse(){
+    public UsersResource getUsersResourse() {
         RealmResource resource = keycloak.realm(realm);
         return resource.users();
     }

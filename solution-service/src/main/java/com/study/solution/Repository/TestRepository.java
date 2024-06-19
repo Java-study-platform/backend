@@ -12,5 +12,6 @@ import java.util.UUID;
 @Repository
 public interface TestRepository extends JpaRepository<Test, UUID> {
     List<Test> findAllBySolution(Solution solution);
+
     Optional<Test> findTestById(UUID testId);
 }

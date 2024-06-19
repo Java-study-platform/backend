@@ -41,7 +41,7 @@ public class NotificationController {
             @AuthenticationPrincipal Jwt user,
             @ParameterObject @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(name = "search", required = false) String search
-            ){
+    ) {
         return ResponseEntity.ok(DefaultResponseBuilder.success(
                 "Уведомления успешно получены",
                 notificationService.getNotifications(pageable, user, search)
@@ -54,7 +54,7 @@ public class NotificationController {
             description = "Позволяет получить количество уведомлений, которые пользователь не прочитал"
     )
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<DefaultResponse<Integer>> getAmountOfUnreadNotifications(@AuthenticationPrincipal Jwt user){
+    public ResponseEntity<DefaultResponse<Integer>> getAmountOfUnreadNotifications(@AuthenticationPrincipal Jwt user) {
         return ResponseEntity.ok(DefaultResponseBuilder.success(
                 "Количество непрочитанных уведомлений успешно получено",
                 notificationService.getAmountOfUnreadNotifications(user)
@@ -69,7 +69,7 @@ public class NotificationController {
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<DefaultResponse<?>> readNotification(
             @AuthenticationPrincipal Jwt user,
-            @RequestParam(name = "notificationId") UUID notificationId){
+            @RequestParam(name = "notificationId") UUID notificationId) {
         notificationService.readNotification(user, notificationId);
 
         return ResponseEntity.ok(DefaultResponseBuilder.success(
@@ -85,7 +85,7 @@ public class NotificationController {
     )
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<DefaultResponse<?>> readAllNotification(
-            @AuthenticationPrincipal Jwt user){
+            @AuthenticationPrincipal Jwt user) {
 
         notificationService.readAllNotifications(user);
 

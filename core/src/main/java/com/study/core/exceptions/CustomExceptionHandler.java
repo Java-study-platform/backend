@@ -218,7 +218,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler({ForbiddenException.class, AccessDeniedException.class})
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public DefaultResponse<?> handleForbiddenException(){
+    public DefaultResponse<?> handleForbiddenException() {
         return DefaultResponseBuilder.error(
                 "Access Denied",
                 HttpStatus.FORBIDDEN

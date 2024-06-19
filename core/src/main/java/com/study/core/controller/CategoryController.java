@@ -42,7 +42,7 @@ public class CategoryController {
     @Operation(summary = "Создать категорию")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DefaultResponse<CategoryDTO>> createCategory(@AuthenticationPrincipal Jwt user,
-                                                                      @Validated @RequestBody CreateCategoryModel createCategoryModel) {
+                                                                       @Validated @RequestBody CreateCategoryModel createCategoryModel) {
 
         Category createdCategory = categoryService.createCategory(user, createCategoryModel);
 
@@ -57,8 +57,8 @@ public class CategoryController {
     @Operation(summary = "Отредактировать категорию")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DefaultResponse<CategoryDTO>> editCategory(@AuthenticationPrincipal Jwt user,
-                                          @Validated @RequestBody EditCategoryModel editCategoryModel,
-                                          @PathVariable UUID id) {
+                                                                     @Validated @RequestBody EditCategoryModel editCategoryModel,
+                                                                     @PathVariable UUID id) {
         Category editedCategory = categoryService.editCategory(editCategoryModel, id);
 
         return ResponseEntity.ok(DefaultResponseBuilder.success(
@@ -72,7 +72,7 @@ public class CategoryController {
     @Operation(summary = "Удалить категорию по id")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DefaultResponse<?>> deleteCategory(@AuthenticationPrincipal Jwt user,
-                                            @PathVariable UUID id) {
+                                                             @PathVariable UUID id) {
         categoryService.deleteCategory(id);
 
         return ResponseEntity.ok(DefaultResponseBuilder.success(
@@ -85,7 +85,7 @@ public class CategoryController {
     @GetMapping(CATEGORIES)
     @Operation(summary = "Получить список категорий", description = "Список категорий с пагинацией и текстом запроса (поиск одновременно по названию и описанию) ")
     public ResponseEntity<DefaultResponse<Page<CategoryDTO>>> getCategories(@RequestParam(required = false) String queryText,
-                                                                           @ParameterObject @PageableDefault(sort="name", direction = Sort.Direction.ASC) Pageable pageable) {
+                                                                            @ParameterObject @PageableDefault(sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(DefaultResponseBuilder.success(
                 "Список категорий",
                 categoryService.getCategories(queryText, pageable).map(categoryMapper::toDTO)

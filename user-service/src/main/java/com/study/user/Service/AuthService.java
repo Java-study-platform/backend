@@ -6,6 +6,8 @@ import com.study.user.DTO.UserRegistrationModel;
 
 public interface AuthService {
     void registerUser(UserRegistrationModel userRegistrationModel);
+
     TokenResponse loginUser(UserLoginModel userLoginModel);
+
     void logoutUser(String userId);
 }
