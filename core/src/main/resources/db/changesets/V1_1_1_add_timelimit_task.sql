@@ -10,4 +10,4 @@ VALUES ('ef6e392e-317c-4d37-8fb0-851b9460e3aa', 'Вывод n-ого прост�
 
 INSERT INTO test_cases (id, index, expected_input, expected_output, task_id)
 VALUES ('46fd320b-806f-489e-9298-edf3f1e6ecb2', 1, '7', '17', 'ef6e392e-317c-4d37-8fb0-851b9460e3aa'),
-       ('b616c035-3e96-4eec-80e6-6e84da3b1d3f', 2, '15000', '163841', 'ef6e392e-317c-4d37-8fb0-851b9460e3aa');
+       ('ba4a4c51-9d98-43c5-a37d-edb5e5f38483', 2, '15000', '163841', 'ef6e392e-317c-4d37-8fb0-851b9460e3aa');
