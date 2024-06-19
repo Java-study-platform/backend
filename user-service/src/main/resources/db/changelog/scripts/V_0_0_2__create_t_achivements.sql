@@ -8,6 +8,7 @@ CREATE TABLE achievement_progresses(
     id UUID PRIMARY KEY ,
     user_id UUID NOT NULL ,
     achievement_id UUID NOT NULL,
+    progress BIGINT NOT NULL ,
     CONSTRAINT fk_achievement_progress_user_id FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_achievement_progress_achievement_id FOREIGN KEY (achievement_id) REFERENCES achievements (id)
 );
