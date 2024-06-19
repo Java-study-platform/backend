@@ -86,7 +86,6 @@ public class SolutionServiceImpl implements SolutionService {
         maliciousWords.add("format");
         maliciousWords.add("del");
         maliciousWords.add("mkfs");
-        maliciousWords.add("dd");
         maliciousWords.add("netsh");
         maliciousWords.add("powershell");
     }
