@@ -31,4 +31,8 @@ public class AchievementProgress {
 
     @NotNull
     private Long progress = 0L;
+
+    @NotNull
+    @Column(name = "is_obtained", nullable = false)
+    private Boolean isObtained = false;
 }

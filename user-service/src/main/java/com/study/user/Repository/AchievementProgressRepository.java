@@ -8,5 +8,5 @@ import java.util.UUID;
 import java.util.List;
 
 public interface AchievementProgressRepository extends JpaRepository<AchievementProgress, UUID> {
-    List<AchievementProgress> findAllByUser(User user);
+    List<AchievementProgress> findAllByUserAndIsObtainedIsFalse(User user);
 }

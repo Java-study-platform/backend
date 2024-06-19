@@ -39,4 +39,11 @@ public class Achievement {
     @NotNull
     @Column(name = "description", nullable = false)
     private String description;
+
+    /**
+     * Необходимое количество для получения ачивки
+     */
+    @NotNull
+    @Column(name = "amountToObtain", nullable = false)
+    private Long amountToObtain;
 }

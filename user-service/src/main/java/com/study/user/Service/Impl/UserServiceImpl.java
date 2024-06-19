@@ -28,6 +28,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final UserListMapper userListMapper;
     private final AchievementProgressRepository achievementProgressRepository;
+    private final AchievementRepository achievementRepository;
 
     public UserDto getUserProfile(String username) {
         User user = userRepository.findByUsername(username)
@@ -50,10 +51,15 @@ public class UserServiceImpl implements UserService {
 
         user.setExperience(user.getExperience() + experienceDto.getExperience());
         user.setAmountOfSolvedTasks(user.getAmountOfSolvedTasks() + 1);
-        List<AchievementProgress> achievements = achievementProgressRepository.findAllByUser(user);
+        List<AchievementProgress> achievements = achievementProgressRepository.findAllByUserAndIsObtainedIsFalse(user);
 
         for (AchievementProgress progress : achievements){
+            Achievement achievement = progress.getAchievement();
             progress.setProgress(progress.getProgress() + 1);
+            if (progress.getProgress().equals(achievement.getAmountToObtain())){
+                progress.setIsObtained(true);
+            }
+
             achievementProgressRepository.save(progress);
         }
 
