@@ -154,7 +154,7 @@ public class TestExecutorService {
                                     log.warn("Записываю payload в ошибку: " + payload);
                                     errorResult.append(payload).append("\n");
                                 } else {
-                                    result.append(payload).append("\n");
+                                    result.append(payload);
                                 }
                             }
 
