@@ -127,6 +127,6 @@ public class CoreSecurityConfig {
         return web -> web.ignoring().requestMatchers(HttpMethod.OPTIONS, "/**")
                 .requestMatchers("/v3/api-docs/**", "/configuration/**",
                         "/swagger-ui/**", "/swagger-resources/**",
-                        "/swagger-ui.html", "/api-docs/**", "/ws/**");
+                        "/swagger-ui.html", "/api-docs/**");
     }
 }
