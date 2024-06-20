@@ -45,19 +45,4 @@ public class WSConfig implements WebSocketMessageBrokerConfigurer {
         messageConverters.add(converter);
         return false;
     }
-
-    @Override
-    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(polygonWebSocketHandler, "/ws/location")
-                .setAllowedOrigins("*");
-        registry.addHandler(experienceHandler, "ws/experience")
-                .setAllowedOriginPatterns("*");
-        registry.addHandler(levelHandler, "ws/level")
-                .setAllowedOriginPatterns("*");
-        registry.addHandler(friendPositionHandler, "ws/friendPosition")
-                .setAllowedOriginPatterns("*");
-        registry.addHandler(eventHandler, "ws/event")
-                .setAllowedOriginPatterns("*");
-    }
-
 }
