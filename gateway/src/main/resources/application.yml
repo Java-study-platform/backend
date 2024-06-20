@@ -44,6 +44,7 @@ spring:
       default-filters:
         - TokenRelay=
         - RemoveRequestHeader=Cookie
+        - RemoveRequestHeader=Origin
 eureka:
   client:
     service-url:
