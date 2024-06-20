@@ -39,7 +39,7 @@ public class GatewaySecurityConfig {
     @Bean
     public SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
         http.csrf(ServerHttpSecurity.CsrfSpec::disable);
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+        http.cors(ServerHttpSecurity.CorsSpec::disable);
         http.authorizeExchange(exchange -> exchange
                         .anyExchange().permitAll())
                 .oauth2Login(Customizer.withDefaults())
