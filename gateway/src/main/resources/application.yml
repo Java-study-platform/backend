@@ -30,7 +30,7 @@ spring:
           predicates:
             - Path=/api/notification/**
         - id: solution-service
-          uri: http://solutions-app:8083
+          uri: http://solutions-app:8084
           predicates:
             - Path=/api/solution/**
         - id: user-service
