@@ -70,3 +70,11 @@ springdoc:
 docker:
   network: backend
   host: unix:///var/run/docker.sock
+
+logging:
+  level:
+    org:
+      springframework:
+        messaging: trace
+        web:
+          socket: trace
