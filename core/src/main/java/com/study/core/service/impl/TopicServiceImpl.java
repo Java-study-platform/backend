@@ -45,6 +45,7 @@ public class TopicServiceImpl implements TopicService {
 
         Chat chat = new Chat();
         chat.setTopic(topic);
+        topic.setChat(chat);
 
         return topicRepository.save(topic);
     }
