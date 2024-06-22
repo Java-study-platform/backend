@@ -20,6 +20,7 @@ import com.study.core.repository.MessageRepository;
 import com.study.core.repository.ReactionRepository;
 import com.study.core.service.ChatService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ChatServiceImpl implements ChatService {
     private final ChatRepository chatRepository;
     private final MessageRepository messageRepository;
@@ -40,7 +42,8 @@ public class ChatServiceImpl implements ChatService {
     public Message sendMessage(SendMessageModel sendMessageModel, UUID chatId, UserDto user) {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new ChatNotFoundException(chatId));
-
+        log.info(user.toString());
+        log.info(sendMessageModel.toString());
         Message message = new Message();
         message.setContent(message.getContent());
         message.setSenderLogin(user.getUsername());
@@ -59,13 +62,13 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public List<MessageDTO> getChatHistory(UUID id, Jwt user) {
+    public List<MessageDTO> getChatHistory(UUID id, UserDto user) {
         Chat chat = chatRepository.findById(id)
                 .orElseThrow(() -> new ChatNotFoundException(id));
 
 
         return chat.getMessages().stream().map(message -> {
-            Reaction reaction = reactionRepository.findByAuthorLoginAndMessage(user.getClaim("preferred_username"), message)
+            Reaction reaction = reactionRepository.findByAuthorLoginAndMessage(user.getUsername(), message)
                     .orElse(new Reaction());
 
             return messageMapper.toDTO(message, reaction.getReactions());
@@ -74,8 +77,8 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional
-    public MessageDTO reactMessage(ReactMessageModel reactMessageModel, UUID id, Jwt user) {
-        String authorLogin = user.getClaim("preferred_username");
+    public MessageDTO reactMessage(ReactMessageModel reactMessageModel, UUID id, UserDto user) {
+        String authorLogin = user.getUsername();
 
         Message message = messageRepository.findById(reactMessageModel.getMessageId())
                 .orElseThrow(() -> new MessageNotFoundException(reactMessageModel.getMessageId()));
@@ -106,8 +109,8 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional
-    public MessageDTO unreactMessage(UnreactMessageModel unreactMessageModel, UUID id, Jwt user) {
-        String authorLogin = user.getClaim("preferred_username");
+    public MessageDTO unreactMessage(UnreactMessageModel unreactMessageModel, UUID id, UserDto user) {
+        String authorLogin = user.getUsername();
 
         Message message = messageRepository.findById(unreactMessageModel.getMessageId())
                 .orElseThrow(() -> new MessageNotFoundException(unreactMessageModel.getMessageId()));

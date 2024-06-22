@@ -48,24 +48,22 @@ public class WebSocketChatController {
     @SendTo("/topic/chats/{id}")
     public MessageDTO reactMessage(
             @Validated @Payload ReactMessageModel reactMessageModel,
-            @DestinationVariable UUID id,
-            @AuthenticationPrincipal Jwt user
-    ) {
+            @DestinationVariable UUID id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDto userDto = (UserDto) authentication.getPrincipal();
 
-
-        return chatService.reactMessage(reactMessageModel, id, user);
+        return chatService.reactMessage(reactMessageModel, id, userDto);
     }
 
     @MessageMapping("/chat/{id}/unreact")
     @SendTo("/topic/chats/{id}")
     public MessageDTO unreactMessage(
             @Validated @Payload UnreactMessageModel unreactMessageModel,
-            @DestinationVariable UUID id,
-            @AuthenticationPrincipal Jwt user
-    ) {
+            @DestinationVariable UUID id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDto userDto = (UserDto) authentication.getPrincipal();
 
-
-        return chatService.unreactMessage(unreactMessageModel, id, user);
+        return chatService.unreactMessage(unreactMessageModel, id, userDto);
     }
 
 }

@@ -14,9 +14,9 @@ import java.util.UUID;
 public interface ChatService {
     Message sendMessage(SendMessageModel sendMessageModel, UUID chatId, UserDto user);
 
-    List<MessageDTO> getChatHistory(UUID id, Jwt user);
+    List<MessageDTO> getChatHistory(UUID id, UserDto user);
 
-    MessageDTO reactMessage(ReactMessageModel reactMessageModel, UUID id, Jwt user);
+    MessageDTO reactMessage(ReactMessageModel reactMessageModel, UUID id, UserDto user);
 
-    MessageDTO unreactMessage(UnreactMessageModel unreactMessageModel, UUID id, Jwt user);
+    MessageDTO unreactMessage(UnreactMessageModel unreactMessageModel, UUID id, UserDto user);
 }
