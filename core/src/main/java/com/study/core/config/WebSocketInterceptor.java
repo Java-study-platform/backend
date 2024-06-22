@@ -10,6 +10,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.RSAKeyProvider;
 import com.study.common.DTO.UserDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class WebSocketInterceptor implements ChannelInterceptor {
     private final String issuer;
 
@@ -47,6 +49,8 @@ public class WebSocketInterceptor implements ChannelInterceptor {
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+        log.info("Headers: {}", accessor);
+
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
             String authHeader = accessor.getFirstNativeHeader("Authorization");
             String jwt;
