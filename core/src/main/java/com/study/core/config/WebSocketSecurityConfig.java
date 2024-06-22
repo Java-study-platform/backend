@@ -10,7 +10,8 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
     @Override
     protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
-        messages.simpDestMatchers("/ws/**").authenticated();
+        messages
+                .anyMessage().authenticated();
     }
 
     @Override

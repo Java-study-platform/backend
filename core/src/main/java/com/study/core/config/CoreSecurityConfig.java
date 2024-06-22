@@ -4,15 +4,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.messaging.Message;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.socket.EnableWebSocketSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -38,6 +42,7 @@ import static com.study.common.Constants.Consts.TEST_CASES;
 @EnableWebSecurity
 @RequiredArgsConstructor
 @EnableMethodSecurity
+@EnableWebSocketSecurity
 public class CoreSecurityConfig {
     private final JwtRequestFilter jwtRequestFilter;
 
@@ -78,6 +83,14 @@ public class CoreSecurityConfig {
         //.addFilterBefore(createPolicyEnforcerFilter(), BearerTokenAuthenticationFilter.class).build();
         // Оказалось, что лучше делать авторизацию (проверку ролей) через Oauth2, потому что на запрос к KeyCloak
         // уходит ~1,5-2 секунды
+    }
+
+    @Bean
+    public AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
+        messages
+                .simpDestMatchers("/ws");
+
+        return messages.build();
     }
 
 
