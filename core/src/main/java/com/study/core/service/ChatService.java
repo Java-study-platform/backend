@@ -6,7 +6,6 @@ import com.study.core.dto.Message.ReactMessageModel;
 import com.study.core.dto.Message.SendMessageModel;
 import com.study.core.dto.Message.UnreactMessageModel;
 import com.study.core.models.Message;
-import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.util.List;
 import java.util.UUID;
