@@ -21,11 +21,14 @@ import com.study.core.repository.ReactionRepository;
 import com.study.core.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+
+import static com.study.common.Constants.Consts.USERNAME_CLAIM;
 
 @Service
 @RequiredArgsConstructor
@@ -61,12 +64,12 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public List<MessageDTO> getChatHistory(UUID id, UserDto user) {
+    public List<MessageDTO> getChatHistory(UUID id, Jwt user) {
         Chat chat = chatRepository.findById(id)
                 .orElseThrow(() -> new ChatNotFoundException(id));
 
         return chat.getMessages().stream().map(message -> {
-            Reaction reaction = reactionRepository.findByAuthorLoginAndMessage(user.getUsername(), message)
+            Reaction reaction = reactionRepository.findByAuthorLoginAndMessage(user.getClaim(USERNAME_CLAIM), message)
                     .orElse(new Reaction());
 
             return messageMapper.toDTO(message, reaction.getReactions());
