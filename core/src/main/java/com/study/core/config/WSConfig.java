@@ -2,6 +2,7 @@ package com.study.core.config;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,11 +52,9 @@ public class WSConfig implements WebSocketMessageBrokerConfigurer {
         DefaultContentTypeResolver resolver = new DefaultContentTypeResolver();
         resolver.setDefaultMimeType(MimeTypeUtils.APPLICATION_JSON);
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-        ObjectMapper objectMapper = new ObjectMapper();
-        converter.setObjectMapper(objectMapper);
+        converter.setObjectMapper(new ObjectMapper().registerModule(new JavaTimeModule()));
         converter.setContentTypeResolver(resolver);
         messageConverters.add(converter);
-        return false;
+        return true;
     }
-
 }
