@@ -2,7 +2,6 @@ package com.study.core.config;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.study.core.handlers.CustomHandShakeHandler;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
