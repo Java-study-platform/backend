@@ -45,7 +45,7 @@ public class ChatServiceImpl implements ChatService {
         log.info(user.toString());
         log.info(sendMessageModel.toString());
         Message message = new Message();
-        message.setContent(message.getContent());
+        message.setContent(sendMessageModel.getContent());
         message.setSenderLogin(user.getUsername());
 
         if (sendMessageModel.getParentMessageId() != null) {

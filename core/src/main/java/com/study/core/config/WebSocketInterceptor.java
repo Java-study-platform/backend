@@ -31,6 +31,9 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.study.common.Constants.Consts.EMAIL_CLAIM;
+import static com.study.common.Constants.Consts.USERNAME_CLAIM;
+
 @Component
 @Slf4j
 public class WebSocketInterceptor implements ChannelInterceptor {
@@ -93,12 +96,12 @@ public class WebSocketInterceptor implements ChannelInterceptor {
 
                     UserDto userDto = new UserDto();
                     userDto.setKeyCloakId(decodedJWT.getSubject());
-                    userDto.setEmail(decodedJWT.getClaim("email").asString());
+                    userDto.setEmail(decodedJWT.getClaim(EMAIL_CLAIM).asString());
                     userDto.setRoles(decodedJWT.getClaim("spring_sec_roles").asList(String.class)
                             .stream()
                             .filter(role -> role.startsWith("ROLE_"))
                             .collect(Collectors.toList()));
-                    userDto.setUsername(decodedJWT.getClaim("preferred_username").asString());
+                    userDto.setUsername(decodedJWT.getClaim(USERNAME_CLAIM).asString());
                     userDto.setFirstName(decodedJWT.getClaim("given_name").asString());
                     userDto.setLastName(decodedJWT.getClaim("family_name").asString());
 
