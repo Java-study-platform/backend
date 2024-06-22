@@ -32,6 +32,7 @@ public class GatewaySecurityConfig {
         corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173"));
         corsConfiguration.setAllowedMethods(List.of("*"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
+        corsConfiguration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
 
@@ -41,7 +42,7 @@ public class GatewaySecurityConfig {
     @Bean
     public SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
         http.csrf(ServerHttpSecurity.CsrfSpec::disable);
-        http.cors(ServerHttpSecurity.CorsSpec::disable);
+        http.cors(corsSpec -> corsSpec.configurationSource(corsConfigurationSource()));
         http.authorizeExchange(exchange -> exchange
                         .anyExchange().permitAll())
                 .oauth2Login(Customizer.withDefaults())

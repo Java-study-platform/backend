@@ -57,7 +57,7 @@ public class CoreSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers(GET_TEST_INFO, GET_USER_SOLUTIONS).hasAnyRole("MENTOR", "ADMIN")
