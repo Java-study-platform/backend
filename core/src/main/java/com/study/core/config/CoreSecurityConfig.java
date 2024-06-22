@@ -88,7 +88,7 @@ public class CoreSecurityConfig {
     @Bean
     public AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
         messages
-                .simpDestMatchers("/ws/**");
+                .simpDestMatchers("/ws/**").authenticated();
 
         return messages.build();
     }
