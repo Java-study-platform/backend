@@ -35,7 +35,7 @@ public class AchievementServiceImpl implements AchievementService {
         List<Achievement> achievements = achievementRepository.findAll();
         List<AchievementDto> dtos = new ArrayList<>();
 
-        for (Achievement achievement : achievements){
+        for (Achievement achievement : achievements) {
             AchievementProgress achievementProgress = achievementProgressRepository.findByUserAndAchievement(user, achievement);
 
             dtos.add(achievementMapper.toDto(achievement, achievementProgress.getProgress(), achievementProgress.getIsObtained()));

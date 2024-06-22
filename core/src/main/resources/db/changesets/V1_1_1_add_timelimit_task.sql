@@ -1,4 +1,5 @@
-INSERT INTO tasks (id, name, description, experience_amount, topic_id, author_login, create_time, modified_date, time_limit)
+INSERT INTO tasks (id, name, description, experience_amount, topic_id, author_login, create_time, modified_date,
+                   time_limit)
 VALUES ('ef6e392e-317c-4d37-8fb0-851b9460e3aa', 'Вывод n-ого простого числа на Java',
         'Эта тестирующая система предназначена для проверки правильности выполнения задачи по Java, в которой требуется вывести n-ое простое число. Число n предоставляется системой. Система включает в себя набор тестов, которые проверяют корректность алгоритма генерации простых чисел и его производительность при различных значениях n.',
         1000,

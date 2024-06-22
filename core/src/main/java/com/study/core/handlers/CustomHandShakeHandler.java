@@ -8,21 +8,20 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
-import org.springframework.web.socket.server.HandshakeHandler;
-import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Map;
-import java.util.List;
 
 @Component
+@Slf4j
 public class CustomHandShakeHandler extends HttpSessionHandshakeInterceptor {
     private final String jwkUri;
     private final String issuer;
@@ -39,8 +38,9 @@ public class CustomHandShakeHandler extends HttpSessionHandshakeInterceptor {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-
+            log.info("Handler принял токен: " + token);
             DecodedJWT decodedJWT = verifyToken(token);
+            log.info("Токен верифицирован");
 
             attributes.put("userId", decodedJWT.getSubject());
             attributes.put("username", decodedJWT.getClaim("username").asString());

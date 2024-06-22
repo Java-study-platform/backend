@@ -53,10 +53,10 @@ public class UserServiceImpl implements UserService {
         user.setAmountOfSolvedTasks(user.getAmountOfSolvedTasks() + 1);
         List<AchievementProgress> achievements = achievementProgressRepository.findAllByUserAndIsObtainedIsFalse(user);
 
-        for (AchievementProgress progress : achievements){
+        for (AchievementProgress progress : achievements) {
             Achievement achievement = progress.getAchievement();
             progress.setProgress(progress.getProgress() + 1);
-            if (progress.getProgress().equals(achievement.getAmountToObtain())){
+            if (progress.getProgress().equals(achievement.getAmountToObtain())) {
                 progress.setIsObtained(true);
             }
 

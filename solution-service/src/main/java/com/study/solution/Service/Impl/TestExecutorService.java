@@ -15,7 +15,6 @@ import com.study.solution.Exceptions.Code.CodeCompilationException;
 import com.study.solution.Exceptions.Code.CodeRuntimeException;
 import com.study.solution.Exceptions.Code.TimeLimitException;
 import com.study.solution.Mapper.TestMapper;
-import com.study.solution.Repository.TestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;

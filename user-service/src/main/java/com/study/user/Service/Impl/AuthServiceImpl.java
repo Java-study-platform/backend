@@ -110,7 +110,7 @@ public class AuthServiceImpl implements AuthService {
 
                 List<Achievement> achievements = achievementRepository.findAll();
 
-                for (Achievement achievement : achievements){
+                for (Achievement achievement : achievements) {
                     AchievementProgress achievementProgress = new AchievementProgress();
                     achievementProgress.setUser(entityUser);
                     achievementProgress.setAchievement(achievement);
