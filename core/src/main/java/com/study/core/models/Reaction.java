@@ -5,6 +5,7 @@ import com.study.core.enums.ReactionType;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -27,5 +28,5 @@ public class Reaction {
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "reaction_types", joinColumns = @JoinColumn(name = "reaction_id"))
     @Column(name = "reaction_type")
-    private Set<ReactionType> reactions;
+    private Set<ReactionType> reactions = new HashSet<>();
 }

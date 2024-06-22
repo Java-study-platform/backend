@@ -28,7 +28,6 @@ import java.util.UUID;
 public class ChatController {
 
     private final ChatService chatService;
-    private final MessageMapper messageMapper;
 
     @GetMapping("/{id}")
     @Operation(summary = "Получить историю сообщений чата")

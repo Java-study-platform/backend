@@ -66,7 +66,6 @@ public class ChatServiceImpl implements ChatService {
         Chat chat = chatRepository.findById(id)
                 .orElseThrow(() -> new ChatNotFoundException(id));
 
-
         return chat.getMessages().stream().map(message -> {
             Reaction reaction = reactionRepository.findByAuthorLoginAndMessage(user.getUsername(), message)
                     .orElse(new Reaction());
