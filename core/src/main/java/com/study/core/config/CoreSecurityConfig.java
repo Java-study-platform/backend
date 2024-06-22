@@ -60,6 +60,7 @@ public class CoreSecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
+                        .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(HttpMethod.GET, GET_TESTS_FOR_SERVICE + "**").anonymous()
                         .requestMatchers(HttpMethod.GET, TEST_CASES + "/**").hasRole("ADMIN")
                         .anyRequest().authenticated());
