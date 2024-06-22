@@ -98,7 +98,7 @@ public class WebSocketInterceptor implements ChannelInterceptor {
                             .stream()
                             .filter(role -> role.startsWith("ROLE_"))
                             .collect(Collectors.toList()));
-                    userDto.setUsername(decodedJWT.getClaim("name").asString());
+                    userDto.setUsername(decodedJWT.getClaim("preferred_username").asString());
                     userDto.setFirstName(decodedJWT.getClaim("given_name").asString());
                     userDto.setLastName(decodedJWT.getClaim("family_name").asString());
 
