@@ -91,6 +91,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             response.setHeader("Access-Control-Allow-Credentials", "true");
             response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
             response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, Accept");
+            response.setHeader("Authorization", request.getHeader("Authorization"));
         }
 
         if (request.getMethod().equals("OPTIONS")) {

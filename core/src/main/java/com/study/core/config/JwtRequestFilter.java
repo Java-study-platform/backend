@@ -92,13 +92,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             throw new InternalServerException();
         }
 
-        log.info(request.getHeader("Authorization"));
-
         if (request.getRequestURL().toString().contains("http://localhost:8082/ws")) {
             response.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
             response.setHeader("Access-Control-Allow-Credentials", "true");
             response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
             response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, Accept");
+            response.setHeader("Authorization", request.getHeader("Authorization"));
         }
 
         if (request.getMethod().equals("OPTIONS")) {
