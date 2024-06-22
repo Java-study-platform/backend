@@ -25,14 +25,12 @@ import java.util.List;
 public class WSConfig implements WebSocketMessageBrokerConfigurer {
     private static final Logger log = LoggerFactory.getLogger(WSConfig.class);
     private final WebSocketInterceptor webSocketInterceptor;
-    private final CustomHandShakeHandler customHandShakeHandler;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws");
         registry
                 .addEndpoint("/ws")
-                .addInterceptors(customHandShakeHandler)
                 .setAllowedOrigins("http://localhost:5173")
                 .withSockJS();
     }
