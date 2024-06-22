@@ -42,7 +42,6 @@ import static com.study.common.Constants.Consts.TEST_CASES;
 @EnableWebSecurity
 @RequiredArgsConstructor
 @EnableMethodSecurity
-@EnableWebSocketSecurity
 public class CoreSecurityConfig {
     private final JwtRequestFilter jwtRequestFilter;
 
@@ -83,14 +82,6 @@ public class CoreSecurityConfig {
         //.addFilterBefore(createPolicyEnforcerFilter(), BearerTokenAuthenticationFilter.class).build();
         // Оказалось, что лучше делать авторизацию (проверку ролей) через Oauth2, потому что на запрос к KeyCloak
         // уходит ~1,5-2 секунды
-    }
-
-    @Bean
-    public AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
-        messages
-                .simpDestMatchers("/ws/**").authenticated();
-
-        return messages.build();
     }
 
 

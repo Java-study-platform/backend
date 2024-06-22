@@ -3,6 +3,8 @@ package com.study.core.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.converter.DefaultContentTypeResolver;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
@@ -21,6 +23,7 @@ import java.util.List;
 @EnableWebSocketMessageBroker
 @RequiredArgsConstructor
 public class WSConfig implements WebSocketMessageBrokerConfigurer {
+    private static final Logger log = LoggerFactory.getLogger(WSConfig.class);
     private final WebSocketInterceptor webSocketInterceptor;
 
     @Override
@@ -39,6 +42,7 @@ public class WSConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
+        log.info("Регистрирую interceptor" + webSocketInterceptor);
         registration.interceptors(webSocketInterceptor);
     }
 
