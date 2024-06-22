@@ -57,7 +57,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         try {
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 jwt = authHeader.substring(7);
-                log.info("jwt: " + jwt);
                 DecodedJWT decodedJWT = JWT.decode(jwt);
 
                 Jwk jwk = jwkProvider.get(decodedJWT.getKeyId());
@@ -68,7 +67,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         .withIssuer(issuer)
                         .build();
                 verifier.verify(decodedJWT);
-                log.info("jwt верифицирован");
                 UserDto userDto = new UserDto();
                 userDto.setKeyCloakUserId(decodedJWT.getSubject());
                 userDto.setEmail(decodedJWT.getClaim("email").asString());
@@ -84,7 +82,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         .map(SimpleGrantedAuthority::new)
                         .toList();
 
-                log.info("Записываю в контекст");
                 SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userDto, null, authorities));
             }
         } catch (JWTVerificationException e) {
