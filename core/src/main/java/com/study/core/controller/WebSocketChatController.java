@@ -1,6 +1,7 @@
 package com.study.core.controller;
 
 
+import com.study.common.DTO.UserDto;
 import com.study.core.dto.Message.MessageDTO;
 import com.study.core.dto.Message.ReactMessageModel;
 import com.study.core.dto.Message.SendMessageModel;
@@ -14,7 +15,9 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
@@ -32,10 +35,11 @@ public class WebSocketChatController {
     @SendTo("/topic/chats/{id}")
     public MessageDTO sendMessage(
             @Validated @Payload SendMessageModel sendMessageModel,
-            @DestinationVariable UUID id,
-            @AuthenticationPrincipal Jwt user
-    ) {
-        Message sendedMessage = chatService.sendMessage(sendMessageModel, id, user);
+            @DestinationVariable UUID id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDto userDto = (UserDto) authentication.getPrincipal();
+
+        Message sendedMessage = chatService.sendMessage(sendMessageModel, id, userDto);
 
         return messageMapper.toDTO(sendedMessage);
     }

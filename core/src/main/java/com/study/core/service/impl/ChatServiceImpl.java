@@ -1,5 +1,6 @@
 package com.study.core.service.impl;
 
+import com.study.common.DTO.UserDto;
 import com.study.core.dto.Message.MessageDTO;
 import com.study.core.dto.Message.ReactMessageModel;
 import com.study.core.dto.Message.SendMessageModel;
@@ -36,13 +37,13 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional
-    public Message sendMessage(SendMessageModel sendMessageModel, UUID chatId, Jwt user) {
+    public Message sendMessage(SendMessageModel sendMessageModel, UUID chatId, UserDto user) {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new ChatNotFoundException(chatId));
 
         Message message = new Message();
         message.setContent(message.getContent());
-        message.setSenderLogin(user.getClaim("preffered_username"));
+        message.setSenderLogin(user.getUsername());
 
         if (sendMessageModel.getParentMessageId() != null) {
             Message parentMessage = messageRepository.findById(sendMessageModel.getParentMessageId())
