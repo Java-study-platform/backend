@@ -15,7 +15,9 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 
@@ -32,8 +34,10 @@ public class WebSocketChatController {
     @SendTo("/topic/chats/{id}")
     public MessageDTO sendMessage(
             @Validated @Payload SendMessageModel sendMessageModel,
-            @DestinationVariable UUID id,
-            @AuthenticationPrincipal UserDto userDto) {
+            @DestinationVariable UUID id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDto userDto = (UserDto) authentication.getPrincipal();
+
         Message sendedMessage = chatService.sendMessage(sendMessageModel, id, userDto);
 
         return messageMapper.toDTO(sendedMessage);
@@ -43,8 +47,9 @@ public class WebSocketChatController {
     @SendTo("/topic/chats/{id}")
     public MessageDTO reactMessage(
             @Validated @Payload ReactMessageModel reactMessageModel,
-            @DestinationVariable UUID id,
-            @AuthenticationPrincipal UserDto userDto) {
+            @DestinationVariable UUID id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDto userDto = (UserDto) authentication.getPrincipal();
 
         return chatService.reactMessage(reactMessageModel, id, userDto);
     }
@@ -53,8 +58,10 @@ public class WebSocketChatController {
     @SendTo("/topic/chats/{id}")
     public MessageDTO unreactMessage(
             @Validated @Payload UnreactMessageModel unreactMessageModel,
-            @DestinationVariable UUID id,
-            @AuthenticationPrincipal UserDto userDto) {
+            @DestinationVariable UUID id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDto userDto = (UserDto) authentication.getPrincipal();
+
         return chatService.unreactMessage(unreactMessageModel, id, userDto);
     }
 
