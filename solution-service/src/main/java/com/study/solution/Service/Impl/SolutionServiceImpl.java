@@ -148,7 +148,7 @@ public class SolutionServiceImpl implements SolutionService {
                     }
                 }
 
-                sendWebSocketMessage(user, solutionMapper.toDTO(solution));
+                sendWebSocketMessage(solutionMapper.toDTO(solution));
                 solutionRepository.save(solution);
 
 //            kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),
@@ -210,9 +210,9 @@ public class SolutionServiceImpl implements SolutionService {
                 .doOnError(e -> log.error("Error retrieving test cases", e));
     }
 
-    private void sendWebSocketMessage(Jwt user, SolutionDto solutionDto) {
+    private void sendWebSocketMessage(SolutionDto solutionDto) {
         try {
-            messagingTemplate.convertAndSendToUser(user.getClaim(USERNAME_CLAIM), String.format("/solution/%s", solutionDto.getId().toString()), solutionDto);
+            messagingTemplate.convertAndSend(String.format("/solution/%s", solutionDto.getId().toString()), solutionDto);
         } catch (Exception e) {
             log.error(e.getMessage());
             e.printStackTrace();

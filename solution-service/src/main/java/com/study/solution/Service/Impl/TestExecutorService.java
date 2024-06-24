@@ -130,7 +130,7 @@ public class TestExecutorService {
             testEntity.setTestIndex(testIndex);
             solution.setTestIndex(testIndex);
 
-            sendWebSocketMessage(user, testMapper.toDTO(testEntity), solution.getId());
+            sendWebSocketMessage(testMapper.toDTO(testEntity), solution.getId());
 
             ExecCreateCmdResponse runCmd = dockerClient.execCreateCmd(containerId)
                     .withCmd("sh", "-c", "echo \"" + input + "\" | java -cp . Main")
@@ -214,7 +214,7 @@ public class TestExecutorService {
 
             saveTest(testEntity, solution);
 
-            sendWebSocketMessage(user, testMapper.toDTO(testEntity), solution.getId());
+            sendWebSocketMessage(testMapper.toDTO(testEntity), solution.getId());
         }
 
         dockerClient.stopContainerCmd(containerId).exec();
@@ -280,10 +280,10 @@ public class TestExecutorService {
         }
     }
 
-    private void sendWebSocketMessage(Jwt user, TestDto testDto, UUID solutionId) {
+    private void sendWebSocketMessage(TestDto testDto, UUID solutionId) {
         try {
             log.info("Послал сообщений с тестом: " + testDto.getId() + " " + testDto.getStatus());
-            messagingTemplate.convertAndSendToUser(user.getClaim(USERNAME_CLAIM), String.format("/solution/%s/test", solutionId.toString()), testDto);
+            messagingTemplate.convertAndSend(String.format("/solution/%s/test", solutionId.toString()), testDto);
         } catch (Exception e) {
             log.error(e.getMessage());
             e.printStackTrace();
