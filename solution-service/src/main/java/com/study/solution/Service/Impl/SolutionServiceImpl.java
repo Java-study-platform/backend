@@ -148,8 +148,9 @@ public class SolutionServiceImpl implements SolutionService {
                     }
                 }
 
-                sendWebSocketMessage(user, solutionMapper.toDTO(solution));
+                log.info(solution.toString());
                 solutionRepository.save(solution);
+                sendWebSocketMessage(user, solutionMapper.toDTO(solution));
 
 //            kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),
 //                    "Решение завершило проверку",
