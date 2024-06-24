@@ -53,8 +53,12 @@ public class ChatServiceImpl implements ChatService {
         if (sendMessageModel.getParentMessageId() != null) {
             Message parentMessage = messageRepository.findById(sendMessageModel.getParentMessageId())
                     .orElseThrow(() -> new MessageNotFoundException(sendMessageModel.getParentMessageId()));
-            message.setParentMessage(parentMessage);
-            //TODO: Внедрить отправку уведомления тому, на чье сообщение ответили: parentMessage.senderLogin
+            if (parentMessage.getParentMessage() != null){
+                message.setParentMessage(parentMessage.getParentMessage());
+            }
+            else{
+                message.setParentMessage(parentMessage);
+            }
         }
 
         message.setChat(chat);
