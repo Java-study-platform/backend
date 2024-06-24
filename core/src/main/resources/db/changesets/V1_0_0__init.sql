@@ -5,7 +5,7 @@ CREATE TABLE categories
 (
     id            UUID                        NOT NULL,
     name          VARCHAR(255)                NOT NULL,
-    description   VARCHAR(10000)                NOT NULL,
+    description   VARCHAR(10000)              NOT NULL,
     author_login  VARCHAR(255)                NOT NULL,
     create_time   TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     modified_date TIMESTAMP WITHOUT TIME ZONE,
@@ -17,7 +17,7 @@ CREATE TABLE tasks
 (
     id                UUID                        NOT NULL,
     name              VARCHAR(255)                NOT NULL,
-    description       VARCHAR(10000)                NOT NULL,
+    description       VARCHAR(10000)              NOT NULL,
     experience_amount BIGINT                      NOT NULL,
     topic_id          UUID                        NOT NULL,
     author_login      VARCHAR(255)                NOT NULL,

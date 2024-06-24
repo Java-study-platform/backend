@@ -57,7 +57,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         try {
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 jwt = authHeader.substring(7);
-
                 DecodedJWT decodedJWT = JWT.decode(jwt);
 
                 Jwk jwk = jwkProvider.get(decodedJWT.getKeyId());
@@ -68,7 +67,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         .withIssuer(issuer)
                         .build();
                 verifier.verify(decodedJWT);
-
                 UserDto userDto = new UserDto();
                 userDto.setKeyCloakUserId(decodedJWT.getSubject());
                 userDto.setEmail(decodedJWT.getClaim("email").asString());
@@ -90,6 +88,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             log.info(e.getMessage());
         } catch (Exception e) {
             throw new InternalServerException();
+        }
+
+        if (request.getRequestURL().toString().contains("http://localhost:8082/ws")) {
+            response.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+            response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, Accept");
+            response.setHeader("Authorization", request.getHeader("Authorization"));
         }
 
         if (request.getMethod().equals("OPTIONS")) {

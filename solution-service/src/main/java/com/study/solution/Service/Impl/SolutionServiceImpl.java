@@ -4,7 +4,6 @@ import com.study.common.DTO.TestCaseDto;
 import com.study.common.Enum.Status;
 import com.study.solution.DTO.Solution.SendTestSolutionRequest;
 import com.study.solution.DTO.Solution.SolutionDto;
-import com.study.solution.DTO.Test.TestDto;
 import com.study.solution.Entity.Solution;
 import com.study.solution.Exceptions.Code.CodeCompilationException;
 import com.study.solution.Exceptions.Code.CodeRuntimeException;
