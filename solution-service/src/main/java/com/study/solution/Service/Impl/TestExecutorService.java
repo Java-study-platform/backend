@@ -282,6 +282,7 @@ public class TestExecutorService {
 
     private void sendWebSocketMessage(Jwt user, TestDto testDto, UUID solutionId) {
         try {
+            log.info("Послал сообщений с тестом: " + testDto.getId() + " " + testDto.getStatus());
             messagingTemplate.convertAndSendToUser(user.getClaim(USERNAME_CLAIM), String.format("/solution/%s/test", solutionId.toString()), testDto);
         } catch (Exception e) {
             log.error(e.getMessage());
