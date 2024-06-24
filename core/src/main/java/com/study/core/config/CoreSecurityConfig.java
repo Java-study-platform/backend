@@ -61,7 +61,7 @@ public class CoreSecurityConfig {
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(HttpMethod.GET, GET_TESTS_FOR_SERVICE + "**").anonymous()
-                        .requestMatchers(HttpMethod.GET, TEST_CASES + "/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, TEST_CASES + "/**").hasAnyRole("ADMIN", "MENTOR")
                         .requestMatchers(HttpMethod.POST, TEST_CASES + "/**").hasRole("ADMIN")
                         .requestMatchers(CHANGE_TEST_CASE).hasRole("ADMIN")
                         .anyRequest().authenticated());
