@@ -10,6 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDto {
+    private String id;
     private String keyCloakId;
     private String username;
     private String email;
