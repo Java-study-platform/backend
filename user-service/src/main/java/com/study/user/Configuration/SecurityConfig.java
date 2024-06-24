@@ -65,7 +65,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin-panel").hasRole(ADMIN)
                         .requestMatchers(REGISTER_USER).anonymous()
                         .requestMatchers(LOGIN_USER).anonymous()
-                        .requestMatchers(GET_RATING).permitAll()
+                        .requestMatchers(GET_RATING, GET_USER + "/**", GET_ACHIEVEMENTS + "/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))

@@ -28,8 +28,8 @@ public class AchievementServiceImpl implements AchievementService {
     private final AchievementMapper achievementMapper;
 
     @Override
-    public List<AchievementDto> getAllAchievements(Jwt userJwt) {
-        User user = userRepository.findByUsername(userJwt.getClaim(USERNAME_CLAIM))
+    public List<AchievementDto> getAllAchievements(String username) {
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
 
         List<Achievement> achievements = achievementRepository.findAll();

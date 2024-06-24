@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -26,9 +27,9 @@ public class AchievementController {
             summary = "Получение списка достижений",
             description = "Позволяет получить полный список достижений"
     )
-    @GetMapping(GET_ACHIEVEMENTS)
+    @GetMapping(GET_ACHIEVEMENTS + "/{username}")
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<List<AchievementDto>> getAllUserAchievements(@AuthenticationPrincipal Jwt user) {
-        return ResponseEntity.ok(achievementService.getAllAchievements(user));
+    public ResponseEntity<List<AchievementDto>> getAllUserAchievements(@PathVariable(name = "username") String username) {
+        return ResponseEntity.ok(achievementService.getAllAchievements(username));
     }
 }
