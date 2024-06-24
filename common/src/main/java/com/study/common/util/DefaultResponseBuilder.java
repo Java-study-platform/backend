@@ -1,12 +1,14 @@
 package com.study.common.util;
 
 import com.study.common.DTO.DefaultResponse;
+import lombok.experimental.UtilityClass;
 import org.springframework.http.HttpStatus;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+@UtilityClass
 public class DefaultResponseBuilder {
     public static <T> DefaultResponse<T> success(String message, T data) {
         return DefaultResponse.<T>builder()

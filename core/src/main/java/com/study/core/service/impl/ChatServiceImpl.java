@@ -67,8 +67,8 @@ public class ChatServiceImpl implements ChatService {
     public List<MessageDTO> getChatHistory(UUID id, Jwt user) {
         Chat chat = chatRepository.findById(id)
                 .orElseThrow(() -> new ChatNotFoundException(id));
-
-        return chat.getMessages().stream().map(message -> {
+        List<Message> messages = messageRepository.findByChatAndParentMessageIsNull(chat);
+        return messages.stream().map(message -> {
             Reaction reaction = reactionRepository.findByAuthorLoginAndMessage(user.getClaim(USERNAME_CLAIM), message)
                     .orElse(new Reaction());
 
