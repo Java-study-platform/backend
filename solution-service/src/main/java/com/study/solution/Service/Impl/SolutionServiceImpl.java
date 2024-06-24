@@ -141,8 +141,6 @@ public class SolutionServiceImpl implements SolutionService {
                     solution.setStatus(Status.COMPILATION_ERROR);
                 }
 
-                log.info("РЕШЕНИЕ: " + solution.toString());
-
                 if (solution.getStatus() == Status.OK) {
                     long count = solutionRepository.countByUsernameAndTaskIdAndStatus(solution.getUsername(), solution.getTaskId(), Status.OK);
                     if (count == 0) {
@@ -150,9 +148,8 @@ public class SolutionServiceImpl implements SolutionService {
                     }
                 }
 
-                log.info(solution.toString());
-                solutionRepository.save(solution);
                 sendWebSocketMessage(user, solutionMapper.toDTO(solution));
+                solutionRepository.save(solution);
 
 //            kafkaProducer.sendMessage(user.getClaim(EMAIL_CLAIM),
 //                    "Решение завершило проверку",

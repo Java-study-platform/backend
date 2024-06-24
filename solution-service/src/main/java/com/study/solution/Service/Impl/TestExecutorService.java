@@ -15,7 +15,6 @@ import com.study.solution.Exceptions.Code.CodeCompilationException;
 import com.study.solution.Exceptions.Code.CodeRuntimeException;
 import com.study.solution.Exceptions.Code.TimeLimitException;
 import com.study.solution.Mapper.TestMapper;
-import com.study.solution.Repository.SolutionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -45,7 +44,6 @@ public class TestExecutorService {
     private final JdbcTemplate jdbcTemplate;
 
     private static final String DOCKER_IMAGE = "openjdk:17-oracle";
-    private final SolutionRepository solutionRepository;
 
     protected void runCode(List<TestCaseDto> tests, String code, long timeLimit, Solution solution, Jwt user) throws IOException, CodeCompilationException, CodeRuntimeException, TimeLimitException {
         Path path = Files.createTempDirectory("compile");
@@ -204,7 +202,6 @@ public class TestExecutorService {
                     if (test.getIndex() == tests.size()) {
                         solution.setStatus(Status.OK);
                         solution.setTestIndex(test.getIndex());
-                        solutionRepository.save(solution);
                     }
                 } else {
                     testEntity.setStatus(Status.WRONG_ANSWER);
