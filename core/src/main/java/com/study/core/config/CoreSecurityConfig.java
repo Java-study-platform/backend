@@ -30,8 +30,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.study.common.Constants.Consts.GET_TESTS_FOR_SERVICE;
-import static com.study.common.Constants.Consts.TEST_CASES;
+import static com.study.common.Constants.Consts.*;
 
 
 @Configuration
@@ -63,6 +62,8 @@ public class CoreSecurityConfig {
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(HttpMethod.GET, GET_TESTS_FOR_SERVICE + "**").anonymous()
                         .requestMatchers(HttpMethod.GET, TEST_CASES + "/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, TEST_CASES + "/**").hasRole("ADMIN")
+                        .requestMatchers(CHANGE_TEST_CASE).hasRole("ADMIN")
                         .anyRequest().authenticated());
 
         http
