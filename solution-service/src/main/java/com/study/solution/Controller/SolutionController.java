@@ -8,6 +8,7 @@ import com.study.solution.Service.SolutionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,7 +39,7 @@ public class SolutionController {
     public ResponseEntity<DefaultResponse<SolutionDto>> sendSolution(
             @AuthenticationPrincipal Jwt user,
             @RequestParam(name = "taskId") UUID taskId,
-            @RequestBody SendTestSolutionRequest code) throws IOException {
+            @RequestBody @Valid SendTestSolutionRequest code) throws IOException {
         return ResponseEntity.ok(DefaultResponseBuilder.success(
                 "Решение успешно отправлено",
                 solutionService.testSolution(user, taskId, code)));
