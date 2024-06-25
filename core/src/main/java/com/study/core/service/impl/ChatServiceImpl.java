@@ -72,12 +72,20 @@ public class ChatServiceImpl implements ChatService {
         Chat chat = chatRepository.findById(id)
                 .orElseThrow(() -> new ChatNotFoundException(id));
         List<Message> messages = messageRepository.findByChatAndParentMessageIsNull(chat);
-        return messages.stream().map(message -> {
+        List<MessageDTO> dto = messages.stream().map(message -> {
             Reaction reaction = reactionRepository.findByAuthorLoginAndMessage(user.getClaim(USERNAME_CLAIM), message)
                     .orElse(new Reaction());
 
             return messageMapper.toDTO(message, reaction.getReactions());
         }).toList();
+
+        log.info(dto.toString());
+        for (MessageDTO mess:dto){
+            log.info(mess.toString());
+            log.info("id: " + mess.getId() + " curReactions: " + mess.getCurrentUserReactions().toString());
+        }
+
+        return dto;
     }
 
     @Override
