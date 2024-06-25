@@ -72,12 +72,7 @@ public class ChatServiceImpl implements ChatService {
         Chat chat = chatRepository.findById(id)
                 .orElseThrow(() -> new ChatNotFoundException(id));
         List<Message> messages = messageRepository.findByChatAndParentMessageIsNull(chat);
-        List<MessageDTO> dto = messages.stream().map(message -> {
-            Reaction reaction = reactionRepository.findByAuthorLoginAndMessage(user.getClaim(USERNAME_CLAIM), message)
-                    .orElse(new Reaction());
-
-            return messageMapper.toDTO(message, reaction.getReactions());
-        }).toList();
+        List<MessageDTO> dto = messages.stream().map(message -> toDTO(message, user.getClaim(USERNAME_CLAIM))).toList();
 
         log.info(dto.toString());
         for (MessageDTO mess :dto){
@@ -154,5 +149,18 @@ public class ChatServiceImpl implements ChatService {
         Reaction newReaction = reactionRepository.save(reaction);
 
         return messageMapper.toDTO(messageRepository.save(message), newReaction.getReactions());
+    }
+
+
+    private MessageDTO toDTO(Message message, String username) {
+        Reaction reaction = reactionRepository.findByAuthorLoginAndMessage(username, message)
+                .orElse(new Reaction());
+
+        MessageDTO dto = messageMapper.toDTO(message, reaction.getReactions());
+
+        dto.setReplies(message.getReplies()
+                .stream().map(reply -> toDTO(reply, username)).toList());
+
+        return dto;
     }
 }
