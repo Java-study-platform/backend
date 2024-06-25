@@ -105,7 +105,7 @@ public class ChatServiceImpl implements ChatService {
 
         Reaction newReaction = reactionRepository.save(reaction);
 
-        return messageMapper.toDTO(messageRepository.save(message), newReaction.getReactions());
+        return toDTO(messageRepository.save(message), authorLogin);
     }
 
     @Override
@@ -137,7 +137,7 @@ public class ChatServiceImpl implements ChatService {
 
         Reaction newReaction = reactionRepository.save(reaction);
 
-        return messageMapper.toDTO(messageRepository.save(message), newReaction.getReactions());
+        return toDTO(messageRepository.save(message), authorLogin);
     }
 
 
