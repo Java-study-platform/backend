@@ -25,7 +25,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -73,18 +72,12 @@ public class ChatServiceImpl implements ChatService {
         Chat chat = chatRepository.findById(id)
                 .orElseThrow(() -> new ChatNotFoundException(id));
         List<Message> messages = messageRepository.findByChatAndParentMessageIsNull(chat);
-        List<MessageDTO> dtos = new ArrayList<>();
-        for (Message message : messages) {
-            MessageDTO dto = messageMapper.toDTO(message);
-            for (Message reply : message.getReplies()){
-                Reaction reaction = reactionRepository.findByAuthorLoginAndMessage(user.getClaim(USERNAME_CLAIM), message)
-                        .orElse(new Reaction());
-                dto.getReplies().add(messageMapper.toDTO(reply, reaction.getReactions()));
-            }
-            dtos.add(dto);
-        }
+        return messages.stream().map(message -> {
+            Reaction reaction = reactionRepository.findByAuthorLoginAndMessage(user.getClaim(USERNAME_CLAIM), message)
+                    .orElse(new Reaction());
 
-        return dtos;
+            return messageMapper.toDTO(message, reaction.getReactions());
+        }).toList();
     }
 
     @Override
