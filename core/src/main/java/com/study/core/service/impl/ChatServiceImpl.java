@@ -72,19 +72,8 @@ public class ChatServiceImpl implements ChatService {
         Chat chat = chatRepository.findById(id)
                 .orElseThrow(() -> new ChatNotFoundException(id));
         List<Message> messages = messageRepository.findByChatAndParentMessageIsNull(chat);
-        List<MessageDTO> dto = messages.stream().map(message -> toDTO(message, user.getClaim(USERNAME_CLAIM))).toList();
 
-        log.info(dto.toString());
-        for (MessageDTO mess :dto){
-            for (MessageDTO reply: mess.getReplies()) {
-                log.info("reply: "+ reply.toString());
-                if (reply.getCurrentUserReactions() != null) {
-                    log.info("id: " + reply.getId() + " curReactions: " + reply.getCurrentUserReactions().toString());
-                }
-            }
-        }
-
-        return dto;
+        return messages.stream().map(message -> toDTO(message, user.getClaim(USERNAME_CLAIM))).toList();
     }
 
     @Override
