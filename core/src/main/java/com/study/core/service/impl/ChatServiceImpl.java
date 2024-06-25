@@ -83,7 +83,9 @@ public class ChatServiceImpl implements ChatService {
         for (MessageDTO mess :dto){
             for (MessageDTO reply: mess.getReplies()) {
                 log.info("reply: "+ reply.toString());
-                log.info("id: " + reply.getId() + " curReactions: " + reply.getCurrentUserReactions().toString());
+                if (reply.getCurrentUserReactions() != null) {
+                    log.info("id: " + reply.getId() + " curReactions: " + reply.getCurrentUserReactions().toString());
+                }
             }
         }
 
