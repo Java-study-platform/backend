@@ -4,6 +4,7 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.ExecCreateCmdResponse;
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.exception.DockerException;
 import com.github.dockerjava.api.model.Frame;
 import com.study.common.DTO.TestCaseDto;
@@ -171,10 +172,10 @@ public class TestExecutorService {
                 log.error(e.getMessage());
                 throw new RuntimeException(e);
             } catch (InterruptedException | TimeLimitException e) {
-                dockerClient.stopContainerCmd(containerId).exec();
-                dockerClient.removeContainerCmd(containerId).exec();
+                stopContainer(containerId);
                 testEntity.setTestOutput("Time limit");
                 testEntity.setStatus(Status.TIME_LIMIT);
+                log.info("Тесту поставлен тайм лимит");
                 saveTest(testEntity, solution);
                 sendWebSocketMessage(testMapper.toDTO(testEntity), solution.getId());
                 throw new TimeLimitException();
@@ -183,9 +184,7 @@ public class TestExecutorService {
             String errorText = errorResult.toString();
             log.info(errorText);
             if (!errorText.equals("null") && !errorText.isEmpty()) {
-                dockerClient.stopContainerCmd(containerId).exec();
-                dockerClient.removeContainerCmd(containerId).exec();
-
+                stopContainer(containerId);
                 testEntity.setStatus(Status.RUNTIME_ERROR);
                 saveTest(testEntity, solution);
                 sendWebSocketMessage(testMapper.toDTO(testEntity), solution.getId());
@@ -217,8 +216,7 @@ public class TestExecutorService {
             }
 
             if (testEntity.getStatus() == Status.PENDING) {
-                dockerClient.stopContainerCmd(containerId).exec();
-                dockerClient.removeContainerCmd(containerId).exec();
+                stopContainer(containerId);
                 testEntity.setStatus(Status.TIME_LIMIT);
                 testEntity.setTestOutput("Time limit");
                 saveTest(testEntity, solution);
@@ -231,8 +229,7 @@ public class TestExecutorService {
             sendWebSocketMessage(testMapper.toDTO(testEntity), solution.getId());
         }
 
-        dockerClient.stopContainerCmd(containerId).exec();
-        dockerClient.removeContainerCmd(containerId).exec();
+        stopContainer(containerId);
 
         try (Stream<Path> paths = Files.walk(path)) {
             paths.filter(Files::isRegularFile)
@@ -271,12 +268,6 @@ public class TestExecutorService {
         saveTest(testEntity, solution);
     }
 
-    private void saveTestOnTimeLimit(Test testEntity, Solution solution) {
-
-
-        saveTest(testEntity, solution);
-    }
-
     private void saveTest(Test testEntity, Solution solution) {
         try {
             int rowsAffected = jdbcTemplate.update(
@@ -300,5 +291,14 @@ public class TestExecutorService {
             log.error(e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private void stopContainer(String containerId){
+        InspectContainerResponse inspectContainerResponse = dockerClient.inspectContainerCmd(containerId).exec();
+        if (inspectContainerResponse != null && inspectContainerResponse.getState().getRunning()) {
+            dockerClient.stopContainerCmd(containerId).exec();
+        }
+
+        dockerClient.removeContainerCmd(containerId).exec();
     }
 }
