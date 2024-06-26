@@ -211,6 +211,7 @@ public class TestExecutorService {
                     solution.setStatus(Status.WRONG_ANSWER);
                     solution.setTestIndex(test.getIndex());
                     saveTest(testEntity, solution);
+                    sendWebSocketMessage(testMapper.toDTO(testEntity), solution.getId());
                     break;
                 }
             }
@@ -297,7 +298,8 @@ public class TestExecutorService {
 
     private void stopContainer(String containerId){
         InspectContainerResponse inspectContainerResponse = dockerClient.inspectContainerCmd(containerId).exec();
-        if (inspectContainerResponse != null && inspectContainerResponse.getState().getRunning()) {
+        if (inspectContainerResponse != null && inspectContainerResponse.getState() != null
+                && inspectContainerResponse.getState().getRunning()) {
             dockerClient.stopContainerCmd(containerId).exec();
         }
 
