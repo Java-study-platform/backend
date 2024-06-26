@@ -175,6 +175,7 @@ public class TestExecutorService {
                 testEntity.setTestOutput("Time limit");
                 testEntity.setStatus(Status.TIME_LIMIT);
                 saveTest(testEntity, solution);
+                sendWebSocketMessage(testMapper.toDTO(testEntity), solution.getId());
                 throw new TimeLimitException();
             }
 
@@ -185,6 +186,7 @@ public class TestExecutorService {
 
                 testEntity.setStatus(Status.RUNTIME_ERROR);
                 saveTest(testEntity, solution);
+                sendWebSocketMessage(testMapper.toDTO(testEntity), solution.getId());
                 throw new CodeRuntimeException(errorResult.toString());
             }
 
