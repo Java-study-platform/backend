@@ -124,6 +124,7 @@ public class SolutionServiceImpl implements SolutionService {
         if (containsMaliciousWords(code, maliciousWords)) {
             solution.setStatus(Status.MALICIOUS_CODE);
             solutionRepository.save(solution);
+            sendWebSocketMessage(solutionMapper.toDTO(solution));
         } else {
             CompletableFuture.runAsync(() -> {
                 try {
