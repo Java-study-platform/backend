@@ -164,18 +164,17 @@ public class TestExecutorService {
 
                 if (!timeFlag) {
                     log.info("Время выполнения превышено");
-                    dockerClient.stopContainerCmd(containerId).exec();
-                    dockerClient.removeContainerCmd(containerId).exec();
-                    saveTestOnTimeLimit(testEntity, solution);
                     throw new TimeLimitException();
                 }
             } catch (DockerException e) {
                 log.error(e.getMessage());
                 throw new RuntimeException(e);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException | TimeLimitException e) {
                 dockerClient.stopContainerCmd(containerId).exec();
                 dockerClient.removeContainerCmd(containerId).exec();
-                saveTestOnTimeLimit(testEntity, solution);
+                testEntity.setTestOutput("Time limit");
+                testEntity.setStatus(Status.TIME_LIMIT);
+                saveTest(testEntity, solution);
                 throw new TimeLimitException();
             }
 
@@ -258,9 +257,7 @@ public class TestExecutorService {
     }
 
     private void saveTestOnTimeLimit(Test testEntity, Solution solution) {
-        testEntity.setTestOutput("Time limit");
-        testEntity.setStatus(Status.TIME_LIMIT);
-        log.info("Попытка сохранить тест");
+
 
         saveTest(testEntity, solution);
     }
