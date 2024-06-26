@@ -216,6 +216,11 @@ public class TestExecutorService {
                 }
             }
 
+            if (testEntity.getStatus() == Status.PENDING) {
+                testEntity.setStatus(Status.TIME_LIMIT);
+                testEntity.setTestOutput("Time limit");
+            }
+
             saveTest(testEntity, solution);
 
             sendWebSocketMessage(testMapper.toDTO(testEntity), solution.getId());
