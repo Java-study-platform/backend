@@ -181,6 +181,7 @@ public class TestExecutorService {
             }
 
             String errorText = errorResult.toString();
+            log.info(errorText);
             if (!errorText.equals("null") && !errorText.isEmpty()) {
                 dockerClient.stopContainerCmd(containerId).exec();
                 dockerClient.removeContainerCmd(containerId).exec();
@@ -195,6 +196,7 @@ public class TestExecutorService {
                     .replaceAll("\n\n", "\n")
                     .replaceAll(" \n", "\n").trim();
 
+            log.info(strResult);
             if (!strResult.isEmpty()) {
                 log.info("Результат теста: " + strResult);
                 testEntity.setTestOutput(strResult);
