@@ -215,7 +215,9 @@ public class TestExecutorService {
                 }
             }
 
+            log.info("Проверяю статус теста");
             if (testEntity.getStatus() == Status.PENDING) {
+                log.info("Статус теста = PENDING");
                 stopContainer(containerId);
                 testEntity.setStatus(Status.TIME_LIMIT);
                 testEntity.setTestOutput("Time limit");
