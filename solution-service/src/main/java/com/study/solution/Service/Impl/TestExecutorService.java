@@ -162,6 +162,7 @@ public class TestExecutorService {
                             }
                         }).awaitCompletion(timeLimit, TimeUnit.MILLISECONDS);
 
+                log.info("timeFlag: {}", timeFlag);
                 if (!timeFlag) {
                     log.info("Время выполнения превышено");
                     throw new TimeLimitException();
