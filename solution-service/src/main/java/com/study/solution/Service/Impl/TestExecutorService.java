@@ -217,8 +217,13 @@ public class TestExecutorService {
             }
 
             if (testEntity.getStatus() == Status.PENDING) {
+                dockerClient.stopContainerCmd(containerId).exec();
+                dockerClient.removeContainerCmd(containerId).exec();
                 testEntity.setStatus(Status.TIME_LIMIT);
                 testEntity.setTestOutput("Time limit");
+                saveTest(testEntity, solution);
+                sendWebSocketMessage(testMapper.toDTO(testEntity), solution.getId());
+                throw new TimeLimitException();
             }
 
             saveTest(testEntity, solution);
